@@ -1,0 +1,175 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+   Design tokens. Components only use the semantic Tailwind colours generated
+   from these variables (bg-surface, text-muted, border-line, ...), so the dark
+   theme is a pure token swap.
+   --------------------------------------------------------------------------- */
+:root {
+  color-scheme: light;
+  --canvas: #f6f7f7;
+  --surface: #ffffff;
+  --subtle: #eff1f1;
+  --line: #e1e5e4;
+  --line-strong: #c5cccb;
+  --fg: #131918;
+  --muted: #55605f;
+  --faint: #667170;
+  --accent: #0f766e;
+  --accent-hover: #0b5f59;
+  --accent-fg: #ffffff;
+  --accent-soft: #e3f3f0;
+  --accent-ink: #0a5b55;
+  --danger: #b42318;
+  --danger-hover: #912018;
+  --danger-fg: #ffffff;
+  --danger-soft: #fdecea;
+  --danger-ink: #9a1c13;
+  --warning-soft: #fcf1d6;
+  --warning-ink: #7a4d00;
+  --success-soft: #e4f5ea;
+  --success-ink: #17663d;
+  --overlay: rgb(15 23 22 / 0.45);
+  --shadow-color: 180 12% 12%;
+}
+
+.dark {
+  color-scheme: dark;
+  --canvas: #0b0e0e;
+  --surface: #131717;
+  --subtle: #1a1f1f;
+  --line: #252b2b;
+  --line-strong: #3a4342;
+  --fg: #e8edec;
+  --muted: #a5b0af;
+  --faint: #8d9998;
+  --accent: #2dd4bf;
+  --accent-hover: #5eead4;
+  --accent-fg: #03201c;
+  --accent-soft: #0e2b28;
+  --accent-ink: #5eead4;
+  --danger: #f97066;
+  --danger-hover: #fda29b;
+  --danger-fg: #2b0906;
+  --danger-soft: #34130f;
+  --danger-ink: #fda29b;
+  --warning-soft: #2e2509;
+  --warning-ink: #f5c451;
+  --success-soft: #0f2a1a;
+  --success-ink: #6ee7a0;
+  --overlay: rgb(0 0 0 / 0.6);
+  --shadow-color: 180 30% 2%;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-subtle: var(--subtle);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-danger: var(--danger);
+  --color-danger-hover: var(--danger-hover);
+  --color-danger-fg: var(--danger-fg);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-ink: var(--danger-ink);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-ink: var(--warning-ink);
+  --color-success-soft: var(--success-soft);
+  --color-success-ink: var(--success-ink);
+  --color-overlay: var(--overlay);
+
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans',
+    sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  --shadow-card: 0 1px 2px hsl(var(--shadow-color) / 0.06);
+  --shadow-pop: 0 12px 32px -8px hsl(var(--shadow-color) / 0.28), 0 2px 6px hsl(var(--shadow-color) / 0.1);
+
+  --animate-toast-in: toast-in 180ms ease-out;
+  --animate-fade-in: fade-in 140ms ease-out;
+  --animate-flow: flow-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes flow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 0%, transparent);
+  }
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    background-color: var(--canvas);
+    color: var(--fg);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-wrap: anywhere;
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background-color: color-mix(in srgb, var(--accent) 28%, transparent);
+  }
+  button,
+  [role='button'],
+  summary {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  code,
+  pre,
+  kbd {
+    font-family: var(--font-mono);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

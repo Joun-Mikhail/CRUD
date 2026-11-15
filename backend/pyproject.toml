@@ -1,0 +1,57 @@
+[project]
+name = "serverless-notes-backend"
+version = "1.0.0"
+description = "Serverless Notes - secure serverless CRUD API with authentication (AWS Lambda, Python)"
+requires-python = ">=3.13"
+# The Lambda runtime already ships boto3, so the deployed package has no
+# third-party dependencies. boto3 is listed for local development and tests.
+dependencies = ["boto3>=1.35"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "moto[dynamodb]>=5.0.20",
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "pip-audit>=2.7",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "."]
+addopts = "-ra --strict-markers"
+
+[tool.coverage.run]
+source = ["src/notes_api"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 85
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+src = ["src", "tests", "local_demo"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "C4", "RET", "PT"]
+ignore = []
+
+[tool.ruff.lint.isort]
+known-first-party = ["notes_api", "local_demo", "tests"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106"]
+"local_demo/**" = ["S104"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+mypy_path = "src"
+files = ["src/notes_api", "local_demo"]
+
+[[tool.mypy.overrides]]
+module = ["boto3.*", "botocore.*", "moto.*"]
+ignore_missing_imports = true
