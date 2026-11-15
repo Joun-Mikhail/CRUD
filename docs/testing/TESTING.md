@@ -10,10 +10,10 @@ All results below were produced on 2026-11-15 in a Linux container (Python 3.13.
 | Backend coverage | (same) | **98.99 %** line+branch of `src/notes_api` (586 statements, 3 missed); gate 85 % | same |
 | Backend lint/format/types | `ruff check .`, `ruff format --check .`, `mypy` (strict) | no findings | `evidence/tests/backend-static-analysis.txt` |
 | Backend dependency audit | `pip-audit` | no known vulnerabilities | same |
-| Frontend unit/component tests | `cd frontend && npm test` | **63 passed** (4 files) | `evidence/tests/frontend-vitest.txt` |
+| Frontend unit/component tests | `cd frontend && npm test` | **66 passed** (4 files) | `evidence/tests/frontend-vitest.txt` |
 | Frontend lint/types | `npm run lint`, `npm run typecheck` | no findings | `evidence/tests/frontend-static-analysis.txt` |
 | Frontend dependency audit | `npm audit --omit=dev` | 0 vulnerabilities | same |
-| Browser end-to-end | `npm run test:e2e -- --trace off` | **12 passed** (Chromium, Local Demo) | `evidence/tests/frontend-e2e-playwright.txt` |
+| Browser end-to-end | `npm run test:e2e -- --trace off` | **14 passed** (Chromium, Local Demo), including the axe accessibility audit | `evidence/tests/frontend-e2e-playwright.txt` |
 | Production build | `npm run build` | passes; JS 131.9 kB gzip | `evidence/builds/frontend-build.txt` |
 | Production build smoke | built app served by `vite preview`, driven by Playwright through 6 pages | no console/CSP errors | (manual run, not stored) |
 | Infrastructure | `cfn-lint`, `sam validate --lint`, `sam build` | no findings; valid; build succeeded | `evidence/builds/infrastructure-validation.txt` |
@@ -81,9 +81,9 @@ User B cannot GET/PUT/DELETE user A's note (403, no content or owner in the body
 
 ### Frontend
 
-Unit/component (63): API client (auth header, envelope parsing, network failure, 401 refresh-and-retry, session expiry, explorer mode never exposing credentials), PKCE RFC 7636 test vector, config validation, Cognito sign-up error mapping, token exchange, state mismatch, tokens never in storage, refresh, demo identities, sign-in routing, registration form (policy, mismatch, verification, resend path), dashboard (loading/empty/data/error+retry/partial data), notes list (delete dialog focus and confirmation, failed delete, load more, search scope), editor (validation, create, version on save, Ctrl+S, 409, server field errors, 403/404, 500 with request id), settings, architecture explorer, 404.
+Unit/component (66): API client (auth header, envelope parsing, network failure, 401 refresh-and-retry, session expiry, explorer mode never exposing credentials), PKCE RFC 7636 test vector, config validation, Cognito sign-up error mapping, token exchange, state mismatch, tokens never in storage, refresh, demo identities, sign-in routing, registration form (policy, mismatch, verification, resend path), password reset (request, policy check, expired code, completion), dashboard (loading/empty/data/error+retry/partial data), notes list (delete dialog focus and confirmation, failed delete, load more, search scope), editor (validation, create, version on save, Ctrl+S, 409, server field errors, 403/404, 500 with request id), settings, architecture explorer, 404.
 
-End-to-end (12, real browser → Vite → Local Demo backend): demo labelling and protected-route redirect with return-to; create → open → edit → reload (persistence) → delete; validation; user isolation including identity switch; pagination with 23 notes; unsaved-changes guard; API explorer 200 and 401; architecture explorer by keyboard; no horizontal overflow at 375/768/1280/1920 px on six pages plus mobile navigation.
+End-to-end (14, real browser → Vite → Local Demo backend): demo labelling and protected-route redirect with return-to; create → open → edit → reload (persistence) → delete; validation; user isolation including identity switch; pagination with 23 notes; unsaved-changes guard; API explorer 200 and 401; architecture explorer by keyboard; no horizontal overflow at 375/768/1280/1920 px on six pages plus mobile navigation; **automated accessibility audit** (`tests/e2e/accessibility.spec.ts`, axe-core, WCAG 2.0/2.1/2.2 A and AA rule sets) in light and dark theme on sign-in, dashboard, notes list and cards, delete dialog, editor (also with a validation error), architecture explorer, API explorer, settings and the mobile navigation drawer — zero violations. The audit found and led to one fix: the account button's accessible name did not contain its visible text.
 
 Screenshots (`npm run screenshots`) are in `evidence/screenshots/` and were reviewed by eye once.
 
@@ -117,12 +117,12 @@ Test data: every backend test creates a fresh in-memory table (fixture `table` i
 | I | Restart: notes persist in AWS mode | — | AWS | notes still there | — | **Not run** (Local Demo is in-memory by design) | — |
 | J | Production build | `npm run build` | local | no TS errors | passes | **Pass** | `evidence/builds/frontend-build.txt` |
 | K | Infrastructure validation | cfn-lint, sam validate, sam build | local | valid | valid | **Pass** | `evidence/builds/infrastructure-validation.txt` |
-| L | Automated tests run | pytest, vitest, Playwright | local | pass | 166 + 63 + 12 passed | **Pass** | `evidence/tests/` |
+| L | Automated tests run | pytest, vitest, Playwright | local | pass | 166 + 66 + 14 passed | **Pass** | `evidence/tests/` |
 
 ## Not verified
 
 - Anything on real AWS: deployment, Cognito e-mail delivery and hosted login, API Gateway token validation and gateway responses (in particular which status the authorizer returns for an insufficient scope, and that an unknown route maps to 404), IAM policies, alarms, CloudWatch log output, CORS preflight from the browser, throttling (429).
 - `scripts/testing/live_api_tests.py`, `scripts/deployment/*.sh|py`, `scripts/cleanup/destroy.sh` and `.github/workflows/deploy.yml` have never been executed (syntax-checked only).
 - AWS-mode UI in a real browser (only component tests with mocked Cognito).
-- Browsers other than Chromium; screen readers; automated WCAG audit (axe) — accessibility was implemented and spot-checked through roles/labels in tests, not formally audited.
+- Browsers other than Chromium; manual screen-reader testing. The axe audit passes, but automated rules cover only part of WCAG; no manual accessibility review was done. The AWS-mode sign-in, registration and password-reset screens are not in the axe run (they need AWS-mode configuration).
 - Performance on AWS (see `docs/performance/PERFORMANCE.md`).

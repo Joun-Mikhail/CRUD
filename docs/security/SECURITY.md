@@ -30,7 +30,7 @@ Assets: note contents; user accounts; the AWS account (cost).
 | T14 | Cost exhaustion / abuse | Stage throttling 10 req/s (burst 20) → 429; 128 KiB body limit; on-demand billing with alarms | `MethodSettings`, `config.py` |
 | T15 | Over-privileged functions | One IAM action per function, scoped to the table or index ARN; no wildcards | `template.yaml` `Policies` |
 | T16 | Cross-origin abuse | CORS allows one configured origin; no credentials/cookies are used at all | `Cors`, `CORS_ALLOW_ORIGIN` |
-| T17 | Account enumeration | `PreventUserExistenceErrors: ENABLED` on the app client (sign-in). Sign-**up** still reveals that an e-mail is registered — inherent to Cognito self-registration | `WebClient` |
+| T17 | Account enumeration | `PreventUserExistenceErrors: ENABLED` on the app client (sign-in and password reset; the reset screen shows the same message whether or not the address is registered). Sign-**up** still reveals that an e-mail is registered — inherent to Cognito self-registration | `WebClient` |
 | T18 | Leaked long-lived cloud credentials | CI deploys with GitHub OIDC short-lived roles; no keys in the repo; `.env.aws` holds identifiers only | `deploy.yml` |
 
 ## Authentication: Cognito and JWT

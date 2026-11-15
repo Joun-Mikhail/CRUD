@@ -8,7 +8,7 @@ React 19 + TypeScript (strict) + Vite + Tailwind CSS 4. No UI framework, no stat
 |---|---|---|
 | Config file | `.env.demo` (committed) | `.env.aws` (git-ignored; `make frontend-env` or copy `.env.aws.example`) |
 | Backend | `backend/local_demo/server.py` on :8787 — real handlers, in-memory DynamoDB | deployed API Gateway |
-| Sign-in | pick a simulated identity (Alice/Bob/Carol) — no password, no token | Cognito: in-app sign-up + e-mail verification; sign-in on the hosted page with Authorization Code + PKCE |
+| Sign-in | pick a simulated identity (Alice/Bob/Carol) — no password, no token | Cognito: in-app sign-up, e-mail verification and password reset; sign-in on the hosted page with Authorization Code + PKCE |
 | Indicator | yellow banner + "Local Demo" badge | "AWS" badge |
 
 The mode is fixed at build time by `VITE_APP_MODE`. A missing or incomplete configuration shows a configuration-error screen; the app never falls back to another mode, and never invents data when the backend is unreachable.
@@ -36,13 +36,13 @@ src/
     apiClient.ts            one request function: auth header, JSON, typed ApiError, 401 recovery, timing
     notesApi.ts             the five endpoints
     auth/                   AuthService interface; demoAuth.ts; cognitoAuth.ts (PKCE, in-memory tokens, refresh)
-    cognito/                idp.ts (SignUp/ConfirmSignUp), oauth.ts (authorize/token/revoke/logout)
+    cognito/                idp.ts (SignUp, ConfirmSignUp, ForgotPassword, ConfirmForgotPassword), oauth.ts (authorize/token/revoke/logout)
   components/ui/            Button, Field, Dialog (focus trap), Card, Badge, Skeleton, Empty/Error states, toasts
   components/providers/     configuration, theme, toasts, auth, notes state
   layouts/                  AppLayout (sidebar / mobile drawer / top bar), RequireAuth
   pages/                    Auth, Dashboard, Notes, NoteEditor, Architecture, ApiExplorer, Settings
   utils/                    pkce, jwt (display only), validation mirror, formatting
-tests/e2e/                  Playwright journeys + screenshot capture
+tests/e2e/                  Playwright journeys, axe accessibility audit, screenshot capture
 csp.ts                      builds the Content-Security-Policy injected into index.html
 ```
 
@@ -56,4 +56,4 @@ csp.ts                      builds the Content-Security-Policy injected into ind
 
 ## Verification
 
-63 unit/component tests and 12 browser tests pass against the Local Demo; the production build was smoke-tested under its CSP. **AWS mode has only been tested with a mocked Cognito** — the first real sign-in against a deployed stack is still to be done.
+66 unit/component tests and 14 browser tests (including an axe accessibility audit in both themes) pass against the Local Demo; the production build was smoke-tested under its CSP. **AWS mode has only been tested with a mocked Cognito** — the first real sign-in against a deployed stack is still to be done.

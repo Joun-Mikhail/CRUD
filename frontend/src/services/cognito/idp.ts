@@ -39,7 +39,7 @@ const FRIENDLY: Record<string, string> = {
 }
 
 export function friendlyCognitoMessage(type: string): string {
-  return FRIENDLY[type] ?? `Registration failed (${type}). Please try again.`
+  return FRIENDLY[type] ?? `The request failed (${type}). Please try again.`
 }
 
 export interface SignUpResult {
@@ -52,6 +52,9 @@ export interface CognitoIdp {
   signUp(email: string, password: string): Promise<SignUpResult>
   confirmSignUp(email: string, code: string): Promise<void>
   resendConfirmationCode(email: string): Promise<{ codeDestination: string | null }>
+  /** Starts a password reset: Cognito e-mails a code (if the account exists and is verified). */
+  forgotPassword(email: string): Promise<{ codeDestination: string | null }>
+  confirmForgotPassword(email: string, code: string, newPassword: string): Promise<void>
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -126,6 +129,21 @@ export function createCognitoIdp(deps: {
         Username: email.trim().toLowerCase(),
       })
       return { codeDestination: destinationOf(body) }
+    },
+    async forgotPassword(email) {
+      const body = await call('ForgotPassword', {
+        ClientId: deps.clientId,
+        Username: email.trim().toLowerCase(),
+      })
+      return { codeDestination: destinationOf(body) }
+    },
+    async confirmForgotPassword(email, code, newPassword) {
+      await call('ConfirmForgotPassword', {
+        ClientId: deps.clientId,
+        Username: email.trim().toLowerCase(),
+        ConfirmationCode: code.trim(),
+        Password: newPassword,
+      })
     },
   }
 }
