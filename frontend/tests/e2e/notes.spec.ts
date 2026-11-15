@@ -120,7 +120,7 @@ test('API explorer shows real status codes and durations', async ({ page }) => {
   await expect(page.getByTestId('exchange-status')).toHaveText('401')
   await expect(page.getByLabel('Response body')).toContainText('UNAUTHORIZED')
   // A demonstrated 401 must not sign the user out.
-  await expect(page.getByRole('button', { name: /Account menu for Alice/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Alice account menu' })).toBeVisible()
 })
 
 test('architecture explorer works with the keyboard', async ({ page }) => {

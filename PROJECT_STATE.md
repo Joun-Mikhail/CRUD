@@ -15,7 +15,7 @@ Phase 12 (delivery) complete for everything that can be done without AWS. Phases
 | Local Demo | `backend/local_demo/server.py` (real handlers + moto) |
 | Infrastructure | `infrastructure/template.yaml` — passes cfn-lint, `sam validate --lint`, `sam build` |
 | Frontend | auth (demo + Cognito PKCE), dashboard, notes, editor, architecture explorer, API explorer, settings |
-| Tests | backend 166 passed (98.99 % coverage); frontend 63 passed; Playwright 12 passed |
+| Tests | backend 166 passed (98.99 % coverage); frontend 66 passed; Playwright 14 passed (incl. axe accessibility audit, zero violations) |
 | Static checks | ruff, mypy strict, eslint, tsc, pip-audit, npm audit — clean |
 | CI | `.github/workflows/ci.yml` green on PR #1 (4 jobs) |
 | Docs | README, START_HERE, architecture, API + OpenAPI, database, security, testing, deployment, troubleshooting, performance, cost, decisions, 12 lessons, supervisor questions, traceability, completion report |
@@ -42,10 +42,10 @@ None open. Fixed during the build: logger bound to the wrong stdout stream; Loca
 
 ## Known gaps (not bugs)
 
-- No password-reset or account-deletion screens in the app.
+- No account-deletion screen in the app (password reset was added).
 - Frontend hosting (S3 + CloudFront) not included.
 - Per-user rate limiting, MFA, WAF not included.
-- No automated accessibility audit; Chromium only.
+- Chromium only; no manual screen-reader review (the automated axe audit passes).
 - Expired-token and wrong-issuer cases are not automated even in the live script.
 
 ## Environment limitations of the build session
