@@ -1,0 +1,5 @@
+# cfn-lint + sam validate --lint + sam build (2026-11-15T09:56Z; SAM CLI, version 1.172.1; cfn-lint 1.58.0)
+cfn-lint: no findings
+/home/user/CRUD/infrastructure/template.yaml is a valid SAM Template
+Building codeuri: /home/user/CRUD/backend/src runtime: python3.13 architecture: arm64 functions: CreateNoteFunction, ListNotesFunction, GetNoteFunction, UpdateNoteFunction, DeleteNoteFunction
+Build Succeeded

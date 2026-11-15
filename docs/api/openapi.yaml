@@ -1,0 +1,265 @@
+openapi: 3.0.3
+info:
+  title: Serverless Notes API
+  version: 1.0.0
+  description: >
+    Secure serverless CRUD API for personal notes (AWS Lambda, API Gateway, DynamoDB, Cognito).
+    Human-readable reference: docs/api/API.md.
+servers:
+  - url: https://{apiId}.execute-api.eu-central-1.amazonaws.com/{stage}
+    description: AWS
+    variables:
+      apiId: { default: example }
+      stage: { default: dev }
+  - url: http://127.0.0.1:8787
+    description: "Local Demo (simulated authentication; send the header Authorization = Demo alice)"
+security:
+  - cognito: []
+tags:
+  - name: notes
+paths:
+  /notes:
+    post:
+      tags: [notes]
+      operationId: createNote
+      summary: Create a note owned by the caller
+      security: [{ cognito: [notes/write] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NoteInput" }
+            example: { title: My first note, content: Learning serverless architecture }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/NoteResponse" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "413": { $ref: "#/components/responses/PayloadTooLarge" }
+        "415": { $ref: "#/components/responses/UnsupportedMediaType" }
+        "429": { $ref: "#/components/responses/Throttled" }
+        "500": { $ref: "#/components/responses/InternalError" }
+        "503": { $ref: "#/components/responses/ServiceUnavailable" }
+    get:
+      tags: [notes]
+      operationId: listNotes
+      summary: List the caller's notes, newest first
+      security: [{ cognito: [notes/read] }]
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+        - name: nextToken
+          in: query
+          description: Opaque cursor from meta.nextToken of the previous page
+          schema: { type: string, maxLength: 512 }
+      responses:
+        "200":
+          description: One page of notes
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/NoteListResponse" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "429": { $ref: "#/components/responses/Throttled" }
+        "500": { $ref: "#/components/responses/InternalError" }
+        "503": { $ref: "#/components/responses/ServiceUnavailable" }
+  /notes/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [notes]
+      operationId: getNote
+      summary: Read one note owned by the caller
+      security: [{ cognito: [notes/read] }]
+      responses:
+        "200":
+          description: The note
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/NoteResponse" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/Throttled" }
+        "500": { $ref: "#/components/responses/InternalError" }
+        "503": { $ref: "#/components/responses/ServiceUnavailable" }
+    put:
+      tags: [notes]
+      operationId: updateNote
+      summary: Replace title and content of a note owned by the caller
+      security: [{ cognito: [notes/write] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NoteUpdateInput" }
+      responses:
+        "200":
+          description: The updated note
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/NoteResponse" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "413": { $ref: "#/components/responses/PayloadTooLarge" }
+        "415": { $ref: "#/components/responses/UnsupportedMediaType" }
+        "429": { $ref: "#/components/responses/Throttled" }
+        "500": { $ref: "#/components/responses/InternalError" }
+        "503": { $ref: "#/components/responses/ServiceUnavailable" }
+    delete:
+      tags: [notes]
+      operationId: deleteNote
+      summary: Delete a note owned by the caller
+      security: [{ cognito: [notes/write] }]
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DeleteResponse" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/Throttled" }
+        "500": { $ref: "#/components/responses/InternalError" }
+        "503": { $ref: "#/components/responses/ServiceUnavailable" }
+components:
+  securitySchemes:
+    cognito:
+      type: oauth2
+      description: Amazon Cognito user pool. Send the ACCESS token as "Authorization Bearer".
+      flows:
+        authorizationCode:
+          authorizationUrl: https://example.auth.eu-central-1.amazoncognito.com/oauth2/authorize
+          tokenUrl: https://example.auth.eu-central-1.amazoncognito.com/oauth2/token
+          scopes:
+            notes/read: Read your notes
+            notes/write: Create, update and delete your notes
+  schemas:
+    Note:
+      type: object
+      additionalProperties: false
+      required: [noteId, userId, title, content, createdAt, updatedAt, version]
+      properties:
+        noteId: { type: string, format: uuid }
+        userId: { type: string, description: Cognito sub of the owner }
+        title: { type: string, minLength: 1, maxLength: 200 }
+        content: { type: string, maxLength: 20000 }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        version: { type: integer, minimum: 1 }
+    NoteInput:
+      type: object
+      additionalProperties: false
+      required: [title, content]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 200 }
+        content: { type: string, maxLength: 20000 }
+    NoteUpdateInput:
+      type: object
+      additionalProperties: false
+      required: [title, content]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 200 }
+        content: { type: string, maxLength: 20000 }
+        version:
+          type: integer
+          minimum: 1
+          description: Version last read; a mismatch yields 409 (optimistic locking)
+    NoteResponse:
+      type: object
+      required: [data]
+      properties:
+        data: { $ref: "#/components/schemas/Note" }
+    NoteListResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: "#/components/schemas/Note" }
+        meta:
+          type: object
+          required: [count, limit, nextToken]
+          properties:
+            count: { type: integer }
+            limit: { type: integer }
+            nextToken: { type: string, nullable: true }
+    DeleteResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [noteId, deleted]
+          properties:
+            noteId: { type: string, format: uuid }
+            deleted: { type: boolean, enum: [true] }
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, requestId]
+          properties:
+            code:
+              type: string
+              enum: [VALIDATION_ERROR, MALFORMED_JSON, INVALID_CURSOR, BAD_REQUEST, UNAUTHORIZED,
+                     FORBIDDEN, NOT_FOUND, METHOD_NOT_ALLOWED, VERSION_CONFLICT, PAYLOAD_TOO_LARGE,
+                     UNSUPPORTED_MEDIA_TYPE, THROTTLED, INTERNAL_ERROR, SERVICE_UNAVAILABLE]
+            message: { type: string }
+            requestId: { type: string }
+            details:
+              type: array
+              items:
+                type: object
+                required: [field, issue]
+                properties:
+                  field: { type: string }
+                  issue: { type: string }
+  responses:
+    BadRequest:
+      description: Invalid input (validation error, malformed JSON, invalid cursor)
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    Unauthorized:
+      description: Missing or invalid access token
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    Forbidden:
+      description: The note belongs to another user, or the token lacks the required scope
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    NotFound:
+      description: No such note
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    Conflict:
+      description: The note was modified since the supplied version
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    PayloadTooLarge:
+      description: Request body too large
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    UnsupportedMediaType:
+      description: Content-Type is not application/json
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    Throttled:
+      description: Rate limit exceeded
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    InternalError:
+      description: Unexpected error
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    ServiceUnavailable:
+      description: A dependency failed; retry later
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
