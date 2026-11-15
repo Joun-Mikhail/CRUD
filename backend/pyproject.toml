@@ -39,6 +39,9 @@ src = ["src", "tests", "local_demo"]
 select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "C4", "RET", "PT"]
 ignore = []
 
+[tool.ruff.lint.isort]
+known-first-party = ["notes_api", "local_demo", "tests"]
+
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "S105", "S106"]
 "local_demo/**" = ["S104"]
