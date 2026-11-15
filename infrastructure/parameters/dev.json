@@ -1,0 +1,12 @@
+{
+  "Stage": "dev",
+  "AllowedOrigin": "http://localhost:5173",
+  "CallbackUrls": "http://localhost:5173/auth/callback",
+  "LogoutUrls": "http://localhost:5173/",
+  "LogRetentionDays": "14",
+  "LogLevel": "INFO",
+  "ThrottlingRateLimit": "10",
+  "ThrottlingBurstLimit": "20",
+  "EnableApiAccessLogs": "false",
+  "EnableScopeTestClient": "true"
+}

@@ -1,0 +1,94 @@
+# vitest run (2026-11-15T09:56Z)
+ RUN  v5.1.0 /home/user/CRUD/frontend
+ ✓ src/services/apiClient.test.ts > api client > sends the Authorization header and JSON body, and unwraps data 8ms
+ ✓ src/services/apiClient.test.ts > api client > builds list queries and returns pagination metadata 1ms
+ ✓ src/services/apiClient.test.ts > api client > parses the error envelope into a typed ApiError 3ms
+ ✓ src/services/apiClient.test.ts > api client > maps non-envelope error bodies (e.g. API Gateway defaults) to a fallback code 1ms
+ ✓ src/services/apiClient.test.ts > api client > reports network failures without inventing a response 2ms
+ ✓ src/services/apiClient.test.ts > api client > after a 401 refreshes once and retries with the new credential 2ms
+ ✓ src/services/apiClient.test.ts > api client > expires the session when a 401 cannot be recovered 1ms
+ ✓ src/services/apiClient.test.ts > api client > explorer mode: can omit credentials, never exposes them, and measures duration 3ms
+ ✓ src/services/apiClient.test.ts > api client > sends a raw body verbatim 1ms
+ ✓ src/services/auth/auth.test.ts > CognitoAuthService (Authorization Code + PKCE) > builds a correct authorize redirect 6ms
+ ✓ src/services/auth/auth.test.ts > CognitoAuthService (Authorization Code + PKCE) > exchanges the code with the PKCE verifier and signs the user in 6ms
+ ✓ src/services/auth/auth.test.ts > CognitoAuthService (Authorization Code + PKCE) > never writes tokens to browser storage and never renders them 2ms
+ ✓ src/services/auth/auth.test.ts > CognitoAuthService (Authorization Code + PKCE) > rejects a callback whose state does not match (CSRF protection) 2ms
+ ✓ src/services/auth/auth.test.ts > CognitoAuthService (Authorization Code + PKCE) > rejects callbacks without a pending request and surfaces provider errors 1ms
+ ✓ src/services/auth/auth.test.ts > CognitoAuthService (Authorization Code + PKCE) > refreshes after a 401 using the in-memory refresh token 2ms
+ ✓ src/services/auth/auth.test.ts > CognitoAuthService (Authorization Code + PKCE) > expires the session when refreshing fails 3ms
+ ✓ src/services/auth/auth.test.ts > CognitoAuthService (Authorization Code + PKCE) > only accepts same-origin return paths 0ms
+ ✓ src/services/auth/auth.test.ts > Cognito sign-up API > calls SignUp with the public client id 1ms
+ ✓ src/services/auth/auth.test.ts > Cognito sign-up API > maps UsernameExistsException to a friendly message 1ms
+ ✓ src/services/auth/auth.test.ts > Cognito sign-up API > maps CodeMismatchException to a friendly message 1ms
+ ✓ src/services/auth/auth.test.ts > Cognito sign-up API > maps ExpiredCodeException to a friendly message 1ms
+ ✓ src/services/auth/auth.test.ts > Cognito sign-up API > maps LimitExceededException to a friendly message 0ms
+ ✓ src/services/auth/auth.test.ts > DemoAuthService > signs in, switches and signs out demo identities 1ms
+ ✓ src/services/auth/auth.test.ts > DemoAuthService > ignores unknown stored identities 0ms
+ ✓ src/pages/pages.test.tsx > authentication routing > redirects signed-out visitors to the sign-in page and never calls the API 151ms
+stderr | src/pages/pages.test.tsx > authentication routing > shows the session-expired notice after the session ends
+An update to AccountMenu inside a test was not wrapped in act(...).
+When testing, code that causes React state updates should be wrapped into act(...):
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to DashboardPage inside a test was not wrapped in act(...).
+When testing, code that causes React state updates should be wrapped into act(...):
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to RequireAuth inside a test was not wrapped in act(...).
+When testing, code that causes React state updates should be wrapped into act(...):
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+ ✓ src/pages/pages.test.tsx > authentication routing > signs in with a demo identity and returns to the requested page 105ms
+ ✓ src/pages/pages.test.tsx > authentication routing > says so explicitly when the local backend is down, without offering fake data 31ms
+ ✓ src/pages/pages.test.tsx > authentication routing > shows the session-expired notice after the session ends 59ms
+ ✓ src/pages/pages.test.tsx > Cognito registration (AWS mode) > validates e-mail, password policy and confirmation before calling Cognito 243ms
+ ✓ src/pages/pages.test.tsx > Cognito registration (AWS mode) > toggles password visibility 52ms
+ ✓ src/utils/utils.test.ts > pkce > matches the RFC 7636 appendix B test vector 4ms
+ ✓ src/utils/utils.test.ts > pkce > creates url-safe, unpredictable verifiers of legal length 2ms
+ ✓ src/utils/utils.test.ts > jwt display helpers > decodes a payload for display and tolerates garbage 1ms
+ ✓ src/utils/utils.test.ts > config > accepts demo mode 1ms
+ ✓ src/utils/utils.test.ts > config > accepts a complete aws configuration and applies defaults 1ms
+ ✓ src/utils/utils.test.ts > config > reports every problem instead of falling back to another mode 1ms
+ ✓ src/utils/utils.test.ts > note validation mirrors the server > accepts valid input and trims the title for counting 1ms
+ ✓ src/utils/utils.test.ts > note validation mirrors the server > rejects empty, long and control-character titles and long content 6ms
+ ✓ src/utils/utils.test.ts > note validation mirrors the server > counts code points like Python does 1ms
+ ✓ src/utils/utils.test.ts > note validation mirrors the server > maps server issues onto fields 1ms
+ ✓ src/utils/utils.test.ts > password policy and e-mail > mirrors the Cognito policy 1ms
+ ✓ src/utils/utils.test.ts > note list helpers > filters by title or content, case-insensitively 0ms
+ ✓ src/utils/utils.test.ts > note list helpers > sorts without mutating the input 2ms
+ ✓ src/utils/utils.test.ts > note list helpers > never overstates how many notes exist 0ms
+ ✓ src/pages/pages.test.tsx > Cognito registration (AWS mode) > registers, verifies the e-mail code and continues to the hosted sign-in 411ms
+ ✓ src/pages/pages.test.tsx > dashboard > shows a loading state, then the notes summary 43ms
+ ✓ src/pages/pages.test.tsx > dashboard > is honest about partially loaded data 28ms
+ ✓ src/pages/pages.test.tsx > dashboard > shows the empty state 30ms
+ ✓ src/pages/pages.test.tsx > dashboard > shows an error with retry, and recovers 44ms
+ ✓ src/pages/pages.test.tsx > notes list > deletes a note only after confirmation in an accessible dialog 102ms
+ ✓ src/pages/pages.test.tsx > notes list > keeps the note and reports the failure when the server refuses the delete 90ms
+ ✓ src/pages/pages.test.tsx > notes list > labels search as applying to loaded notes only and loads more pages 78ms
+ ✓ src/pages/pages.test.tsx > note editor > validates on the client and does not call the API with invalid input 52ms
+ ✓ src/pages/pages.test.tsx > note editor > creates a note with a trimmed title and navigates to it 150ms
+ ✓ src/pages/pages.test.tsx > note editor > sends the version when saving and handles Ctrl+S 87ms
+ ✓ src/pages/pages.test.tsx > note editor > explains a version conflict and blocks further overwrites 109ms
+ ✓ src/pages/pages.test.tsx > note editor > shows server-side validation errors next to the field 50ms
+ ✓ src/pages/pages.test.tsx > note editor > shows a clear state for 403 without leaking content 17ms
+ ✓ src/pages/pages.test.tsx > note editor > shows a clear state for 404 without leaking content 23ms
+ ✓ src/pages/pages.test.tsx > note editor > reports unexpected save failures with the request id 48ms
+ ✓ src/pages/pages.test.tsx > other pages > settings shows account and environment without any token 36ms
+ ✓ src/pages/pages.test.tsx > other pages > architecture explorer selects components and steps through the walkthrough 59ms
+ ✓ src/pages/pages.test.tsx > other pages > unknown routes show a not-found page 13ms
+ Test Files  4 passed (4)
+      Tests  63 passed (63)
+   Start at  09:57:20
+   Duration  3.78s (environment 45%, tests 33%, setup 9%, import 9%, transform 4%)
+Environment  jsdom was created 4 times · 3.04s total, 45% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments

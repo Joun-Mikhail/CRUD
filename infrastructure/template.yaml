@@ -1,0 +1,714 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Serverless Notes - secure serverless CRUD API with authentication.
+  API Gateway (REST) + Cognito authorizer + 5 Lambda functions (Python) + DynamoDB + CloudWatch.
+
+# ---------------------------------------------------------------------------------------
+# Parameters
+# ---------------------------------------------------------------------------------------
+Parameters:
+  Stage:
+    Type: String
+    Default: dev
+    AllowedValues: [dev, test, prod]
+    Description: Deployment stage. Used in resource names and as the API Gateway stage.
+  AllowedOrigin:
+    Type: String
+    Default: http://localhost:5173
+    AllowedPattern: ^https?://[^*\s']+$
+    Description: Exact browser origin allowed by CORS (no wildcard).
+  CallbackUrls:
+    Type: CommaDelimitedList
+    Default: http://localhost:5173/auth/callback
+    Description: OAuth redirect URIs allowed for the web client.
+  LogoutUrls:
+    Type: CommaDelimitedList
+    Default: http://localhost:5173/
+    Description: Sign-out redirect URIs allowed for the web client.
+  CognitoDomainPrefix:
+    Type: String
+    Default: ""
+    AllowedPattern: ^$|^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$
+    Description: >
+      Prefix of the Cognito hosted login domain (must be unique in the region).
+      Leave empty to use "<stack name>-<account id>".
+  LogRetentionDays:
+    Type: Number
+    Default: 14
+    AllowedValues: [1, 3, 5, 7, 14, 30, 60, 90]
+    Description: CloudWatch Logs retention for all log groups.
+  LogLevel:
+    Type: String
+    Default: INFO
+    AllowedValues: [DEBUG, INFO, WARNING, ERROR]
+  ThrottlingRateLimit:
+    Type: Number
+    Default: 10
+    MinValue: 1
+    Description: Steady-state requests per second allowed for the whole API stage (429 above).
+  ThrottlingBurstLimit:
+    Type: Number
+    Default: 20
+    MinValue: 1
+    Description: Burst capacity (token bucket size) for the whole API stage.
+  AlarmEmail:
+    Type: String
+    Default: ""
+    Description: Optional e-mail address subscribed to alarm notifications (empty = no SNS topic).
+  EnableApiAccessLogs:
+    Type: String
+    Default: "false"
+    AllowedValues: ["true", "false"]
+    Description: >
+      Write API Gateway access logs to CloudWatch. "true" also sets the REGION-WIDE API Gateway
+      CloudWatch role (AWS::ApiGateway::Account), which affects every REST API in this
+      account and region - enable only in an account dedicated to this project.
+  EnableScopeTestClient:
+    Type: String
+    Default: "false"
+    AllowedValues: ["true", "false"]
+    Description: Create a second app client limited to the notes/read scope (for live authorization tests).
+
+Conditions:
+  HasCustomDomainPrefix: !Not [!Equals [!Ref CognitoDomainPrefix, ""]]
+  HasAlarmEmail: !Not [!Equals [!Ref AlarmEmail, ""]]
+  AccessLogsEnabled: !Equals [!Ref EnableApiAccessLogs, "true"]
+  ScopeTestClientEnabled: !Equals [!Ref EnableScopeTestClient, "true"]
+  IsProd: !Equals [!Ref Stage, prod]
+
+# ---------------------------------------------------------------------------------------
+# Defaults shared by all Lambda functions
+# ---------------------------------------------------------------------------------------
+Globals:
+  Function:
+    Runtime: python3.13
+    Architectures: [arm64]
+    CodeUri: ../backend/src/
+    MemorySize: 256
+    Timeout: 10
+    Environment:
+      Variables:
+        NOTES_TABLE_NAME: !Ref NotesTable
+        NOTES_USER_INDEX_NAME: byUser
+        CORS_ALLOW_ORIGIN: !Ref AllowedOrigin
+        LOG_LEVEL: !Ref LogLevel
+    Tags:
+      Project: serverless-notes
+      Stage: !Ref Stage
+
+Resources:
+  # -------------------------------------------------------------------------------------
+  # Database
+  # -------------------------------------------------------------------------------------
+  NotesTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: !If [IsProd, Retain, Delete]
+    UpdateReplacePolicy: !If [IsProd, Retain, Delete]
+    Properties:
+      TableName: !Sub ${AWS::StackName}-notes
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: noteId
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: userSortKey
+          AttributeType: S
+      KeySchema:
+        - AttributeName: noteId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: byUser
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+            - AttributeName: userSortKey
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      SSESpecification:
+        SSEEnabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: !If [IsProd, true, false]
+      Tags:
+        - Key: Project
+          Value: serverless-notes
+        - Key: Stage
+          Value: !Ref Stage
+
+  # -------------------------------------------------------------------------------------
+  # Authentication (Amazon Cognito)
+  # -------------------------------------------------------------------------------------
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub ${AWS::StackName}-users
+      UserPoolTier: LITE
+      UsernameAttributes: [email]
+      UsernameConfiguration:
+        CaseSensitive: false
+      AutoVerifiedAttributes: [email]
+      VerificationMessageTemplate:
+        DefaultEmailOption: CONFIRM_WITH_CODE
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+      MfaConfiguration: "OFF"
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 12
+          RequireLowercase: true
+          RequireUppercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+          TemporaryPasswordValidityDays: 3
+      DeletionProtection: !If [IsProd, ACTIVE, INACTIVE]
+      UserPoolTags:
+        Project: serverless-notes
+        Stage: !Ref Stage
+
+  UserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      UserPoolId: !Ref UserPool
+      ManagedLoginVersion: 1
+      Domain: !If
+        - HasCustomDomainPrefix
+        - !Ref CognitoDomainPrefix
+        - !Sub ${AWS::StackName}-${AWS::AccountId}
+
+  # Defines the OAuth scopes that appear in access tokens as "notes/read" and "notes/write".
+  NotesResourceServer:
+    Type: AWS::Cognito::UserPoolResourceServer
+    Properties:
+      UserPoolId: !Ref UserPool
+      Identifier: notes
+      Name: Serverless Notes API
+      Scopes:
+        - ScopeName: read
+          ScopeDescription: Read your notes
+        - ScopeName: write
+          ScopeDescription: Create, update and delete your notes
+
+  # Public browser client: no secret, Authorization Code flow (PKCE is supplied by the client).
+  WebClient:
+    Type: AWS::Cognito::UserPoolClient
+    DependsOn: NotesResourceServer
+    Properties:
+      ClientName: !Sub ${AWS::StackName}-web
+      UserPoolId: !Ref UserPool
+      GenerateSecret: false
+      SupportedIdentityProviders: [COGNITO]
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows: [code]
+      AllowedOAuthScopes: [openid, email, notes/read, notes/write]
+      CallbackURLs: !Ref CallbackUrls
+      LogoutURLs: !Ref LogoutUrls
+      ExplicitAuthFlows: [ALLOW_USER_SRP_AUTH, ALLOW_REFRESH_TOKEN_AUTH]
+      PreventUserExistenceErrors: ENABLED
+      EnableTokenRevocation: true
+      AccessTokenValidity: 60
+      IdTokenValidity: 60
+      RefreshTokenValidity: 1
+      TokenValidityUnits:
+        AccessToken: minutes
+        IdToken: minutes
+        RefreshToken: days
+
+  # Optional: issues tokens that can read but not write (proves scope enforcement in live tests).
+  ReadOnlyTestClient:
+    Type: AWS::Cognito::UserPoolClient
+    Condition: ScopeTestClientEnabled
+    DependsOn: NotesResourceServer
+    Properties:
+      ClientName: !Sub ${AWS::StackName}-readonly-test
+      UserPoolId: !Ref UserPool
+      GenerateSecret: false
+      SupportedIdentityProviders: [COGNITO]
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows: [code]
+      AllowedOAuthScopes: [openid, notes/read]
+      CallbackURLs: !Ref CallbackUrls
+      LogoutURLs: !Ref LogoutUrls
+      ExplicitAuthFlows: [ALLOW_USER_SRP_AUTH, ALLOW_REFRESH_TOKEN_AUTH]
+      PreventUserExistenceErrors: ENABLED
+      AccessTokenValidity: 60
+      IdTokenValidity: 60
+      RefreshTokenValidity: 1
+      TokenValidityUnits:
+        AccessToken: minutes
+        IdToken: minutes
+        RefreshToken: days
+
+  # -------------------------------------------------------------------------------------
+  # API Gateway (REST API)
+  # -------------------------------------------------------------------------------------
+  NotesApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub ${AWS::StackName}-api
+      StageName: !Ref Stage
+      OpenApiVersion: 3.0.1
+      EndpointConfiguration:
+        Type: REGIONAL
+      TracingEnabled: false
+      # Every method requires a valid Cognito *access token*; the per-route OAuth scope is
+      # set on each function event below. Preflight (OPTIONS) requests stay unauthenticated
+      # because browsers never send credentials with them.
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        AddDefaultAuthorizerToCorsPreflight: false
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt UserPool.Arn
+            Identity:
+              Header: Authorization
+      Cors:
+        AllowOrigin: !Sub "'${AllowedOrigin}'"
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowHeaders: "'Authorization,Content-Type'"
+        MaxAge: "'600'"
+      MethodSettings:
+        - ResourcePath: /*
+          HttpMethod: "*"
+          ThrottlingRateLimit: !Ref ThrottlingRateLimit
+          ThrottlingBurstLimit: !Ref ThrottlingBurstLimit
+      AccessLogSetting: !If
+        - AccessLogsEnabled
+        - DestinationArn: !GetAtt ApiAccessLogGroup.Arn
+          Format: >-
+            {"requestId":"$context.requestId","requestTime":"$context.requestTime",
+            "httpMethod":"$context.httpMethod","resourcePath":"$context.resourcePath",
+            "status":$context.status,"responseLatencyMs":$context.responseLatency,
+            "integrationLatencyMs":"$context.integrationLatency",
+            "userId":"$context.authorizer.claims.sub",
+            "errorType":"$context.error.responseType","sourceIp":"$context.identity.sourceIp"}
+        - !Ref AWS::NoValue
+      # Errors produced by API Gateway itself (before Lambda runs) use the same JSON
+      # envelope as errors produced by the Lambda functions.
+      GatewayResponses:
+        UNAUTHORIZED:
+          StatusCode: 401
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: !Sub "'${AllowedOrigin}'"
+          ResponseTemplates:
+            application/json: '{"error":{"code":"UNAUTHORIZED","message":"Authentication is required","requestId":"$context.requestId"}}'
+        ACCESS_DENIED:
+          StatusCode: 403
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: !Sub "'${AllowedOrigin}'"
+          ResponseTemplates:
+            application/json: '{"error":{"code":"FORBIDDEN","message":"Access denied","requestId":"$context.requestId"}}'
+        # API Gateway reports an unknown path or method as "missing authentication token".
+        MISSING_AUTHENTICATION_TOKEN:
+          StatusCode: 404
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: !Sub "'${AllowedOrigin}'"
+          ResponseTemplates:
+            application/json: '{"error":{"code":"NOT_FOUND","message":"No such route","requestId":"$context.requestId"}}'
+        THROTTLED:
+          StatusCode: 429
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: !Sub "'${AllowedOrigin}'"
+          ResponseTemplates:
+            application/json: '{"error":{"code":"THROTTLED","message":"Too many requests; slow down and retry","requestId":"$context.requestId"}}'
+        REQUEST_TOO_LARGE:
+          StatusCode: 413
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: !Sub "'${AllowedOrigin}'"
+          ResponseTemplates:
+            application/json: '{"error":{"code":"PAYLOAD_TOO_LARGE","message":"The request body is too large","requestId":"$context.requestId"}}'
+        DEFAULT_4XX:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: !Sub "'${AllowedOrigin}'"
+          ResponseTemplates:
+            application/json: '{"error":{"code":"BAD_REQUEST","message":"The request could not be processed","requestId":"$context.requestId"}}'
+        DEFAULT_5XX:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: !Sub "'${AllowedOrigin}'"
+          ResponseTemplates:
+            application/json: '{"error":{"code":"INTERNAL_ERROR","message":"An unexpected error occurred","requestId":"$context.requestId"}}'
+      Tags:
+        Project: serverless-notes
+        Stage: !Ref Stage
+
+  ApiAccessLogGroup:
+    Type: AWS::Logs::LogGroup
+    Condition: AccessLogsEnabled
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Sub /aws/apigateway/${AWS::StackName}-access
+      RetentionInDays: !Ref LogRetentionDays
+
+  # Region-wide API Gateway setting; only created when EnableApiAccessLogs=true.
+  ApiGatewayCloudWatchRole:
+    Type: AWS::IAM::Role
+    Condition: AccessLogsEnabled
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+
+  ApiGatewayAccount:
+    Type: AWS::ApiGateway::Account
+    Condition: AccessLogsEnabled
+    Properties:
+      CloudWatchRoleArn: !GetAtt ApiGatewayCloudWatchRole.Arn
+
+  # -------------------------------------------------------------------------------------
+  # Lambda functions - one per operation, each with only the DynamoDB action it needs
+  # -------------------------------------------------------------------------------------
+  CreateNoteFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-create-note
+      Description: POST /notes - create a note owned by the caller
+      Handler: notes_api.handlers.create_note.handler
+      LoggingConfig:
+        LogGroup: !Ref CreateNoteLogGroup
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: dynamodb:PutItem
+              Resource: !GetAtt NotesTable.Arn
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NotesApi
+            Path: /notes
+            Method: POST
+            Auth:
+              AuthorizationScopes: [notes/write]
+
+  ListNotesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-list-notes
+      Description: GET /notes - list the caller's notes (Query on the byUser index)
+      Handler: notes_api.handlers.list_notes.handler
+      LoggingConfig:
+        LogGroup: !Ref ListNotesLogGroup
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: dynamodb:Query
+              Resource: !Sub ${NotesTable.Arn}/index/byUser
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NotesApi
+            Path: /notes
+            Method: GET
+            Auth:
+              AuthorizationScopes: [notes/read]
+
+  GetNoteFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-get-note
+      Description: GET /notes/{id} - read one note if the caller owns it
+      Handler: notes_api.handlers.get_note.handler
+      LoggingConfig:
+        LogGroup: !Ref GetNoteLogGroup
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: dynamodb:GetItem
+              Resource: !GetAtt NotesTable.Arn
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NotesApi
+            Path: /notes/{id}
+            Method: GET
+            Auth:
+              AuthorizationScopes: [notes/read]
+
+  UpdateNoteFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-update-note
+      Description: PUT /notes/{id} - replace title/content if the caller owns the note
+      Handler: notes_api.handlers.update_note.handler
+      LoggingConfig:
+        LogGroup: !Ref UpdateNoteLogGroup
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: dynamodb:UpdateItem
+              Resource: !GetAtt NotesTable.Arn
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NotesApi
+            Path: /notes/{id}
+            Method: PUT
+            Auth:
+              AuthorizationScopes: [notes/write]
+
+  DeleteNoteFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-delete-note
+      Description: DELETE /notes/{id} - delete a note if the caller owns it
+      Handler: notes_api.handlers.delete_note.handler
+      LoggingConfig:
+        LogGroup: !Ref DeleteNoteLogGroup
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: dynamodb:DeleteItem
+              Resource: !GetAtt NotesTable.Arn
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NotesApi
+            Path: /notes/{id}
+            Method: DELETE
+            Auth:
+              AuthorizationScopes: [notes/write]
+
+  # Explicit log groups so retention is controlled and the logs are deleted with the stack.
+  CreateNoteLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${AWS::StackName}-create-note
+      RetentionInDays: !Ref LogRetentionDays
+  ListNotesLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${AWS::StackName}-list-notes
+      RetentionInDays: !Ref LogRetentionDays
+  GetNoteLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${AWS::StackName}-get-note
+      RetentionInDays: !Ref LogRetentionDays
+  UpdateNoteLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${AWS::StackName}-update-note
+      RetentionInDays: !Ref LogRetentionDays
+  DeleteNoteLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${AWS::StackName}-delete-note
+      RetentionInDays: !Ref LogRetentionDays
+
+  # -------------------------------------------------------------------------------------
+  # Monitoring: 4 alarms (the first 10 standard alarms per month are within the free tier)
+  # -------------------------------------------------------------------------------------
+  AlarmTopic:
+    Type: AWS::SNS::Topic
+    Condition: HasAlarmEmail
+    Properties:
+      TopicName: !Sub ${AWS::StackName}-alarms
+      Subscription:
+        - Protocol: email
+          Endpoint: !Ref AlarmEmail
+
+  Api5xxAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-api-5xx
+      AlarmDescription: The API returned at least one 5xx response in 5 minutes.
+      Namespace: AWS/ApiGateway
+      MetricName: 5XXError
+      Dimensions:
+        - Name: ApiName
+          Value: !Sub ${AWS::StackName}-api
+        - Name: Stage
+          Value: !Ref Stage
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: !If [HasAlarmEmail, [!Ref AlarmTopic], !Ref AWS::NoValue]
+
+  ApiLatencyAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-api-latency-p95
+      AlarmDescription: p95 API latency above 2 seconds for 3 consecutive 5-minute periods.
+      Namespace: AWS/ApiGateway
+      MetricName: Latency
+      Dimensions:
+        - Name: ApiName
+          Value: !Sub ${AWS::StackName}-api
+        - Name: Stage
+          Value: !Ref Stage
+      ExtendedStatistic: p95
+      Period: 300
+      EvaluationPeriods: 3
+      Threshold: 2000
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: !If [HasAlarmEmail, [!Ref AlarmTopic], !Ref AWS::NoValue]
+
+  LambdaErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-lambda-errors
+      AlarmDescription: A notes Lambda function crashed, timed out or was throttled.
+      Metrics:
+        - Id: total
+          Label: Lambda errors and throttles (all five functions)
+          Expression: SUM(METRICS())
+          ReturnData: true
+        - Id: createErrors
+          ReturnData: false
+          MetricStat:
+            Stat: Sum
+            Period: 300
+            Metric:
+              Namespace: AWS/Lambda
+              MetricName: Errors
+              Dimensions: [{Name: FunctionName, Value: !Ref CreateNoteFunction}]
+        - Id: listErrors
+          ReturnData: false
+          MetricStat:
+            Stat: Sum
+            Period: 300
+            Metric:
+              Namespace: AWS/Lambda
+              MetricName: Errors
+              Dimensions: [{Name: FunctionName, Value: !Ref ListNotesFunction}]
+        - Id: getErrors
+          ReturnData: false
+          MetricStat:
+            Stat: Sum
+            Period: 300
+            Metric:
+              Namespace: AWS/Lambda
+              MetricName: Errors
+              Dimensions: [{Name: FunctionName, Value: !Ref GetNoteFunction}]
+        - Id: updateErrors
+          ReturnData: false
+          MetricStat:
+            Stat: Sum
+            Period: 300
+            Metric:
+              Namespace: AWS/Lambda
+              MetricName: Errors
+              Dimensions: [{Name: FunctionName, Value: !Ref UpdateNoteFunction}]
+        - Id: deleteErrors
+          ReturnData: false
+          MetricStat:
+            Stat: Sum
+            Period: 300
+            Metric:
+              Namespace: AWS/Lambda
+              MetricName: Errors
+              Dimensions: [{Name: FunctionName, Value: !Ref DeleteNoteFunction}]
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: !If [HasAlarmEmail, [!Ref AlarmTopic], !Ref AWS::NoValue]
+
+  DynamoThrottleAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-dynamodb-throttles
+      AlarmDescription: DynamoDB throttled read or write requests on the notes table.
+      Metrics:
+        - Id: total
+          Label: Throttled reads + writes
+          Expression: SUM(METRICS())
+          ReturnData: true
+        - Id: reads
+          ReturnData: false
+          MetricStat:
+            Stat: Sum
+            Period: 300
+            Metric:
+              Namespace: AWS/DynamoDB
+              MetricName: ReadThrottleEvents
+              Dimensions: [{Name: TableName, Value: !Ref NotesTable}]
+        - Id: writes
+          ReturnData: false
+          MetricStat:
+            Stat: Sum
+            Period: 300
+            Metric:
+              Namespace: AWS/DynamoDB
+              MetricName: WriteThrottleEvents
+              Dimensions: [{Name: TableName, Value: !Ref NotesTable}]
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: !If [HasAlarmEmail, [!Ref AlarmTopic], !Ref AWS::NoValue]
+
+# ---------------------------------------------------------------------------------------
+# Outputs - everything the frontend and the test scripts need
+# ---------------------------------------------------------------------------------------
+Outputs:
+  ApiBaseUrl:
+    Description: Base URL of the REST API (VITE_API_BASE_URL)
+    Value: !Sub https://${NotesApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/${Stage}
+  Region:
+    Description: AWS region (VITE_AWS_REGION)
+    Value: !Ref AWS::Region
+  UserPoolId:
+    Description: Cognito user pool id (VITE_COGNITO_USER_POOL_ID)
+    Value: !Ref UserPool
+  UserPoolClientId:
+    Description: Cognito web client id (VITE_COGNITO_CLIENT_ID)
+    Value: !Ref WebClient
+  CognitoDomain:
+    Description: Cognito hosted login base URL (VITE_COGNITO_DOMAIN)
+    Value: !Sub https://${UserPoolDomain}.auth.${AWS::Region}.amazoncognito.com
+  TokenIssuer:
+    Description: Expected "iss" claim of all tokens
+    Value: !Sub https://cognito-idp.${AWS::Region}.${AWS::URLSuffix}/${UserPool}
+  ReadOnlyTestClientId:
+    Condition: ScopeTestClientEnabled
+    Description: App client limited to notes/read (live authorization tests only)
+    Value: !Ref ReadOnlyTestClient
+  NotesTableName:
+    Description: DynamoDB table that stores the notes
+    Value: !Ref NotesTable
+  LogGroupPrefix:
+    Description: Prefix of the Lambda log groups in CloudWatch Logs
+    Value: !Sub /aws/lambda/${AWS::StackName}-
