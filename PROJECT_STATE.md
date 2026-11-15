@@ -28,7 +28,7 @@ Phase 12 (delivery) complete for everything that can be done without AWS. Phases
 3. `make live-test` (never executed; expect to debug the script itself, especially the hosted-login form flow).
 4. Confirm on the live stack: status returned by the authorizer for an insufficient scope; unknown route → 404 mapping; CORS preflight from the browser; 429 throttling; `scope` claim forwarded to Lambda; alarms; log output in CloudWatch.
 5. Measure warm/cold latency (`docs/performance/PERFORMANCE.md`); store results in `evidence/benchmarks/`.
-6. Verify unit prices in `AWS_COST_ANALYSIS.md`; compare with the real bill.
+6. Verify the Frankfurt unit prices still marked unconfirmed in `AWS_COST_ANALYSIS.md`; compare with the real bill.
 7. Configure the GitHub environment + OIDC role if the deploy workflow is wanted.
 8. Update `docs/testing/TESTING.md`, `REQUIREMENTS_TRACEABILITY.md` and the completion report with the real results.
 
