@@ -19,6 +19,7 @@ All results below were produced on 2026-11-15 in a Linux container (Python 3.13.
 | Infrastructure | `cfn-lint`, `sam validate --lint`, `sam build` | no findings; valid; build succeeded | `evidence/builds/infrastructure-validation.txt` |
 | OpenAPI | `openapi-spec-validator docs/api/openapi.yaml` | OK | — |
 | Latency benchmark (local only) | `scripts/testing/benchmark.py`, 100 cycles | 100 % success | `evidence/benchmarks/local-demo-benchmark.json` |
+| CI on GitHub Actions | `.github/workflows/ci.yml` on pull request #1 | all 4 jobs green (backend, frontend, browser e2e, infrastructure) | PR #1 checks |
 | **Live AWS tests** | `scripts/testing/live_api_tests.py` | **NOT RUN** — no usable AWS credentials | — |
 
 ## Test layers and what each one proves
@@ -121,7 +122,7 @@ Test data: every backend test creates a fresh in-memory table (fixture `table` i
 ## Not verified
 
 - Anything on real AWS: deployment, Cognito e-mail delivery and hosted login, API Gateway token validation and gateway responses (in particular which status the authorizer returns for an insufficient scope, and that an unknown route maps to 404), IAM policies, alarms, CloudWatch log output, CORS preflight from the browser, throttling (429).
-- `scripts/testing/live_api_tests.py`, `scripts/deployment/*.sh|py`, `scripts/cleanup/destroy.sh` and `.github/workflows/deploy.yml` have never been executed (syntax-checked only). The CI workflow has not yet been observed running on GitHub at the time of writing this file.
+- `scripts/testing/live_api_tests.py`, `scripts/deployment/*.sh|py`, `scripts/cleanup/destroy.sh` and `.github/workflows/deploy.yml` have never been executed (syntax-checked only).
 - AWS-mode UI in a real browser (only component tests with mocked Cognito).
 - Browsers other than Chromium; screen readers; automated WCAG audit (axe) — accessibility was implemented and spot-checked through roles/labels in tests, not formally audited.
 - Performance on AWS (see `docs/performance/PERFORMANCE.md`).

@@ -52,6 +52,7 @@ Locally the same JSON lines are printed by `make demo-backend`.
 | Symptom | Check |
 |---|---|
 | 401 on every call although signed in | Is the **access** token sent (not the ID token)? Does the token contain `notes/read`/`notes/write` in `scope` (decode it at jwt.io — never paste production tokens into websites you do not trust)? Tokens obtained by SDK password sign-in (`USER_SRP_AUTH`) do **not** carry custom scopes; use the hosted login flow. Is the token from the same user pool as the stack? |
+| 403 `The access token does not grant the required scope` from Lambda although API Gateway let the request through | The function re-checks the `scope` claim passed by the authorizer (`security/identity.py::require_scope`). If the authorizer does not forward `scope` as expected, this defence-in-depth check is the first thing to inspect on a real deployment (log the claim *names*, never the token). |
 | 403 with `{"message":"Missing Authentication Token"}`-like behaviour / 404 `No such route` | Wrong path or stage in the URL (`…/dev/notes`). |
 | Browser: CORS error, curl works | Origin differs from `AllowedOrigin` (scheme, host and port must match exactly). |
 | Hosted login: `redirect_mismatch` | `VITE_OAUTH_REDIRECT_URI` must equal one of `CallbackUrls` exactly. |
