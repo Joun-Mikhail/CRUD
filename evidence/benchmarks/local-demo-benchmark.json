@@ -1,0 +1,54 @@
+{
+  "label": "local-demo (moto in-memory, NOT AWS)",
+  "baseUrl": "http://127.0.0.1:8798",
+  "measuredAt": "2026-11-15T09:35:33+00:00",
+  "cycles": 100,
+  "concurrency": 1,
+  "results": {
+    "POST /notes": {
+      "requests": 100,
+      "meanMs": 2.9,
+      "medianMs": 2.48,
+      "p95Ms": 3.72,
+      "maxMs": 25.28,
+      "successRate": 1.0,
+      "errorRate": 0.0
+    },
+    "GET /notes": {
+      "requests": 100,
+      "meanMs": 3.09,
+      "medianMs": 2.97,
+      "p95Ms": 3.99,
+      "maxMs": 5.81,
+      "successRate": 1.0,
+      "errorRate": 0.0
+    },
+    "GET /notes/{id}": {
+      "requests": 100,
+      "meanMs": 2.84,
+      "medianMs": 2.6,
+      "p95Ms": 3.49,
+      "maxMs": 10.02,
+      "successRate": 1.0,
+      "errorRate": 0.0
+    },
+    "PUT /notes/{id}": {
+      "requests": 100,
+      "meanMs": 5.13,
+      "medianMs": 4.35,
+      "p95Ms": 7.37,
+      "maxMs": 17.81,
+      "successRate": 1.0,
+      "errorRate": 0.0
+    },
+    "DELETE /notes/{id}": {
+      "requests": 100,
+      "meanMs": 2.6,
+      "medianMs": 2.38,
+      "p95Ms": 4.01,
+      "maxMs": 6.0,
+      "successRate": 1.0,
+      "errorRate": 0.0
+    }
+  }
+}

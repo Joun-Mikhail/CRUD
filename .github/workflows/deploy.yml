@@ -1,0 +1,70 @@
+name: Deploy (manual)
+
+# Never runs automatically. A person starts it from the Actions tab, and the job only
+# proceeds after the reviewers configured on the chosen GitHub Environment approve it.
+#
+# One-time setup (see docs/deployment/DEPLOYMENT.md, "GitHub Actions deployment"):
+#   1. In AWS, create an IAM OIDC identity provider for token.actions.githubusercontent.com
+#      and a role whose trust policy only allows this repository + environment.
+#   2. In GitHub: Settings > Environments > create "dev" with required reviewers, and add
+#      the environment variable AWS_DEPLOY_ROLE_ARN (a role ARN is an identifier, not a secret).
+# No long-lived AWS access keys are stored anywhere.
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: GitHub Environment (and stack stage) to deploy
+        type: choice
+        options: [dev]
+        default: dev
+
+permissions:
+  id-token: write # required to request the OIDC token
+  contents: read
+
+concurrency:
+  group: deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      AWS_REGION: eu-central-1
+      STACK_NAME: serverless-notes-${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install aws-sam-cli cfn-lint -e 'backend[dev]'
+      - name: Tests must pass before anything is deployed
+        run: pytest
+        working-directory: backend
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - run: aws sts get-caller-identity
+      - run: sam validate --lint -t infrastructure/template.yaml
+      - run: sam build -t infrastructure/template.yaml
+      - name: Deploy
+        run: >
+          sam deploy
+          --stack-name "$STACK_NAME"
+          --region "$AWS_REGION"
+          --capabilities CAPABILITY_IAM
+          --resolve-s3
+          --no-confirm-changeset
+          --no-fail-on-empty-changeset
+          --parameter-overrides Stage=${{ inputs.environment }} EnableScopeTestClient=true
+          --tags Project=serverless-notes Stage=${{ inputs.environment }}
+      - name: Live acceptance and security tests
+        run: python scripts/testing/live_api_tests.py --stack-name "$STACK_NAME"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-test-evidence
+          path: evidence/tests/live-api-tests.json
