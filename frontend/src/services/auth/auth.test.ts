@@ -171,6 +171,36 @@ describe('Cognito sign-up API', () => {
     expect(JSON.parse(String(init?.body))).toMatchObject({ ClientId: 'client-1', Username: 'student@vut.cz' })
   })
 
+  it('calls ForgotPassword and ConfirmForgotPassword', async () => {
+    const { idp, fetchImpl } = idpWith(
+      new Response(JSON.stringify({ CodeDeliveryDetails: { Destination: 's***@v***' } }), { status: 200 }),
+    )
+    expect(await idp.forgotPassword(' Student@VUT.cz ')).toEqual({ codeDestination: 's***@v***' })
+    expect(new Headers(fetchImpl.mock.calls[0]?.[1]?.headers).get('X-Amz-Target')).toBe(
+      'AWSCognitoIdentityProviderService.ForgotPassword',
+    )
+    expect(JSON.parse(String(fetchImpl.mock.calls[0]?.[1]?.body))).toEqual({
+      ClientId: 'client-1',
+      Username: 'student@vut.cz',
+    })
+  })
+
+  it('sends the new password only to Cognito when confirming a reset', async () => {
+    const { idp, fetchImpl } = idpWith(new Response('{}', { status: 200 }))
+    await idp.confirmForgotPassword('student@vut.cz', ' 123456 ', 'Correct-Horse-9')
+    const [url, init] = fetchImpl.mock.calls[0] ?? []
+    expect(url).toBe('https://cognito-idp.eu-central-1.amazonaws.com/')
+    expect(new Headers(init?.headers).get('X-Amz-Target')).toBe(
+      'AWSCognitoIdentityProviderService.ConfirmForgotPassword',
+    )
+    expect(JSON.parse(String(init?.body))).toEqual({
+      ClientId: 'client-1',
+      Username: 'student@vut.cz',
+      ConfirmationCode: '123456',
+      Password: 'Correct-Horse-9',
+    })
+  })
+
   it.each([
     ['UsernameExistsException', /already/i],
     ['CodeMismatchException', /not correct/i],

@@ -8,7 +8,7 @@ import { CognitoError } from '../../services/cognito/idp'
 import { cx } from '../../utils/cx'
 import { isPlausibleEmail, PASSWORD_RULES, passwordMeetsPolicy } from '../../utils/passwordPolicy'
 
-type View = 'signin' | 'register' | 'verify' | 'verified'
+type View = 'signin' | 'register' | 'verify' | 'verified' | 'forgot' | 'reset' | 'resetDone'
 
 function messageOf(error: unknown): string {
   if (error instanceof CognitoError) return error.message
@@ -103,6 +103,31 @@ export function CognitoAuthPanel({ service, returnTo }: { service: CognitoAuthSe
     })
   }
 
+  function requestReset(event: FormEvent) {
+    event.preventDefault()
+    setSubmitted(true)
+    if (!isPlausibleEmail(email)) return
+    void run(async () => {
+      await service.idp.forgotPassword(email.trim())
+      switchView('reset')
+      // Same wording whether or not the account exists: do not reveal registered addresses.
+      setInfo(`If an account exists for ${email.trim()}, a reset code has been sent to it.`)
+    })
+  }
+
+  function confirmReset(event: FormEvent) {
+    event.preventDefault()
+    setSubmitted(true)
+    if (!/^\d{6}$/.test(code.trim()) || !passwordMeetsPolicy(password) || confirm !== password) return
+    void run(async () => {
+      await service.idp.confirmForgotPassword(email.trim(), code.trim(), password)
+      setCode('')
+      setPassword('')
+      setConfirm('')
+      switchView('resetDone')
+    })
+  }
+
   function resend() {
     void run(async () => {
       const result = await service.idp.resendConfirmationCode(email.trim())
@@ -164,6 +189,13 @@ export function CognitoAuthPanel({ service, returnTo }: { service: CognitoAuthSe
           <Button type="submit" variant="primary" loading={busy} icon={<ShieldCheck aria-hidden="true" className="size-4" />}>
             Continue to secure sign-in
           </Button>
+          <button
+            type="button"
+            className="self-start text-sm font-medium text-accent-ink underline-offset-2 hover:underline"
+            onClick={() => switchView('forgot')}
+          >
+            Forgot your password?
+          </button>
         </form>
       ) : null}
 
@@ -252,6 +284,108 @@ export function CognitoAuthPanel({ service, returnTo }: { service: CognitoAuthSe
             </button>
           </div>
         </form>
+      ) : null}
+
+      {view === 'forgot' ? (
+        <form onSubmit={requestReset} noValidate className="flex flex-col gap-4">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight text-fg">Reset your password</h1>
+            <p className="mt-1.5 text-sm text-muted">Enter your e-mail address and we will send you a reset code.</p>
+          </div>
+          {alert}
+          <Input
+            label="E-mail address"
+            type="email"
+            autoComplete="email"
+            required
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            error={emailError}
+          />
+          <Button type="submit" variant="primary" loading={busy}>
+            Send reset code
+          </Button>
+          <button type="button" className="self-start text-sm text-muted hover:text-fg" onClick={() => switchView('signin')}>
+            Back to sign in
+          </button>
+        </form>
+      ) : null}
+
+      {view === 'reset' ? (
+        <form onSubmit={confirmReset} noValidate className="flex flex-col gap-4">
+          <h1 className="text-xl font-semibold tracking-tight text-fg">Choose a new password</h1>
+          {alert}
+          {notice}
+          <Input
+            label="Reset code"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={6}
+            value={code}
+            onChange={(event) => setCode(event.target.value.replace(/\D/g, ''))}
+            error={submitted && !/^\d{6}$/.test(code) ? 'Enter the 6-digit code.' : null}
+          />
+          <Input
+            label="New password"
+            type={showPassword ? 'text' : 'password'}
+            autoComplete="new-password"
+            required
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            error={passwordError}
+            trailing={
+              <PasswordToggle shown={showPassword} onToggle={() => setShowPassword((v) => !v)} label="password" />
+            }
+          />
+          <ul aria-label="Password policy" className="grid gap-1 text-xs sm:grid-cols-2">
+            {PASSWORD_RULES.map((rule) => {
+              const met = rule.test(password)
+              const Icon = met ? Check : Circle
+              return (
+                <li key={rule.id} className={cx('flex items-center gap-1.5', met ? 'text-success-ink' : 'text-muted')}>
+                  <Icon aria-hidden="true" className="size-3.5 shrink-0" />
+                  {rule.label}
+                  <span className="sr-only">{met ? ' (met)' : ' (not met)'}</span>
+                </li>
+              )
+            })}
+          </ul>
+          <Input
+            label="Confirm new password"
+            type={showConfirm ? 'text' : 'password'}
+            autoComplete="new-password"
+            required
+            value={confirm}
+            onChange={(event) => setConfirm(event.target.value)}
+            error={confirmError}
+            trailing={
+              <PasswordToggle shown={showConfirm} onToggle={() => setShowConfirm((v) => !v)} label="password confirmation" />
+            }
+          />
+          <Button type="submit" variant="primary" loading={busy}>
+            Set new password
+          </Button>
+          <button type="button" className="self-start text-sm text-muted hover:text-fg" onClick={() => switchView('forgot')}>
+            Send a new code
+          </button>
+        </form>
+      ) : null}
+
+      {view === 'resetDone' ? (
+        <div className="flex flex-col gap-4">
+          <div role="status">
+            <h1 className="text-xl font-semibold tracking-tight text-fg">Password changed</h1>
+            <p className="mt-1.5 text-sm text-muted">You can now sign in with your new password.</p>
+          </div>
+          {alert}
+          <Button
+            variant="primary"
+            loading={busy}
+            onClick={() => void run(() => service.startSignIn({ loginHint: email.trim(), returnTo }))}
+          >
+            Continue to sign in
+          </Button>
+        </div>
       ) : null}
 
       {view === 'verified' ? (

@@ -78,8 +78,10 @@ describe('Cognito registration (AWS mode)', () => {
     })
     const signUp = vi.spyOn(auth.idp, 'signUp')
     const confirmSignUp = vi.spyOn(auth.idp, 'confirmSignUp')
+    const forgotPassword = vi.spyOn(auth.idp, 'forgotPassword')
+    const confirmForgotPassword = vi.spyOn(auth.idp, 'confirmForgotPassword')
     renderApp({ path: '/auth', auth, config: awsConfig })
-    return { auth, redirect, signUp, confirmSignUp }
+    return { auth, redirect, signUp, confirmSignUp, forgotPassword, confirmForgotPassword }
   }
 
   it('validates e-mail, password policy and confirmation before calling Cognito', async () => {
@@ -137,6 +139,68 @@ describe('Cognito registration (AWS mode)', () => {
     await waitFor(() => expect(redirect).toHaveBeenCalledTimes(1))
     expect(redirect.mock.calls[0]?.[0]).toContain('/oauth2/authorize?')
     expect(redirect.mock.calls[0]?.[0]).toContain('code_challenge_method=S256')
+  })
+})
+
+describe('password reset (AWS mode)', () => {
+  it('requests a code, validates the new password and continues to sign-in', async () => {
+    const redirect = vi.fn<(url: string) => void>()
+    const auth = new CognitoAuthService({
+      config: {
+        region: 'eu-central-1',
+        userPoolId: 'eu-central-1_Pool',
+        clientId: 'client-1',
+        domain: 'https://notes.auth.eu-central-1.amazoncognito.com',
+        redirectUri: 'http://localhost:5173/auth/callback',
+        logoutUri: 'http://localhost:5173/',
+        scopes: ['openid', 'notes/read', 'notes/write'],
+      },
+      storage: window.sessionStorage,
+      redirect,
+      currentPath: () => '/',
+    })
+    const forgot = vi.spyOn(auth.idp, 'forgotPassword').mockResolvedValue({ codeDestination: 's***@v***.cz' })
+    const confirm = vi
+      .spyOn(auth.idp, 'confirmForgotPassword')
+      .mockRejectedValueOnce(new CognitoError('ExpiredCodeException', 'That verification code has expired.'))
+      .mockResolvedValueOnce(undefined)
+    renderApp({
+      path: '/auth',
+      auth,
+      config: { mode: 'aws', apiBaseUrl: 'https://api.example/dev', cognito: auth['deps'].config },
+    })
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Forgot your password?' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Send reset code' }))
+    expect(screen.getByText('Enter a valid e-mail address.')).toBeInTheDocument()
+    expect(forgot).not.toHaveBeenCalled()
+
+    await userEvent.type(screen.getByLabelText('E-mail address'), 'student@vut.cz')
+    await userEvent.click(screen.getByRole('button', { name: 'Send reset code' }))
+    expect(forgot).toHaveBeenCalledWith('student@vut.cz')
+    // The message must not confirm that the address is registered.
+    expect(await screen.findByText(/If an account exists for student@vut.cz/)).toBeInTheDocument()
+
+    await userEvent.type(screen.getByLabelText('Reset code'), '123456')
+    await userEvent.type(screen.getByLabelText('New password'), 'weak')
+    await userEvent.type(screen.getByLabelText('Confirm new password'), 'weak')
+    await userEvent.click(screen.getByRole('button', { name: 'Set new password' }))
+    expect(screen.getByText('The password does not meet the policy below.')).toBeInTheDocument()
+    expect(confirm).not.toHaveBeenCalled()
+
+    await userEvent.clear(screen.getByLabelText('New password'))
+    await userEvent.type(screen.getByLabelText('New password'), 'Correct-Horse-9')
+    await userEvent.clear(screen.getByLabelText('Confirm new password'))
+    await userEvent.type(screen.getByLabelText('Confirm new password'), 'Correct-Horse-9')
+    await userEvent.click(screen.getByRole('button', { name: 'Set new password' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('expired')
+
+    await userEvent.click(screen.getByRole('button', { name: 'Set new password' }))
+    expect(await screen.findByRole('heading', { name: 'Password changed' })).toBeInTheDocument()
+    expect(confirm).toHaveBeenLastCalledWith('student@vut.cz', '123456', 'Correct-Horse-9')
+
+    await userEvent.click(screen.getByRole('button', { name: 'Continue to sign in' }))
+    await waitFor(() => expect(redirect).toHaveBeenCalledTimes(1))
   })
 })
 
