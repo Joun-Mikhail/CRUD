@@ -1,6 +1,21 @@
 # AWS cost analysis
 
-> **Read this first.** The unit prices below are list prices for `eu-central-1` (Frankfurt) as I recall them; I was **not able to re-check them against the AWS pricing pages while writing this** (the pricing lookup did not complete). Treat every figure as an estimate, verify each unit price at the links in the table before quoting it in the thesis, and prefer the [AWS Pricing Calculator](https://calculator.aws/). Prices exclude VAT. Nothing has been deployed, so there is no real bill to compare with.
+> **Read this first.** The unit prices below are list prices for `eu-central-1` (Frankfurt). A web check on 2026-11-15 confirmed some facts and could not confirm others (see "Verification status" below): **the Frankfurt-specific unit prices remain unconfirmed.** Treat every figure as an estimate, verify each unit price on the linked AWS pricing page with the region set to Europe (Frankfurt) before quoting it in the thesis, and prefer the [AWS Pricing Calculator](https://calculator.aws/). Prices exclude VAT. Nothing has been deployed, so there is no real bill to compare with.
+
+## Verification status (web check, 2026-11-15)
+
+| Item | Result | Source |
+|---|---|---|
+| Free Tier change of 15 July 2025: new accounts choose a Free or Paid plan; the Free plan ends after 6 months or when credits run out; up to $200 in credits; older accounts keep the 12-month model | **Confirmed** | [AWS What's New](https://aws.amazon.com/about-aws/whats-new/2025/07/aws-free-tier-credits-month-free-plan), [AWS News Blog](https://aws.amazon.com/blogs/aws/aws-free-tier-update-new-customers-can-get-started-and-explore-aws-with-up-to-200-in-credits) |
+| Cognito: 10,000 MAU per month free on Lite and Essentials, not tied to the 12-month term; Essentials $0.015 per MAU above that | **Confirmed** | [Cognito pricing](https://aws.amazon.com/cognito/pricing) |
+| Cognito Lite ≈ $0.0055 per MAU above the free allowance | Third-party source only | [Frontegg guide](https://frontegg.com/guides/aws-cognito-pricing) |
+| Lambda: 1 million requests and 400,000 GB-seconds free per month; $0.20 per million requests; arm64 $0.0000133334 vs x86 $0.0000166667 per GB-second | Confirmed for US East by third-party guides; **Frankfurt rate not confirmed** (may carry a small uplift) | [Wiz](https://wiz.io/academy/cloud-cost/aws-lambda-cost-breakdown), [official page](https://aws.amazon.com/lambda/pricing/) |
+| API Gateway: REST $3.50 and HTTP API $1.00 per million in US regions | Third-party sources | [CloudZero](https://www.cloudzero.com/blog/aws-api-gateway-pricing) |
+| API Gateway REST in Frankfurt $3.70 per million | Only an **archived 2018** copy of the AWS page shows this; current value not confirmed | [official page](https://aws.amazon.com/api-gateway/pricing/) |
+| DynamoDB on-demand: $0.625 per million writes, $0.125 per million reads, $0.25 per GB-month in us-east-1 | Third-party calculator; **no Frankfurt figures found**. The Frankfurt values used below (≈ $0.76 / $0.15 / $0.31) are my estimate of the regional uplift | [Dynobase](https://dynobase.dev/dynamodb-cost-optimization/), [official page](https://aws.amazon.com/dynamodb/pricing/on-demand/) |
+| CloudWatch Logs and alarm prices, data-transfer allowance | Not checked | [official page](https://aws.amazon.com/cloudwatch/pricing/) |
+
+Because the estimates deliberately use the higher Frankfurt-style figures and ignore every free allowance, a correction is more likely to lower the totals than to raise them. The conclusions (pay-per-use, API Gateway dominates at scale, near-zero idle cost) do not depend on the exact values.
 
 ## What costs money in this architecture
 
