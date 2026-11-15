@@ -1,0 +1,9 @@
+# ruff check / ruff format --check / mypy  (2026-11-15T09:56Z)
+All checks passed!
+41 files already formatted
+Success: no issues found in 27 source files
+# pip-audit
+No known vulnerabilities found
+Name                     Skip Reason
+------------------------ ---------------------------------------------------------------------------------------
+serverless-notes-backend Dependency not found on PyPI and could not be audited: serverless-notes-backend (1.0.0)
