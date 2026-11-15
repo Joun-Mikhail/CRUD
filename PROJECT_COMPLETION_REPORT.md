@@ -96,7 +96,7 @@ Built, launched and tested in Local Demo mode in a real browser (12 journeys, fo
 ## Remaining limitations
 
 1. No AWS deployment, live tests, CloudWatch evidence or AWS performance data.
-2. Cost analysis uses list prices that were not re-verified online; no real bill.
+2. Cost analysis: a later web check confirmed the Free Tier and Cognito allowances but not the Frankfurt-specific unit prices (see the verification table in `AWS_COST_ANALYSIS.md`); no real bill.
 3. The pricing research and two documentation/frontend helper runs were interrupted by a usage limit; that work was finished directly, but without the online price check.
 4. AWS-mode UI unverified against real Cognito; deploy/cleanup scripts and the deploy workflow unexecuted.
 5. No frontend hosting; no password-reset/account-deletion screens; no server-side search.
