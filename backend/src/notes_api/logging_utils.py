@@ -31,11 +31,18 @@ class JsonFormatter(logging.Formatter):
         return json.dumps(entry, default=str)
 
 
+class StdoutHandler(logging.Handler):
+    """Write to whatever sys.stdout is *now* (Lambda forwards stdout to CloudWatch Logs)."""
+
+    def emit(self, record: logging.LogRecord) -> None:
+        sys.stdout.write(self.format(record) + "\n")
+
+
 def get_logger(level: str = "INFO") -> logging.Logger:
     """Return the application logger, configuring it on first use."""
     logger = logging.getLogger(_LOGGER_NAME)
     if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
+        handler = StdoutHandler()
         handler.setFormatter(JsonFormatter())
         logger.addHandler(handler)
         logger.propagate = False
