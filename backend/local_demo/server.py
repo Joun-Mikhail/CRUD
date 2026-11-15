@@ -184,8 +184,11 @@ class DemoRequestHandler(BaseHTTPRequestHandler):
         if payload is not None:
             self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(data)))
-        self.end_headers()
-        self.wfile.write(data)
+        try:
+            self.end_headers()
+            self.wfile.write(data)
+        except (BrokenPipeError, ConnectionResetError):
+            pass  # the browser cancelled the request (e.g. navigated away); nothing to send
 
     def log_message(self, format: str, *args: Any) -> None:  # noqa: A002
         """Silence http.server's access log; the backend already logs each request as JSON."""
