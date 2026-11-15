@@ -39,8 +39,8 @@ The Local Demo runs every line of the real backend, but identities are simulated
 
 Run the tests:
 ```bash
-make test             # 166 backend + 63 frontend tests
-make test-e2e         # 12 browser tests
+make test             # 166 backend + 66 frontend tests
+make test-e2e         # 14 browser tests
 ```
 
 ## Which files to read first (in this order)

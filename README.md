@@ -4,7 +4,7 @@
 
 A multi-user private notes application: users register and sign in with Amazon Cognito, and create, read, update and delete notes through a REST API on API Gateway backed by Python Lambda functions and DynamoDB. Each note belongs to one user; nobody else can read or change it.
 
-> **Status.** Everything that can be verified without AWS is implemented and verified: 166 backend tests (99 % coverage), 63 frontend tests, 12 browser tests, static analysis, template validation, CI green. **The stack has not been deployed to AWS** — no usable credentials were available — so real Cognito, API Gateway token validation, IAM and performance are unverified. Details: [`PROJECT_COMPLETION_REPORT.md`](PROJECT_COMPLETION_REPORT.md).
+> **Status.** Everything that can be verified without AWS is implemented and verified: 166 backend tests (99 % coverage), 66 frontend tests, 14 browser tests (including an axe accessibility audit), static analysis, template validation, CI green. **The stack has not been deployed to AWS** — no usable credentials were available — so real Cognito, API Gateway token validation, IAM and performance are unverified. Details: [`PROJECT_COMPLETION_REPORT.md`](PROJECT_COMPLETION_REPORT.md).
 
 New here? Read [`START_HERE.md`](START_HERE.md).
 
@@ -138,10 +138,10 @@ All screenshots show the Local Demo.
 - Not deployed; nothing AWS-specific has been observed working. Deploy, cleanup and live-test scripts are unexecuted.
 - No AWS performance measurements; cost figures use unverified list prices.
 - AWS-mode sign-in has only been tested against a mocked Cognito.
-- The frontend is not hosted (runs locally); no password-reset or account-deletion screens (Cognito's hosted page provides "Forgot password").
+- The frontend is not hosted (runs locally); there is no account-deletion screen.
 - Throttling is per API stage, not per user; no MFA; no WAF. See `docs/security/SECURITY.md`.
 - Search and sorting in the UI apply to loaded notes only (stated in the UI); there is no server-side search.
-- Tested in Chromium only; no formal accessibility audit.
+- Tested in Chromium only. The automated axe audit passes; no manual screen-reader review was done.
 
 ## License
 

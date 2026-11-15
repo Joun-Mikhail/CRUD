@@ -22,7 +22,7 @@ Browser (React) → Amazon Cognito (sign-up, hosted sign-in, Authorization Code 
 
 | Requirement | Code | Verified locally | Verified on AWS |
 |---|---|---|---|
-| FR-001 Registration (Cognito sign-up, password policy, verification) | yes | component tests with mocked Cognito | **no** |
+| FR-001 Registration (Cognito sign-up, password policy, verification) and password reset | yes | component tests with mocked Cognito | **no** |
 | FR-002 Login (PKCE, in-memory tokens, refresh, expiry, logout) | yes | unit tests with mocked Cognito | **no** |
 | FR-003 Create note | yes | yes | no |
 | FR-004 List notes (index query, pagination, ordering) | yes | yes | no |
@@ -46,10 +46,10 @@ Browser (React) → Amazon Cognito (sign-up, hosted sign-in, Authorization Code 
 | `cd backend && .venv/bin/pytest --cov` | 166 passed; coverage 98.99 % |
 | `ruff check .` · `ruff format --check .` · `mypy` | clean |
 | `pip-audit` | no known vulnerabilities |
-| `cd frontend && npm test` | 63 passed |
+| `cd frontend && npm test` | 66 passed |
 | `npm run lint` · `npm run typecheck` | clean |
 | `npm audit --omit=dev` | 0 vulnerabilities |
-| `npm run test:e2e -- --trace off` | 12 passed (Chromium, Local Demo) |
+| `npm run test:e2e -- --trace off` | 14 passed (Chromium, Local Demo), including the axe accessibility audit with zero violations |
 | `npm run build` | passes (JS 131.9 kB gzip); built app smoke-tested under its CSP with no console errors |
 | `cfn-lint infrastructure/template.yaml` | no findings |
 | `sam validate --lint` · `sam build` | valid · build succeeded |
@@ -74,7 +74,7 @@ Not deployed. The credentials in the build environment were rejected by AWS STS.
 
 ## Frontend status
 
-Built, launched and tested in Local Demo mode in a real browser (12 journeys, four viewport widths, light and dark theme); screenshots reviewed in `evidence/screenshots/`. Production build passes. AWS mode (Cognito registration, hosted sign-in with PKCE, token refresh, session expiry) is implemented and unit-tested against mocked Cognito responses, but has never talked to a real user pool.
+Built, launched and tested in Local Demo mode in a real browser (14 tests, four viewport widths, light and dark theme); screenshots reviewed in `evidence/screenshots/`. Production build passes. AWS mode (Cognito registration, hosted sign-in with PKCE, token refresh, session expiry) is implemented and unit-tested against mocked Cognito responses, but has never talked to a real user pool.
 
 ## Repository navigation — most important files
 
@@ -99,9 +99,9 @@ Built, launched and tested in Local Demo mode in a real browser (12 journeys, fo
 2. Cost analysis: a later web check confirmed the Free Tier and Cognito allowances but not the Frankfurt-specific unit prices (see the verification table in `AWS_COST_ANALYSIS.md`); no real bill.
 3. The pricing research and two documentation/frontend helper runs were interrupted by a usage limit; that work was finished directly, but without the online price check.
 4. AWS-mode UI unverified against real Cognito; deploy/cleanup scripts and the deploy workflow unexecuted.
-5. No frontend hosting; no password-reset/account-deletion screens; no server-side search.
+5. No frontend hosting; no account-deletion screen; no server-side search.
 6. No MFA, WAF or per-user rate limits; `dev` stage has no backups.
-7. Chromium only; accessibility implemented (roles, labels, focus management, keyboard paths tested) but not formally audited.
+7. Chromium only. An automated axe audit (WCAG A/AA rule sets, both themes) passes with zero violations; no manual screen-reader review.
 8. Expired-token and foreign-issuer cases are not automated.
 9. Performance and scalability evaluation is theoretical.
 10. The semestral report's text and figures contain errors listed in `docs/REQUIREMENTS.md` §4 that only the author can correct.

@@ -69,7 +69,6 @@ function AccountMenu() {
         type="button"
         aria-haspopup="true"
         aria-expanded={open}
-        aria-label={`Account menu for ${user.displayName}`}
         onClick={() => setOpen((value) => !value)}
         className="flex h-9 items-center gap-2 rounded-md border border-line-strong bg-surface pr-2.5 pl-1 text-sm hover:bg-subtle"
       >
@@ -79,7 +78,9 @@ function AccountMenu() {
         >
           {initial}
         </span>
-        <span className="hidden max-w-40 truncate sm:block">{user.displayName}</span>
+        {/* The name is always part of the accessible name; it is only visually hidden on small screens. */}
+        <span className="sr-only max-w-40 truncate sm:not-sr-only">{user.displayName}</span>
+        <span className="sr-only">account menu</span>
       </button>
       {open ? (
         <div className="absolute right-0 z-30 mt-2 w-64 rounded-lg border border-line bg-surface p-2 shadow-card">
