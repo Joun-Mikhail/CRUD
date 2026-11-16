@@ -5,7 +5,9 @@
 set -euo pipefail
 cd "$(dirname "$0")/../../infrastructure"
 
-REGION="eu-central-1"
+# Region: AWS_REGION if set, otherwise the thesis default (Frankfurt).
+REGION="${AWS_REGION:-eu-central-1}"
+echo "==> Region: $REGION"
 [ -f samconfig.toml ] || { echo "Copy samconfig.example.toml to samconfig.toml first." >&2; exit 1; }
 
 echo "==> Target account / identity (check this is your DEVELOPMENT account):"
@@ -24,4 +26,4 @@ echo "==> Stack outputs"
 STACK_NAME="$(grep -E '^stack_name' samconfig.toml | head -1 | cut -d'"' -f2)"
 aws cloudformation describe-stacks --region "$REGION" --stack-name "$STACK_NAME" \
   --query 'Stacks[0].Outputs[].[OutputKey,OutputValue]' --output table
-echo "Next: python scripts/deployment/write_frontend_env.py --stack-name $STACK_NAME"
+echo "Next: python scripts/deployment/write_frontend_env.py --stack-name $STACK_NAME --region $REGION"
