@@ -12,7 +12,7 @@
 | Real Cognito flows | **Verified on AWS**: sign-up, wrong-code rejection, hosted sign-in with PKCE + `state`, session restore, sign-out. Entering a real e-mailed code and password reset were checked manually by the project owner on 2026-11-17 (manual; no evidence file) |
 | Tokens in the browser | **Verified on AWS**: none in `localStorage`, `sessionStorage`, app cookies or the DOM |
 | Log hygiene in CloudWatch | **Verified on AWS**: no note text, tokens, passwords or e-mail addresses in the five log groups after the test runs (`evidence/aws/cloudwatch.txt`) |
-| Expired token, foreign issuer, forged/tampered tokens | **Verified on AWS** (2026-11-17): `alg none`, HS256, foreign key, foreign issuer, modified `exp`/`sub`, self-signed expired → all rejected; real token after expiry → pending (expected 401); `evidence/tests/token-security-tests.json`, [SECURITY_EVALUATION.md](SECURITY_EVALUATION.md) |
+| Expired token, foreign issuer, forged/tampered tokens | **Verified on AWS** (2026-11-17): `alg none`, HS256, foreign key, foreign issuer, modified `exp`/`sub`, self-signed expired → all rejected; real token after expiry → 401 (PASS); `evidence/tests/token-security-tests.json`, [SECURITY_EVALUATION.md](SECURITY_EVALUATION.md) |
 
 ## Threat model
 

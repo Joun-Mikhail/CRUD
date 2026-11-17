@@ -2,9 +2,9 @@
   "stack": "serverless-notes-dev",
   "region": "eu-north-1",
   "endpoint": "GET /notes",
-  "passed": 9,
+  "passed": 10,
   "failed": 0,
-  "note": "immediate checks done; expiry check pending",
+  "note": "all checks done",
   "results": [
     {
       "id": "P01",
@@ -111,6 +111,17 @@
       "errorCode": null,
       "status": "PASS",
       "at": "2026-11-17T19:05:39+00:00"
+    },
+    {
+      "id": "E01",
+      "description": "real access token after exp (+90 s)",
+      "expected": [
+        401
+      ],
+      "actual": 401,
+      "errorCode": "UNAUTHORIZED",
+      "status": "PASS",
+      "at": "2026-11-17T20:07:07+00:00"
     }
   ]
 }

@@ -35,7 +35,7 @@ Evidence files:
 
 ### E01 — expired real token
 
-**Pending at the time of writing (2026-11-17 19:45 UTC).** The test obtained a real access token at 19:04 UTC and waits until 90 s after its `exp` (≈ 20:07 UTC) before sending it; the result will be written to `evidence/tests/token-security-tests.json` (entry E01, expected 401) and recorded here. Until then, expiry rejection is shown only by N07 (self-signed token with a past `exp` → 401).
+A real Cognito access token was sent 90 s after its `exp` (2026-11-17T20:07:07+00:00): API Gateway answered **401 UNAUTHORIZED** — expired tokens are rejected (PASS). The same token had been accepted before expiry (P01) and after the user was deleted (R01).
 
 ## Configuration review (read 2026-11-17)
 

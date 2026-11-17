@@ -12,7 +12,7 @@ Serverless Notes is a multi-user private notes application that demonstrates a s
 
 **Public site:** https://d11c0a7q5fx9qi.cloudfront.net (S3 + CloudFront, 2026-11-17). Registration with a real mailbox, password reset and CRUD were checked manually by the project owner on 2026-11-17.
 
-**Bachelor-stage evaluation (2026-11-17):** concurrency benchmark up to 8 clients / 60 req/s (100 % success, median 120–126 ms), per-method throttle measured, negative-token tests 9/9 (immediate checks) (incl. a real expired token: pending (expected 401)), security/monitoring/cost evaluations, Cost Explorer reconciliation (payable USD 0; gross usage from an unrelated EC2 instance). Draft: `docs/thesis/BACHELOR_THESIS_DRAFT.md`.
+**Bachelor-stage evaluation (2026-11-17):** concurrency benchmark up to 8 clients / 60 req/s (100 % success, median 120–126 ms), per-method throttle measured, negative-token tests 10/10 (incl. a real expired token: 401 (PASS)), security/monitoring/cost evaluations, Cost Explorer reconciliation (payable USD 0; gross usage from an unrelated EC2 instance). Draft: `docs/thesis/BACHELOR_THESIS_DRAFT.md`.
 
 **Still open:** alarm notifications (no `AlarmEmail`), the GitHub deploy workflow, the thesis services' share of the real bill (not yet in Cost Explorer), load above ≈ 60 req/s.
 
