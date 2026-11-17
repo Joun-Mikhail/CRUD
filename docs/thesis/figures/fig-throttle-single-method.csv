@@ -1,0 +1,3 @@
+run,http_200,http_429,offered_rps
+"8 clients, unpaced",94,6,58.77
+"4 clients, 20.0 req/s",83,17,19.78
