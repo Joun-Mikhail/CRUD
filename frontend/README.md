@@ -56,4 +56,4 @@ csp.ts                      builds the Content-Security-Policy injected into ind
 
 ## Verification
 
-66 unit/component tests and 14 browser tests (including an axe accessibility audit in both themes) pass against the Local Demo; the production build was smoke-tested under its CSP. **AWS mode has only been tested with a mocked Cognito** — the first real sign-in against a deployed stack is still to be done.
+66 unit/component tests and 14 browser tests (including an axe accessibility audit in both themes) pass against the Local Demo; the production build was smoke-tested under its CSP. AWS mode was tested in a real browser against the deployed stack and the public CloudFront site on 2026-11-17 (`docs/testing/TESTING.md`).

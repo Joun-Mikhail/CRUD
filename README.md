@@ -4,7 +4,7 @@
 
 A multi-user private notes application: users register and sign in with Amazon Cognito, and create, read, update and delete notes through a REST API on API Gateway backed by Python Lambda functions and DynamoDB. Each note belongs to one user; nobody else can read or change it.
 
-> **Status.** **Deployed to AWS (eu-north-1) and tested on 2026-11-17**: 38/38 live API checks (authentication, scopes, isolation, errors, CORS, throttling), the React app against real Cognito in a browser, CloudWatch logs and alarms, and a latency benchmark. Locally: 187 backend tests (99 % coverage), 66 frontend tests, 14 browser tests (including an axe accessibility audit), static analysis, template validation. Not yet verified on AWS: entering a real e-mailed code, password reset, token expiry. Details: [`PROJECT_COMPLETION_REPORT.md`](PROJECT_COMPLETION_REPORT.md).
+> **Status.** **Deployed to AWS (eu-north-1) and tested on 2026-11-17**: 38/38 live API checks (authentication, scopes, isolation, errors, CORS, throttling), the React app against real Cognito in a browser, CloudWatch logs and alarms, and a latency benchmark. Public site since 2026-11-17: **https://d11c0a7q5fx9qi.cloudfront.net** (S3 + CloudFront). Locally: 193 backend tests (99 % coverage), 66 frontend tests, 14 browser tests (including an axe accessibility audit), static analysis, template validation. Registration with a real mailbox, the e-mailed code, password reset and CRUD on the public site were checked manually by the project owner on 2026-11-17. Not verified: token expiry, wrong-issuer tokens, alarm notifications. Details: [`PROJECT_COMPLETION_REPORT.md`](PROJECT_COMPLETION_REPORT.md).
 
 New here? Read [`START_HERE.md`](START_HERE.md).
 
@@ -121,6 +121,7 @@ evidence/           test outputs, build logs, benchmark, screenshots
 | [docs/learning/](docs/learning/README.md) | 12 lessons with exercises |
 | [SUPERVISOR_QUESTIONS.md](SUPERVISOR_QUESTIONS.md) | 40 defence questions with answers |
 | [PROJECT_COMPLETION_REPORT.md](PROJECT_COMPLETION_REPORT.md) | what is done, verified, and open |
+| [docs/thesis/](docs/thesis/README.md) | semestral report draft, requirements matrix, author review list, supervisor summary, demo script |
 | [CLAUDE.md](CLAUDE.md) · [PROJECT_STATE.md](PROJECT_STATE.md) | conventions and current state for contributors and AI assistants |
 
 ## Screenshots
@@ -131,14 +132,13 @@ evidence/           test outputs, build logs, benchmark, screenshots
 | ![Editor](evidence/screenshots/04-editor-1280.png) | ![Architecture explorer](evidence/screenshots/05-architecture-1280.png) |
 | ![API explorer](evidence/screenshots/06-api-explorer-1280.png) | ![Dark theme](evidence/screenshots/08-notes-dark-1280.png) |
 
-All screenshots show the Local Demo.
+These screenshots show the Local Demo; screenshots of the deployed system are `evidence/screenshots/aws-*.png`.
 
 ## Known limitations
 
-- Not deployed; nothing AWS-specific has been observed working. Deploy, cleanup and live-test scripts are unexecuted.
-- Performance measured with one sequential client only; the cost estimate uses list prices, not a real bill.
-- AWS-mode sign-in has only been tested against a mocked Cognito.
-- The frontend is not hosted (runs locally); there is no account-deletion screen.
+- Development stage only (`Stage=dev`, no backups); the destroy scripts and the GitHub deploy workflow have not been executed (no OIDC role).
+- Performance measured with one sequential client only (no concurrent load test); the cost estimate uses list prices, not a real bill.
+- Hosted on the default `*.cloudfront.net` domain; there is no account-deletion screen.
 - Throttling is per API stage, not per user; no MFA; no WAF. See `docs/security/SECURITY.md`.
 - Search and sorting in the UI apply to loaded notes only (stated in the UI); there is no server-side search.
 - Tested in Chromium only. The automated axe audit passes; no manual screen-reader review was done.

@@ -10,7 +10,9 @@ Serverless Notes is a multi-user private notes application that demonstrates a s
 
 **Deployed and verified on AWS (2026-11-17):** the development stack `serverless-notes-dev` in eu-north-1. The live suite passed 38/38 checks (thesis table, authentication, scopes, isolation, routing, validation, CORS, throttling); the React app worked against real Cognito and the real API in a browser; CloudWatch logs, Logs Insights and alarm metrics were checked; a bounded benchmark measured latency and cold starts.
 
-**Still open:** entering a real e-mailed verification code and password reset against real Cognito, expired-token / wrong-issuer cases, alarm notifications, the GitHub deploy workflow, and a comparison with the real bill.
+**Public site:** https://d11c0a7q5fx9qi.cloudfront.net (S3 + CloudFront, 2026-11-17). Registration with a real mailbox, password reset and CRUD were checked manually by the project owner on 2026-11-17.
+
+**Still open:** expired-token / wrong-issuer cases, alarm notifications, the GitHub deploy workflow, and a comparison with the real bill.
 
 ## Architecture summary
 
@@ -20,7 +22,7 @@ Browser (React) → Amazon Cognito (sign-up, hosted sign-in, Authorization Code 
 
 | Requirement | Code | Verified locally | Verified on AWS |
 |---|---|---|---|
-| FR-001 Registration (Cognito sign-up, password policy, verification) and password reset | yes | component tests with mocked Cognito | sign-up and wrong-code handling yes; reading the e-mailed code and password reset **no** |
+| FR-001 Registration (Cognito sign-up, password policy, verification) and password reset | yes | component tests with mocked Cognito | sign-up and wrong-code handling yes (automated); e-mailed code and password reset: manual owner check only |
 | FR-002 Login (PKCE, in-memory tokens, refresh, expiry, logout) | yes | unit tests with mocked Cognito | yes (hosted sign-in with PKCE, session restore after reload, sign-out); expiry not observed |
 | FR-003 Create note | yes | yes | yes |
 | FR-004 List notes (index query, pagination, ordering) | yes | yes | yes (pagination not exercised on AWS) |
@@ -41,7 +43,7 @@ Browser (React) → Amazon Cognito (sign-up, hosted sign-in, Authorization Code 
 
 | Command | Outcome |
 |---|---|
-| `cd backend && .venv/bin/pytest --cov` | 187 passed; coverage 99.01 % |
+| `cd backend && .venv/bin/pytest --cov` | 193 passed; coverage 99.01 % (2026-11-17) |
 | `ruff check .` · `ruff format --check .` · `mypy` | clean |
 | `pip-audit` | no known vulnerabilities |
 | `cd frontend && npm test` | 66 passed |
@@ -98,7 +100,7 @@ Built, launched and tested in Local Demo mode in a real browser (14 tests, four 
 
 ## Remaining limitations
 
-1. Not verified on AWS: entering a real e-mailed code, password reset, token expiry, wrong-issuer tokens, alarm notifications, pagination, 409/503 paths.
+1. Not verified on AWS by an automated test: e-mailed code and password reset (manual owner check only), token expiry, wrong-issuer tokens, alarm notifications, pagination, 409/503 paths.
 2. Cost analysis uses Stockholm list prices from the AWS Price List API; no real bill yet.
 3. Gateway behaviour that the template cannot change: unknown route with an `Authorization` header → 403 `BAD_REQUEST`; >10 MB bodies → plain-text 413; approximate throttling (see `docs/performance/PERFORMANCE.md`).
 4. `destroy.sh` and the GitHub deploy workflow unexecuted.
