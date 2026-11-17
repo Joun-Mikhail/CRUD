@@ -12,6 +12,7 @@ import { useApi } from '../hooks/useApi'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { useNotes } from '../hooks/useNotes'
 import { useToast } from '../hooks/useToast'
+import { isExperimentNote } from '../lab/experimentFormat'
 import { PageHeader } from '../layouts/AppLayout'
 import { isApiError } from '../services/apiClient'
 import { NOTE_LIMITS, type Note } from '../types/api'
@@ -245,6 +246,15 @@ export function NoteEditorPage() {
                 Discard my changes and load the latest version
               </Button>
             </div>
+          ) : null}
+          {saved && isExperimentNote(saved) ? (
+            <p className="rounded-md bg-violet-soft px-3 py-2 text-sm text-violet-ink">
+              This note is a LabProof experiment stored as JSON.{' '}
+              <Link to={`/lab/${saved.noteId}`} className="font-medium underline underline-offset-2">
+                Open it in the lab
+              </Link>{' '}
+              to edit it safely; changing the JSON here can make it unreadable as an experiment.
+            </p>
           ) : null}
           {formError ? (
             <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-sm text-danger-ink">

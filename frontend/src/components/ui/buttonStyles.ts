@@ -1,6 +1,6 @@
 import { cx } from '../../utils/cx'
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'inverse'
 export type ButtonSize = 'sm' | 'md'
 
 const VARIANTS: Record<ButtonVariant, string> = {
@@ -8,6 +8,8 @@ const VARIANTS: Record<ButtonVariant, string> = {
   secondary: 'bg-surface text-fg border border-line-strong hover:bg-subtle',
   ghost: 'bg-transparent text-muted border border-transparent hover:bg-subtle hover:text-fg',
   danger: 'bg-danger text-danger-fg hover:bg-danger-hover border border-transparent',
+  /** White button for dark (navy) hero panels. */
+  inverse: 'bg-white text-navy hover:bg-blue-50 border border-transparent',
 }
 
 const SIZES: Record<ButtonSize, string> = {

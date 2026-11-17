@@ -1,0 +1,11 @@
+# LabProof Lite branch — frontend unit/component tests (Local, no AWS)
+# Command: cd frontend && npx vitest run   (2026-11-17T22:04Z, feature/labproof-lite-ohms-law)
+
+ RUN  v5.1.0 C:/Users/jhash/CRUD/frontend
+
+
+ Test Files  7 passed (7)
+      Tests  106 passed (106)
+   Start at  23:04:16
+   Duration  8.02s (tests 50%, environment 34%, setup 8%, import 6%, transform 2%)
+
