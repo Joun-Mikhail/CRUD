@@ -3,6 +3,8 @@ version = 0.1
 
 [default.global.parameters]
 stack_name = "serverless-notes-dev"
+# The thesis specifies eu-central-1 (Frankfurt). To deploy elsewhere, change this value AND
+# export AWS_REGION to the same region so the helper scripts follow it.
 region = "eu-central-1"
 
 [default.build.parameters]

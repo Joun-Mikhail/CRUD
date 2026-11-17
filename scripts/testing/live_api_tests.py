@@ -26,6 +26,7 @@ import base64
 import hashlib
 import http.cookiejar
 import json
+import os
 import secrets
 import string
 import sys
@@ -115,7 +116,7 @@ def api(base: str, method: str, path: str, token: str | None = None, body: Any =
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("--stack-name", default="serverless-notes-dev")
-    parser.add_argument("--region", default="eu-central-1")
+    parser.add_argument("--region", default=os.environ.get("AWS_REGION", "eu-central-1"))
     parser.add_argument("--redirect-uri", default="http://localhost:5173/auth/callback")
     parser.add_argument("--output", default="evidence/tests/live-api-tests.json")
     args = parser.parse_args()
