@@ -1,22 +1,22 @@
-# pytest --cov  (2026-11-17T13:51Z, Python 3.13.17, Windows 11)
 ============================= test session starts =============================
 platform win32 -- Python 3.13.17, pytest-9.2.0, pluggy-1.7.0
-rootdir: <repo>\backend
+rootdir: C:\Users\jhash\CRUD\backend
 configfile: pyproject.toml
 testpaths: tests
 plugins: platformdirs-4.14.5, cov-7.1.0
-collected 187 items
+collected 193 items
 
 tests\integration\test_api_flow.py ...................................   [ 18%]
-tests\integration\test_local_demo_server.py ...........                  [ 24%]
-tests\integration\test_repository.py ............                        [ 31%]
-tests\security\test_isolation.py .....................                   [ 42%]
-tests\security\test_template.py ...............                          [ 50%]
-tests\unit\test_http.py ........                                         [ 54%]
-tests\unit\test_identity.py ..............                               [ 62%]
-tests\unit\test_pagination.py ..............                             [ 69%]
-tests\unit\test_runtime.py ...                                           [ 71%]
-tests\unit\test_service.py ..............                                [ 78%]
+tests\integration\test_local_demo_server.py ...........                  [ 23%]
+tests\integration\test_repository.py ............                        [ 30%]
+tests\security\test_hosting_template.py .....                            [ 32%]
+tests\security\test_isolation.py .....................                   [ 43%]
+tests\security\test_template.py ................                         [ 51%]
+tests\unit\test_http.py ........                                         [ 55%]
+tests\unit\test_identity.py ..............                               [ 63%]
+tests\unit\test_pagination.py ..............                             [ 70%]
+tests\unit\test_runtime.py ...                                           [ 72%]
+tests\unit\test_service.py ..............                                [ 79%]
 tests\unit\test_validation.py ........................................   [100%]
 
 =============================== tests coverage ================================
@@ -52,4 +52,4 @@ src\notes_api\validation\notes.py                   89      0     38      0   10
 --------------------------------------------------------------------------------------------
 TOTAL                                              598      3    110      4    99%
 Required test coverage of 85.0% reached. Total coverage: 99.01%
-============================ 187 passed in 17.18s =============================
+============================ 193 passed in 17.17s =============================

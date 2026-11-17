@@ -9,7 +9,7 @@
 | Real JWT validation by API Gateway (missing, garbage, tampered and ID tokens, non-Bearer scheme, missing scope) | **Verified on AWS** (eu-north-1, 2026-11-17): all rejected — live checks A01–A07 in `evidence/tests/live-api-tests.json` |
 | Cross-user isolation on the real stack (read, update, delete, list) | **Verified on AWS**: 403 for the other user's note, note unchanged, not in the other user's list (T07, T10, T13, H01, H02); also in the browser with two real Cognito users |
 | IAM policies in effect | **Verified on AWS**: each function's role has exactly one DynamoDB action on the table or index ARN plus `AWSLambdaBasicExecutionRole` (`evidence/aws/deployed-resources.txt`); every API call in the live suite succeeded, so no action is missing |
-| Real Cognito flows | **Verified on AWS**: sign-up, wrong-code rejection, hosted sign-in with PKCE + `state`, session restore, sign-out. **Not verified**: entering a real e-mailed code, password reset |
+| Real Cognito flows | **Verified on AWS**: sign-up, wrong-code rejection, hosted sign-in with PKCE + `state`, session restore, sign-out. Entering a real e-mailed code and password reset were checked manually by the project owner on 2026-11-17 (manual; no evidence file) |
 | Tokens in the browser | **Verified on AWS**: none in `localStorage`, `sessionStorage`, app cookies or the DOM |
 | Log hygiene in CloudWatch | **Verified on AWS**: no note text, tokens, passwords or e-mail addresses in the five log groups after the test runs (`evidence/aws/cloudwatch.txt`) |
 | Expired token, token from another user pool | **Not verified** (not automated) |
@@ -92,7 +92,7 @@ Plus log writing, limited by SAM to each function's own log group. No function c
 
 ## Known limitations
 
-1. Not deployed, so nothing above that depends on AWS behaviour has been observed in practice.
+1. Development stage only. Expired-token and wrong-issuer cases, alarm notifications and a penetration test were not performed (see "Verification status").
 2. MFA is off; no advanced threat protection (requires a paid Cognito tier); no WAF or CAPTCHA in front of sign-up. The hosted site uses the default `*.cloudfront.net` certificate, so its minimum TLS version follows CloudFront's default (a custom domain would allow TLS 1.2+ only).
 3. Throttling is per stage, not per user: one abusive user can consume the shared 10 req/s budget (usage plans/API keys or WAF rate rules would fix this).
 4. Sign-up reveals whether an e-mail is already registered.
