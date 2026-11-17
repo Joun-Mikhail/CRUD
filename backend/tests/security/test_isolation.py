@@ -179,7 +179,7 @@ def test_error_responses_do_not_leak_internals(
     service: NotesService, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     def explode(*_: Any, **__: Any) -> None:
-        raise RuntimeError("arn:aws:dynamodb:eu-central-1:123456789012:table/secret-table")
+        raise RuntimeError("arn:aws:dynamodb:eu-north-1:123456789012:table/secret-table")
 
     monkeypatch.setattr(service, "list_notes", explode)
     response = build_handlers(lambda: service)["list"](make_event("GET"), None)

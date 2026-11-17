@@ -3,16 +3,15 @@ version = 0.1
 
 [default.global.parameters]
 stack_name = "serverless-notes-dev"
-# The thesis specifies eu-central-1 (Frankfurt). To deploy elsewhere, change this value AND
-# export AWS_REGION to the same region so the helper scripts follow it.
-region = "eu-central-1"
+# eu-north-1 (Stockholm) is the project region (docs/decisions/README.md, ADR 0008). To deploy
+# elsewhere, change this value AND export AWS_REGION to the same region so the helper scripts
+# follow it.
+region = "eu-north-1"
+# profile = "<your AWS CLI profile>"   # optional; otherwise AWS_PROFILE / default credentials
 
 [default.build.parameters]
 template_file = "template.yaml"
 cached = true
-
-[default.validate.parameters]
-lint = true
 
 [default.deploy.parameters]
 capabilities = "CAPABILITY_IAM"

@@ -6,7 +6,7 @@ DELETE), so it cleans up after itself and cannot run away. Hard cap: 500 cycles.
 
 Local demo:  python scripts/testing/benchmark.py --base-url http://127.0.0.1:8787 --demo-user alice
 AWS:         NOTES_ACCESS_TOKEN=<access token> python scripts/testing/benchmark.py \
-                 --base-url https://<api-id>.execute-api.eu-central-1.amazonaws.com/dev
+                 --base-url https://<api-id>.execute-api.eu-north-1.amazonaws.com/dev
 
 Numbers measured against the local demo describe your laptop, NOT AWS. Only publish AWS
 figures you measured on a deployed stack.

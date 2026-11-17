@@ -1,0 +1,59 @@
+# Deployed resources, read back from the AWS APIs (2026-11-17T13:16:17Z)
+
+## Lambda
+serverless-notes-dev-create-note	python3.13	arm64	256	10	Active	Successful	18192	/aws/lambda/serverless-notes-dev-create-note
+serverless-notes-dev-list-notes	python3.13	arm64	256	10	Active	Successful	18192	/aws/lambda/serverless-notes-dev-list-notes
+serverless-notes-dev-get-note	python3.13	arm64	256	10	Active	Successful	18192	/aws/lambda/serverless-notes-dev-get-note
+serverless-notes-dev-update-note	python3.13	arm64	256	10	Active	Successful	18192	/aws/lambda/serverless-notes-dev-update-note
+serverless-notes-dev-delete-note	python3.13	arm64	256	10	Active	Successful	18192	/aws/lambda/serverless-notes-dev-delete-note
+
+## Lambda role policies (one action each)
+create-note: dynamodb:PutItem arn:aws:dynamodb:eu-north-1:<account-id>:table/serverless-notes-dev-notes
+create-note managed: AWSLambdaBasicExecutionRole
+list-notes: dynamodb:Query arn:aws:dynamodb:eu-north-1:<account-id>:table/serverless-notes-dev-notes/index/byUser
+list-notes managed: AWSLambdaBasicExecutionRole
+get-note: dynamodb:GetItem arn:aws:dynamodb:eu-north-1:<account-id>:table/serverless-notes-dev-notes
+get-note managed: AWSLambdaBasicExecutionRole
+update-note: dynamodb:UpdateItem arn:aws:dynamodb:eu-north-1:<account-id>:table/serverless-notes-dev-notes
+update-note managed: AWSLambdaBasicExecutionRole
+delete-note: dynamodb:DeleteItem arn:aws:dynamodb:eu-north-1:<account-id>:table/serverless-notes-dev-notes
+delete-note managed: AWSLambdaBasicExecutionRole
+
+## DynamoDB
+serverless-notes-dev-notes	ACTIVE	PAY_PER_REQUEST	ENABLED	noteId	byUser	ACTIVE	userId+userSortKey
+
+## Cognito
+serverless-notes-dev-users	LITE	email	email	12	OFF	serverless-notes-dev-<account-id>	0
+serverless-notes-dev-web	code	email,notes/read,notes/write,openid	http://localhost:5173/auth/callback	ALLOW_REFRESH_TOKEN_AUTH,ALLOW_USER_SRP_AUTH
+serverless-notes-dev-readonly-test	code	notes/read,openid	http://localhost:5173/auth/callback	ALLOW_REFRESH_TOKEN_AUTH,ALLOW_USER_SRP_AUTH
+read	write
+
+## API Gateway
+dev	10.0	20	False
+GET	/notes/{id}	COGNITO_USER_POOLS	notes/read
+PUT	/notes/{id}	COGNITO_USER_POOLS	notes/write
+DELETE	/notes/{id}	COGNITO_USER_POOLS	notes/write
+OPTIONS	/notes/{id}	NONE	
+GET	/notes	COGNITO_USER_POOLS	notes/read
+POST	/notes	COGNITO_USER_POOLS	notes/write
+OPTIONS	/notes	NONE	
+CognitoAuthorizer	COGNITO_USER_POOLS	method.request.header.Authorization
+ACCESS_DENIED	403
+DEFAULT_4XX	None
+DEFAULT_5XX	None
+MISSING_AUTHENTICATION_TOKEN	404
+REQUEST_TOO_LARGE	413
+THROTTLED	429
+UNAUTHORIZED	401
+
+## CloudWatch
+
+/aws/lambda/serverless-notes-dev-create-note	14
+/aws/lambda/serverless-notes-dev-delete-note	14
+/aws/lambda/serverless-notes-dev-get-note	14
+/aws/lambda/serverless-notes-dev-list-notes	14
+/aws/lambda/serverless-notes-dev-update-note	14
+serverless-notes-dev-api-5xx	OK
+serverless-notes-dev-api-latency-p95	OK
+serverless-notes-dev-dynamodb-throttles	OK
+serverless-notes-dev-lambda-errors	OK

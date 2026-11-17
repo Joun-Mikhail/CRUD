@@ -39,7 +39,7 @@ The Local Demo runs every line of the real backend, but identities are simulated
 
 Run the tests:
 ```bash
-make test             # 166 backend + 66 frontend tests
+make test             # 187 backend + 66 frontend tests
 make test-e2e         # 14 browser tests
 ```
 
@@ -61,8 +61,8 @@ make test-e2e         # 14 browser tests
 1. Work through [`docs/learning/`](docs/learning/README.md) — twelve lessons with exercises (and Egyptian-Arabic explanations of the tricky parts), ending in a two-week plan to rebuild the backend yourself.
 2. Read [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md) — what the assignment demands, what the semestral report said, and what was changed and why.
 3. Rehearse [`SUPERVISOR_QUESTIONS.md`](SUPERVISOR_QUESTIONS.md).
-4. Deploy to your own AWS account ([`docs/deployment/DEPLOYMENT.md`](docs/deployment/DEPLOYMENT.md)), run `make live-test`, and measure performance — these steps have **not** been done yet and the thesis needs them.
+4. The stack is deployed (eu-north-1) and was tested on 2026-11-17 — read [`docs/deployment/DEPLOYMENT.md`](docs/deployment/DEPLOYMENT.md) and the "First deployment" section of `docs/deployment/TROUBLESHOOTING.md`, rerun `make live-test` yourself, and register once with your own e-mail address in `npm run dev:aws`.
 
 ## Being straight about where this stands
 
-This is a reference implementation built with AI assistance. Everything that can be checked without AWS has been checked and the evidence is in `evidence/`. It has **never been deployed**. See [`PROJECT_COMPLETION_REPORT.md`](PROJECT_COMPLETION_REPORT.md) for the exact status. For the thesis, the understanding and the AWS results have to be yours.
+This is a reference implementation built with AI assistance. Everything that can be checked without AWS has been checked and the evidence is in `evidence/`. It was **deployed to AWS and tested there on 2026-11-17** (`evidence/aws/`, `evidence/tests/live-api-tests.json`). See [`PROJECT_COMPLETION_REPORT.md`](PROJECT_COMPLETION_REPORT.md) for the exact status. For the thesis, the understanding has to be yours: be ready to explain every AWS result you quote.

@@ -1,53 +1,55 @@
-# pytest --cov  (2026-11-15T09:56Z, Python 3.13.18)
-============================= test session starts ==============================
-platform linux -- Python 3.13.18, pytest-9.2.0, pluggy-1.7.0
-rootdir: /home/user/CRUD/backend
+# pytest --cov  (2026-11-17T13:51Z, Python 3.13.17, Windows 11)
+============================= test session starts =============================
+platform win32 -- Python 3.13.17, pytest-9.2.0, pluggy-1.7.0
+rootdir: <repo>\backend
 configfile: pyproject.toml
 testpaths: tests
 plugins: platformdirs-4.14.5, cov-7.1.0
-collected 166 items
+collected 187 items
 
-tests/integration/test_api_flow.py ...................................   [ 21%]
-tests/integration/test_local_demo_server.py ........                     [ 25%]
-tests/integration/test_repository.py ............                        [ 33%]
-tests/security/test_isolation.py .....................                   [ 45%]
-tests/unit/test_http.py ........                                         [ 50%]
-tests/unit/test_identity.py ..............                               [ 59%]
-tests/unit/test_pagination.py ..............                             [ 67%]
-tests/unit/test_service.py ..............                                [ 75%]
-tests/unit/test_validation.py ........................................   [100%]
+tests\integration\test_api_flow.py ...................................   [ 18%]
+tests\integration\test_local_demo_server.py ...........                  [ 24%]
+tests\integration\test_repository.py ............                        [ 31%]
+tests\security\test_isolation.py .....................                   [ 42%]
+tests\security\test_template.py ...............                          [ 50%]
+tests\unit\test_http.py ........                                         [ 54%]
+tests\unit\test_identity.py ..............                               [ 62%]
+tests\unit\test_pagination.py ..............                             [ 69%]
+tests\unit\test_runtime.py ...                                           [ 71%]
+tests\unit\test_service.py ..............                                [ 78%]
+tests\unit\test_validation.py ........................................   [100%]
 
-================================ tests coverage ================================
-_______________ coverage: platform linux, python 3.13.18-final-0 _______________
+=============================== tests coverage ================================
+______________ coverage: platform win32, python 3.13.17-final-0 _______________
 
 Name                                             Stmts   Miss Branch BrPart  Cover   Missing
 --------------------------------------------------------------------------------------------
-src/notes_api/__init__.py                            0      0      0      0   100%
-src/notes_api/config.py                             18      0      0      0   100%
-src/notes_api/errors.py                             39      0      0      0   100%
-src/notes_api/handlers/__init__.py                   0      0      0      0   100%
-src/notes_api/handlers/create_note.py                3      0      0      0   100%
-src/notes_api/handlers/delete_note.py                3      0      0      0   100%
-src/notes_api/handlers/get_note.py                   3      0      0      0   100%
-src/notes_api/handlers/list_notes.py                 3      0      0      0   100%
-src/notes_api/handlers/update_note.py                3      0      0      0   100%
-src/notes_api/http.py                               96      3     24      3    95%   80, 149, 191
-src/notes_api/logging_utils.py                      30      0      6      1    97%   27->29
-src/notes_api/models/__init__.py                     0      0      0      0   100%
-src/notes_api/models/note.py                        32      0      0      0   100%
-src/notes_api/operations.py                         33      0      2      0   100%
-src/notes_api/pagination.py                         31      0     10      0   100%
-src/notes_api/repositories/__init__.py               0      0      0      0   100%
-src/notes_api/repositories/errors.py                 9      0      0      0   100%
-src/notes_api/repositories/notes_repository.py      80      0     14      0   100%
-src/notes_api/runtime.py                            21      0      0      0   100%
-src/notes_api/security/__init__.py                   0      0      0      0   100%
-src/notes_api/security/identity.py                  24      0      8      0   100%
-src/notes_api/services/__init__.py                   0      0      0      0   100%
-src/notes_api/services/notes_service.py             69      0      6      0   100%
-src/notes_api/validation/__init__.py                 0      0      0      0   100%
-src/notes_api/validation/notes.py                   89      0     38      0   100%
+src\notes_api\__init__.py                            0      0      0      0   100%
+src\notes_api\config.py                             18      0      0      0   100%
+src\notes_api\errors.py                             39      0      0      0   100%
+src\notes_api\handlers\__init__.py                   0      0      0      0   100%
+src\notes_api\handlers\create_note.py                4      0      0      0   100%
+src\notes_api\handlers\delete_note.py                4      0      0      0   100%
+src\notes_api\handlers\get_note.py                   4      0      0      0   100%
+src\notes_api\handlers\list_notes.py                 4      0      0      0   100%
+src\notes_api\handlers\update_note.py                4      0      0      0   100%
+src\notes_api\http.py                               96      3     24      3    95%   80, 149, 191
+src\notes_api\logging_utils.py                      30      0      6      1    97%   27->29
+src\notes_api\models\__init__.py                     0      0      0      0   100%
+src\notes_api\models\note.py                        32      0      0      0   100%
+src\notes_api\operations.py                         33      0      2      0   100%
+src\notes_api\pagination.py                         31      0     10      0   100%
+src\notes_api\repositories\__init__.py               0      0      0      0   100%
+src\notes_api\repositories\errors.py                 9      0      0      0   100%
+src\notes_api\repositories\notes_repository.py      80      0     14      0   100%
+src\notes_api\runtime.py                            28      0      2      0   100%
+src\notes_api\security\__init__.py                   0      0      0      0   100%
+src\notes_api\security\identity.py                  24      0      8      0   100%
+src\notes_api\services\__init__.py                   0      0      0      0   100%
+src\notes_api\services\notes_service.py             69      0      6      0   100%
+src\notes_api\validation\__init__.py                 0      0      0      0   100%
+src\notes_api\validation\notes.py                   89      0     38      0   100%
 --------------------------------------------------------------------------------------------
-TOTAL                                              586      3    108      4    99%
-Required test coverage of 85.0% reached. Total coverage: 98.99%
-============================= 166 passed in 15.92s =============================
+TOTAL                                              598      3    110      4    99%
+Required test coverage of 85.0% reached. Total coverage: 99.01%
+============================ 187 passed in 17.18s =============================

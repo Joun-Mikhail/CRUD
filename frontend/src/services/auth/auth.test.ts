@@ -5,10 +5,10 @@ import { CognitoAuthService, PENDING_KEY, safeReturnPath, WAS_SIGNED_IN_KEY } fr
 import { DemoAuthService } from './demoAuth'
 
 const CONFIG: CognitoConfig = {
-  region: 'eu-central-1',
-  userPoolId: 'eu-central-1_Pool',
+  region: 'eu-north-1',
+  userPoolId: 'eu-north-1_Pool',
   clientId: 'client-1',
-  domain: 'https://notes.auth.eu-central-1.amazoncognito.com',
+  domain: 'https://notes.auth.eu-north-1.amazoncognito.com',
   redirectUri: 'http://localhost:5173/auth/callback',
   logoutUri: 'http://localhost:5173/',
   scopes: ['openid', 'email', 'notes/read', 'notes/write'],
@@ -156,7 +156,7 @@ describe('CognitoAuthService (Authorization Code + PKCE)', () => {
 describe('Cognito sign-up API', () => {
   function idpWith(response: Response) {
     const fetchImpl = vi.fn<typeof fetch>(async () => response)
-    return { idp: createCognitoIdp({ region: 'eu-central-1', clientId: 'client-1', fetchImpl }), fetchImpl }
+    return { idp: createCognitoIdp({ region: 'eu-north-1', clientId: 'client-1', fetchImpl }), fetchImpl }
   }
 
   it('calls SignUp with the public client id', async () => {
@@ -166,7 +166,7 @@ describe('Cognito sign-up API', () => {
     const result = await idp.signUp('student@vut.cz', 'Correct-Horse-9')
     expect(result).toEqual({ userConfirmed: false, codeDestination: 's***@v***' })
     const [url, init] = fetchImpl.mock.calls[0] ?? []
-    expect(url).toBe('https://cognito-idp.eu-central-1.amazonaws.com/')
+    expect(url).toBe('https://cognito-idp.eu-north-1.amazonaws.com/')
     expect(new Headers(init?.headers).get('X-Amz-Target')).toBe('AWSCognitoIdentityProviderService.SignUp')
     expect(JSON.parse(String(init?.body))).toMatchObject({ ClientId: 'client-1', Username: 'student@vut.cz' })
   })
@@ -189,7 +189,7 @@ describe('Cognito sign-up API', () => {
     const { idp, fetchImpl } = idpWith(new Response('{}', { status: 200 }))
     await idp.confirmForgotPassword('student@vut.cz', ' 123456 ', 'Correct-Horse-9')
     const [url, init] = fetchImpl.mock.calls[0] ?? []
-    expect(url).toBe('https://cognito-idp.eu-central-1.amazonaws.com/')
+    expect(url).toBe('https://cognito-idp.eu-north-1.amazonaws.com/')
     expect(new Headers(init?.headers).get('X-Amz-Target')).toBe(
       'AWSCognitoIdentityProviderService.ConfirmForgotPassword',
     )

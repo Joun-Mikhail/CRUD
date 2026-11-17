@@ -29,7 +29,7 @@ def _aws_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     """Fake credentials so no test can ever reach a real AWS account."""
     monkeypatch.setenv("AWS_ACCESS_KEY_ID", "testing")
     monkeypatch.setenv("AWS_SECRET_ACCESS_KEY", "testing")
-    monkeypatch.setenv("AWS_DEFAULT_REGION", "eu-central-1")
+    monkeypatch.setenv("AWS_DEFAULT_REGION", "eu-north-1")
     monkeypatch.delenv("AWS_SESSION_TOKEN", raising=False)
     monkeypatch.delenv("AWS_PROFILE", raising=False)
 

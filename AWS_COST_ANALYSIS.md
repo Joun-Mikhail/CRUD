@@ -1,37 +1,43 @@
 # AWS cost analysis
 
-> **Read this first.** The unit prices below are list prices for `eu-central-1` (Frankfurt). A web check on 2026-11-15 confirmed some facts and could not confirm others (see "Verification status" below): **the Frankfurt-specific unit prices remain unconfirmed.** Treat every figure as an estimate, verify each unit price on the linked AWS pricing page with the region set to Europe (Frankfurt) before quoting it in the thesis, and prefer the [AWS Pricing Calculator](https://calculator.aws/). Prices exclude VAT. Nothing has been deployed, so there is no real bill to compare with.
+> **Read this first.** The unit prices below are list prices for `eu-north-1` (Stockholm), read from the **AWS Price List API** (`pricing:GetProducts`, filter `regionCode=eu-north-1`) on 2026-11-16. The scenario totals are still **estimates** built on the stated assumptions: the development stack was deployed on 2026-11-17, but Cost Explorer needs a day or more to show usage, so no real bill has been compared yet. Usage during the 2026-11-17 tests: roughly 2,000 API requests, 2,000 Lambda invocations and a few thousand DynamoDB request units — a cost of well under one cent at the prices below. Prices exclude VAT and can change; re-check before quoting them in the thesis ([AWS Pricing Calculator](https://calculator.aws/)).
 
-## Verification status (web check, 2026-11-15)
+## Verification status
 
 | Item | Result | Source |
 |---|---|---|
-| Free Tier change of 15 July 2025: new accounts choose a Free or Paid plan; the Free plan ends after 6 months or when credits run out; up to $200 in credits; older accounts keep the 12-month model | **Confirmed** | [AWS What's New](https://aws.amazon.com/about-aws/whats-new/2025/07/aws-free-tier-credits-month-free-plan), [AWS News Blog](https://aws.amazon.com/blogs/aws/aws-free-tier-update-new-customers-can-get-started-and-explore-aws-with-up-to-200-in-credits) |
-| Cognito: 10,000 MAU per month free on Lite and Essentials, not tied to the 12-month term; Essentials $0.015 per MAU above that | **Confirmed** | [Cognito pricing](https://aws.amazon.com/cognito/pricing) |
-| Cognito Lite ≈ $0.0055 per MAU above the free allowance | Third-party source only | [Frontegg guide](https://frontegg.com/guides/aws-cognito-pricing) |
-| Lambda: 1 million requests and 400,000 GB-seconds free per month; $0.20 per million requests; arm64 $0.0000133334 vs x86 $0.0000166667 per GB-second | Confirmed for US East by third-party guides; **Frankfurt rate not confirmed** (may carry a small uplift) | [Wiz](https://wiz.io/academy/cloud-cost/aws-lambda-cost-breakdown), [official page](https://aws.amazon.com/lambda/pricing/) |
-| API Gateway: REST $3.50 and HTTP API $1.00 per million in US regions | Third-party sources | [CloudZero](https://www.cloudzero.com/blog/aws-api-gateway-pricing) |
-| API Gateway REST in Frankfurt $3.70 per million | Only an **archived 2018** copy of the AWS page shows this; current value not confirmed | [official page](https://aws.amazon.com/api-gateway/pricing/) |
-| DynamoDB on-demand: $0.625 per million writes, $0.125 per million reads, $0.25 per GB-month in us-east-1 | Third-party calculator; **no Frankfurt figures found**. The Frankfurt values used below (≈ $0.76 / $0.15 / $0.31) are my estimate of the regional uplift | [Dynobase](https://dynobase.dev/dynamodb-cost-optimization/), [official page](https://aws.amazon.com/dynamodb/pricing/on-demand/) |
-| CloudWatch Logs and alarm prices, data-transfer allowance | Not checked | [official page](https://aws.amazon.com/cloudwatch/pricing/) |
+| Unit prices in the table below (API Gateway REST, Lambda arm64, DynamoDB on-demand, Cognito Lite, CloudWatch Logs and alarms, S3 storage) | **Confirmed for eu-north-1** on 2026-11-16 | AWS Price List API |
+| Free Tier change of 15 July 2025: new accounts choose a Free or Paid plan; the Free plan ends after 6 months or when credits run out; up to $200 in credits; older accounts keep the 12-month model | **Confirmed** (web check 2026-11-15) | [AWS What's New](https://aws.amazon.com/about-aws/whats-new/2025/07/aws-free-tier-credits-month-free-plan), [AWS News Blog](https://aws.amazon.com/blogs/aws/aws-free-tier-update-new-customers-can-get-started-and-explore-aws-with-up-to-200-in-credits) |
+| Cognito: 10,000 MAU per month free on Lite and Essentials | **Confirmed** (web check 2026-11-15); the Price List API lists only the paid tiers | [Cognito pricing](https://aws.amazon.com/cognito/pricing) |
+| Always-free allowances (Lambda 1 million requests + 400,000 GB-seconds; CloudWatch 5 GB logs and 10 alarm-metrics; 100 GB data transfer out) | Not re-checked for this account; the estimates ignore them | pricing pages |
+| Data transfer out, SNS, HTTP API prices | Not queried | pricing pages |
 
-Because the estimates deliberately use the higher Frankfurt-style figures and ignore every free allowance, a correction is more likely to lower the totals than to raise them. The conclusions (pay-per-use, API Gateway dominates at scale, near-zero idle cost) do not depend on the exact values.
+## This project's account (checked 2026-11-16, before any deployment)
+
+| Fact | Value | How it was read |
+|---|---|---|
+| Account plan | Free plan, active; USD 99.68 of credits remaining; plan end date 2027-04-18 | `freetier:GetAccountPlanState` |
+| Budget | "My Monthly Cost Budget": USD 10.00 per month, notifications only, no budget actions | `budgets:DescribeBudgets`, `DescribeBudgetActionsForBudget` |
+| Budget status | Budget "actual" USD 11.21 for November (USD 9.55 in October) — above the limit — but this is **gross usage, fully offset by Free-plan credits: net charge ≈ USD 0**. Cause (checked 2026-11-17): one EC2 `t3.small` instance with a 20 GB gp2 volume and a public IPv4 address, running in eu-north-1 since 2026-10-18 and **unrelated to this project** — about USD 0.71 per day (EC2 compute ≈ 73 %, VPC public IPv4 ≈ 17 %, EBS ≈ 10 %). At that rate the remaining credits (USD 98.94) last until about early April 2027; the Free plan ends on 2027-04-18 or when the credits run out. | `budgets:DescribeBudgets`, Cost Explorer `GetCostAndUsage` (grouped by service, region and record type), `ec2:DescribeInstances` |
+| Allowed region | eu-north-1 only (organization policy; ADR 0008) | `iam:SimulatePrincipalPolicy` |
+
+Expected cost of deploying and testing the development stack: the nine alarm-metrics accrue about $0.90 per month ($0.03 per day) at list price, everything else is per request. One deployment, the live tests and a bounded benchmark (a few thousand requests) come to **a few cents; under $1 if the stack is left running for a month** without traffic. Details in the scenarios below.
 
 ## What costs money in this architecture
 
 Everything is pay-per-use; there is no always-on server, load balancer, NAT gateway or provisioned database.
 
-| Service | Billed for | Unit price to verify (eu-central-1, approximate) | Pricing page |
+| Service | Billed for | Unit price, eu-north-1 (Price List API, 2026-11-16) | Pricing page |
 |---|---|---|---|
-| API Gateway REST API | requests | ≈ $3.70 per million | aws.amazon.com/api-gateway/pricing |
-| Lambda (arm64) | requests + duration × memory | ≈ $0.20 per million requests + ≈ $0.0000133 per GB-second | aws.amazon.com/lambda/pricing |
-| DynamoDB on-demand | read/write request units + storage | ≈ $0.76 per million write units, ≈ $0.15 per million read units, ≈ $0.31 per GB-month | aws.amazon.com/dynamodb/pricing/on-demand |
-| Cognito user pool (Lite tier) | monthly active users (MAU) | first 10,000 MAU free, then ≈ $0.0055 per MAU | aws.amazon.com/cognito/pricing |
-| CloudWatch Logs | GB ingested + GB stored | ≈ $0.63 per GB ingested, ≈ $0.03 per GB-month stored | aws.amazon.com/cloudwatch/pricing |
-| CloudWatch alarms | per alarm-month | ≈ $0.10 per standard alarm (4 alarms; metric-math alarms are billed per metric they use, so count ≈ 9 alarm-metrics) | same |
-| Data transfer out | GB to the internet | first 100 GB/month free (account-wide), then ≈ $0.09 per GB | aws.amazon.com/ec2/pricing/on-demand (Data Transfer) |
-| S3 (SAM deployment artifacts) | storage | a few MB → fractions of a cent | aws.amazon.com/s3/pricing |
-| SNS e-mail (only if `AlarmEmail` set) | notifications | first 1,000 e-mails/month free | aws.amazon.com/sns/pricing |
+| API Gateway REST API | requests | $3.50 per million (first 333 million per month) | aws.amazon.com/api-gateway/pricing |
+| Lambda (arm64) | requests + duration × memory | $0.20 per million requests + $0.0000133334 per GB-second (x86: $0.0000166667) | aws.amazon.com/lambda/pricing |
+| DynamoDB on-demand | read/write request units + storage | $0.67 per million write units, $0.1345 per million read units, $0.269 per GB-month (first 25 GB free) | aws.amazon.com/dynamodb/pricing/on-demand |
+| Cognito user pool (Lite tier) | monthly active users (MAU) | first 10,000 MAU free, then $0.0055 per MAU | aws.amazon.com/cognito/pricing |
+| CloudWatch Logs | GB ingested + GB stored | $0.54 per GB ingested, $0.028 per GB-month stored | aws.amazon.com/cloudwatch/pricing |
+| CloudWatch alarms | per alarm-metric-month | $0.10 per standard-resolution alarm metric (4 alarms; metric-math alarms are billed per metric they use: 1 + 1 + 5 + 2 = 9 alarm-metrics) | same |
+| Data transfer out | GB to the internet | first 100 GB/month free (account-wide), then ≈ $0.09 per GB (not queried) | aws.amazon.com/ec2/pricing/on-demand (Data Transfer) |
+| S3 (SAM deployment artifacts) | storage | $0.023 per GB-month; the package is about 18 KB → far below a cent | aws.amazon.com/s3/pricing |
+| SNS e-mail (only if `AlarmEmail` set) | notifications | first 1,000 e-mails/month free (not queried) | aws.amazon.com/sns/pricing |
 
 Not used, therefore no cost: VPC/NAT gateway, provisioned concurrency, X-Ray, API Gateway caching, WAF, KMS customer keys, CloudWatch dashboards, detailed API metrics, Cognito Essentials/Plus features, SES.
 
@@ -58,21 +64,21 @@ The estimates below therefore show **list price without any free tier** (worst c
 |---|---|---|---|
 | Users (MAU) | 5 | 200 | 5,000 |
 | Requests / month | 10,000 | 300,000 | 5,000,000 |
-| API Gateway | $0.04 | $1.11 | $18.50 |
+| API Gateway | $0.04 | $1.05 | $17.50 |
 | Lambda requests | $0.002 | $0.06 | $1.00 |
 | Lambda duration | $0.001 | $0.03 | $0.50 |
-| DynamoDB writes | $0.003 | $0.09 | $1.52 |
-| DynamoDB reads | $0.003 | $0.08 | $1.31 |
-| DynamoDB storage | < $0.01 (MBs) | $0.01 (≈ 20 MB) | $0.31 (≈ 1 GB incl. index) |
+| DynamoDB writes | $0.003 | $0.08 | $1.34 |
+| DynamoDB reads | $0.002 | $0.07 | $1.18 |
+| DynamoDB storage | < $0.01 (MBs) | $0.01 (≈ 20 MB) | $0.27 (≈ 1 GB incl. index) |
 | Cognito | $0 | $0 | $0 (under 10,000 MAU) |
-| CloudWatch Logs | $0.006 | $0.17 | $2.84 |
+| CloudWatch Logs | $0.005 | $0.15 | $2.49 |
 | CloudWatch alarms | ≈ $0.90 | ≈ $0.90 | ≈ $0.90 |
 | Data transfer | $0 | $0 | $0 (≈ 10 GB < 100 GB) |
-| **Total (approx.)** | **≈ $1** | **≈ $2.50** | **≈ $27** |
+| **Total (approx.)** | **≈ $1** | **≈ $2.35** | **≈ $25** |
 
 Observations:
 - At thesis scale the bill is dominated by the **alarms**, not by traffic — and those fall inside the always-free CloudWatch allowance if your account has it, making the realistic figure a few cents. Delete the alarms from the template if you want literally minimal cost.
-- At scale the dominant line is **API Gateway REST requests** (~70 %). An HTTP API (≈ $1.20 per million in Frankfurt — verify) would cut the moderate scenario by roughly $12; see ADR 0001 for why the REST API was kept.
+- At scale the dominant line is **API Gateway REST requests** (~70 %). An HTTP API costs roughly a third as much per request (its Stockholm price was not queried) and would cut the moderate scenario by roughly $11; see ADR 0001 for why the REST API was kept.
 - Cost grows linearly with requests and falls to (almost) zero with no traffic. A comparable always-on setup (one small EC2 instance or container + a managed relational database + load balancer) costs tens of dollars per month even when idle.
 - Cognito becomes the largest item only beyond 10,000 monthly active users.
 
@@ -89,8 +95,8 @@ Observations:
 ## Keeping the cost under control
 
 1. Use a dedicated AWS account for the project.
-2. Create a budget with e-mail alerts (e.g. $5): Billing → Budgets. **A budget only notifies you — it does not stop resources or cap spending.**
-3. The stage throttle (10 req/s) bounds the worst case: 10 req/s × 30 days ≈ 26 million requests ≈ $130/month if someone hammered the API continuously with *valid* credentials; unauthenticated requests rejected by the authorizer are not billed by Lambda/DynamoDB (verify whether API Gateway bills rejected requests on the pricing page).
+2. Keep a budget with e-mail alerts: Billing → Budgets (this account has one of $10 per month — see the account table above; it is already exceeded). **A budget only notifies you — it does not stop resources or cap spending.**
+3. The stage throttle (10 req/s) bounds the worst case: 10 req/s × 30 days ≈ 26 million requests ≈ $125/month if someone hammered the API continuously with *valid* credentials; unauthenticated requests rejected by the authorizer are not billed by Lambda/DynamoDB (verify whether API Gateway bills rejected requests on the pricing page).
 4. Log retention is 14 days, so log storage cannot grow without bound.
 5. When you are not working on the project for a while: `make destroy`. Redeploying takes minutes.
 6. Check actual usage: Billing → Bills (by service) and Free Tier; CloudWatch metric `AWS/ApiGateway Count` for request volume.

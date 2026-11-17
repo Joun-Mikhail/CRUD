@@ -21,7 +21,7 @@ The template is an architect's drawing; CloudFormation is the builder. You chang
 ## In this repository
 ```mermaid
 flowchart LR
-  T[template.yaml + backend/src] -->|sam validate --lint| V[checked]
+  T[template.yaml + backend/src] -->|cfn-lint + sam validate| V[checked]
   V -->|sam build| B[.aws-sam/build]
   B -->|sam deploy| S3[(S3 artifact bucket)]
   S3 --> CF[CloudFormation change set → stack]
@@ -50,7 +50,8 @@ The commands (also wrapped in the `Makefile`):
 ```bash
 cd infrastructure
 cp samconfig.example.toml samconfig.toml
-sam validate --lint          # is the template well-formed and sensible?
+sam validate                 # does the SAM transform accept it? (what CloudFormation will run)
+sam validate --lint          # cfn-lint rules only - this form skips the transform
 sam build                    # package backend/src for each function
 sam deploy                   # show change set, ask, create/update the stack
 make frontend-env            # (repo root) write frontend/.env.aws from the outputs
@@ -76,7 +77,7 @@ make destroy                 # delete everything
 ```bash
 python3 -m venv /tmp/samenv && /tmp/samenv/bin/pip install -q cfn-lint aws-sam-cli
 /tmp/samenv/bin/cfn-lint infrastructure/template.yaml && echo "lint ok"
-/tmp/samenv/bin/sam validate --lint --region eu-central-1 -t infrastructure/template.yaml
+/tmp/samenv/bin/sam validate --region eu-north-1 -t infrastructure/template.yaml
 ```
 1. Break it: in `template.yaml` change `KeyType: HASH` to `KeyType: HASHH` under `NotesTable`, run `cfn-lint` again, read the message, undo.
 2. Give `GetNoteFunction` a wildcard — change its `Action` to `dynamodb:*` — and explain in one sentence why that would be worse. Undo.

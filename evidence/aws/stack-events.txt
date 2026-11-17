@@ -1,0 +1,108 @@
+# CloudFormation stack events: serverless-notes-dev, eu-north-1 (execution of change set samcli-deploy1794851343)
+2026-11-17T13:14:20 CREATE_IN_PROGRESS   AWS::CloudFormation::Stack             serverless-notes-dev - User Initiated
+2026-11-17T13:14:22 CREATE_IN_PROGRESS   AWS::CloudWatch::Alarm                 ApiLatencyAlarm 
+2026-11-17T13:14:22 CREATE_IN_PROGRESS   AWS::Logs::LogGroup                    ListNotesLogGroup 
+2026-11-17T13:14:22 CREATE_IN_PROGRESS   AWS::Logs::LogGroup                    CreateNoteLogGroup 
+2026-11-17T13:14:22 CREATE_IN_PROGRESS   AWS::Cognito::UserPool                 UserPool 
+2026-11-17T13:14:22 CREATE_IN_PROGRESS   AWS::Logs::LogGroup                    UpdateNoteLogGroup 
+2026-11-17T13:14:22 CREATE_IN_PROGRESS   AWS::DynamoDB::Table                   NotesTable 
+2026-11-17T13:14:22 CREATE_IN_PROGRESS   AWS::Logs::LogGroup                    GetNoteLogGroup 
+2026-11-17T13:14:22 CREATE_IN_PROGRESS   AWS::Logs::LogGroup                    DeleteNoteLogGroup 
+2026-11-17T13:14:22 CREATE_IN_PROGRESS   AWS::CloudWatch::Alarm                 Api5xxAlarm 
+2026-11-17T13:14:23 CREATE_IN_PROGRESS   AWS::Logs::LogGroup                    GetNoteLogGroup - Resource creation Initiated
+2026-11-17T13:14:23 CREATE_IN_PROGRESS   AWS::Logs::LogGroup                    ListNotesLogGroup - Resource creation Initiated
+2026-11-17T13:14:23 CREATE_IN_PROGRESS   AWS::Logs::LogGroup                    CreateNoteLogGroup - Resource creation Initiated
+2026-11-17T13:14:23 CREATE_IN_PROGRESS   AWS::Logs::LogGroup                    UpdateNoteLogGroup - Resource creation Initiated
+2026-11-17T13:14:23 CREATE_IN_PROGRESS   AWS::Logs::LogGroup                    DeleteNoteLogGroup - Resource creation Initiated
+2026-11-17T13:14:23 CREATE_IN_PROGRESS   AWS::CloudWatch::Alarm                 ApiLatencyAlarm - Resource creation Initiated
+2026-11-17T13:14:23 CREATE_IN_PROGRESS   AWS::CloudWatch::Alarm                 Api5xxAlarm - Resource creation Initiated
+2026-11-17T13:14:24 CREATE_IN_PROGRESS   AWS::DynamoDB::Table                   NotesTable - Resource creation Initiated
+2026-11-17T13:14:24 CREATE_IN_PROGRESS   AWS::Cognito::UserPool                 UserPool - Resource creation Initiated
+2026-11-17T13:14:24 CREATE_COMPLETE      AWS::Cognito::UserPool                 UserPool 
+2026-11-17T13:14:25 CREATE_IN_PROGRESS   AWS::Cognito::UserPoolDomain           UserPoolDomain 
+2026-11-17T13:14:25 CREATE_COMPLETE      AWS::CloudWatch::Alarm                 ApiLatencyAlarm 
+2026-11-17T13:14:25 CREATE_IN_PROGRESS   AWS::Cognito::UserPoolResourceServer   NotesResourceServer 
+2026-11-17T13:14:25 CREATE_COMPLETE      AWS::CloudWatch::Alarm                 Api5xxAlarm 
+2026-11-17T13:14:26 CREATE_IN_PROGRESS   AWS::Cognito::UserPoolDomain           UserPoolDomain - Resource creation Initiated
+2026-11-17T13:14:26 CREATE_IN_PROGRESS   AWS::Cognito::UserPoolResourceServer   NotesResourceServer - Resource creation Initiated
+2026-11-17T13:14:27 CREATE_COMPLETE      AWS::Cognito::UserPoolResourceServer   NotesResourceServer 
+2026-11-17T13:14:28 CREATE_IN_PROGRESS   AWS::Cognito::UserPoolClient           ReadOnlyTestClient 
+2026-11-17T13:14:28 CREATE_IN_PROGRESS   AWS::Cognito::UserPoolClient           WebClient 
+2026-11-17T13:14:28 CREATE_COMPLETE      AWS::Cognito::UserPoolDomain           UserPoolDomain 
+2026-11-17T13:14:29 CREATE_IN_PROGRESS   AWS::Cognito::UserPoolClient           ReadOnlyTestClient - Resource creation Initiated
+2026-11-17T13:14:29 CREATE_IN_PROGRESS   AWS::Cognito::UserPoolClient           WebClient - Resource creation Initiated
+2026-11-17T13:14:29 CREATE_COMPLETE      AWS::Cognito::UserPoolClient           WebClient 
+2026-11-17T13:14:29 CREATE_COMPLETE      AWS::Cognito::UserPoolClient           ReadOnlyTestClient 
+2026-11-17T13:14:32 CREATE_IN_PROGRESS   AWS::Logs::LogGroup                    ListNotesLogGroup - Eventual consistency check initiated
+2026-11-17T13:14:32 CREATE_IN_PROGRESS   AWS::Logs::LogGroup                    CreateNoteLogGroup - Eventual consistency check initiated
+2026-11-17T13:14:32 CREATE_IN_PROGRESS   AWS::Logs::LogGroup                    GetNoteLogGroup - Eventual consistency check initiated
+2026-11-17T13:14:32 CREATE_IN_PROGRESS   AWS::Logs::LogGroup                    DeleteNoteLogGroup - Eventual consistency check initiated
+2026-11-17T13:14:32 CREATE_COMPLETE      AWS::Logs::LogGroup                    GetNoteLogGroup 
+2026-11-17T13:14:32 CREATE_IN_PROGRESS   AWS::Logs::LogGroup                    UpdateNoteLogGroup - Eventual consistency check initiated
+2026-11-17T13:14:32 CREATE_COMPLETE      AWS::Logs::LogGroup                    CreateNoteLogGroup 
+2026-11-17T13:14:32 CREATE_COMPLETE      AWS::Logs::LogGroup                    ListNotesLogGroup 
+2026-11-17T13:14:32 CREATE_COMPLETE      AWS::Logs::LogGroup                    UpdateNoteLogGroup 
+2026-11-17T13:14:32 CREATE_COMPLETE      AWS::Logs::LogGroup                    DeleteNoteLogGroup 
+2026-11-17T13:14:46 CREATE_COMPLETE      AWS::DynamoDB::Table                   NotesTable 
+2026-11-17T13:14:47 CREATE_IN_PROGRESS   AWS::CloudWatch::Alarm                 DynamoThrottleAlarm 
+2026-11-17T13:14:47 CREATE_IN_PROGRESS   AWS::IAM::Role                         UpdateNoteFunctionRole 
+2026-11-17T13:14:47 CREATE_IN_PROGRESS   AWS::IAM::Role                         ListNotesFunctionRole 
+2026-11-17T13:14:47 CREATE_IN_PROGRESS   AWS::IAM::Role                         DeleteNoteFunctionRole 
+2026-11-17T13:14:47 CREATE_IN_PROGRESS   AWS::IAM::Role                         CreateNoteFunctionRole 
+2026-11-17T13:14:47 CREATE_IN_PROGRESS   AWS::IAM::Role                         GetNoteFunctionRole 
+2026-11-17T13:14:48 CREATE_IN_PROGRESS   AWS::CloudWatch::Alarm                 DynamoThrottleAlarm - Resource creation Initiated
+2026-11-17T13:14:49 CREATE_IN_PROGRESS   AWS::IAM::Role                         UpdateNoteFunctionRole - Resource creation Initiated
+2026-11-17T13:14:49 CREATE_IN_PROGRESS   AWS::IAM::Role                         CreateNoteFunctionRole - Resource creation Initiated
+2026-11-17T13:14:49 CREATE_IN_PROGRESS   AWS::IAM::Role                         DeleteNoteFunctionRole - Resource creation Initiated
+2026-11-17T13:14:49 CREATE_IN_PROGRESS   AWS::IAM::Role                         GetNoteFunctionRole - Resource creation Initiated
+2026-11-17T13:14:49 CREATE_IN_PROGRESS   AWS::IAM::Role                         ListNotesFunctionRole - Resource creation Initiated
+2026-11-17T13:14:50 CREATE_COMPLETE      AWS::CloudWatch::Alarm                 DynamoThrottleAlarm 
+2026-11-17T13:15:05 CREATE_COMPLETE      AWS::IAM::Role                         DeleteNoteFunctionRole 
+2026-11-17T13:15:05 CREATE_COMPLETE      AWS::IAM::Role                         UpdateNoteFunctionRole 
+2026-11-17T13:15:05 CREATE_COMPLETE      AWS::IAM::Role                         CreateNoteFunctionRole 
+2026-11-17T13:15:05 CREATE_COMPLETE      AWS::IAM::Role                         GetNoteFunctionRole 
+2026-11-17T13:15:05 CREATE_COMPLETE      AWS::IAM::Role                         ListNotesFunctionRole 
+2026-11-17T13:15:06 CREATE_IN_PROGRESS   AWS::Lambda::Function                  DeleteNoteFunction 
+2026-11-17T13:15:06 CREATE_IN_PROGRESS   AWS::Lambda::Function                  UpdateNoteFunction 
+2026-11-17T13:15:06 CREATE_IN_PROGRESS   AWS::Lambda::Function                  CreateNoteFunction 
+2026-11-17T13:15:06 CREATE_IN_PROGRESS   AWS::Lambda::Function                  GetNoteFunction 
+2026-11-17T13:15:06 CREATE_IN_PROGRESS   AWS::Lambda::Function                  ListNotesFunction 
+2026-11-17T13:15:07 CREATE_IN_PROGRESS   AWS::Lambda::Function                  UpdateNoteFunction - Resource creation Initiated
+2026-11-17T13:15:07 CREATE_IN_PROGRESS   AWS::Lambda::Function                  CreateNoteFunction - Resource creation Initiated
+2026-11-17T13:15:07 CREATE_IN_PROGRESS   AWS::Lambda::Function                  DeleteNoteFunction - Resource creation Initiated
+2026-11-17T13:15:07 CREATE_IN_PROGRESS   AWS::Lambda::Function                  GetNoteFunction - Resource creation Initiated
+2026-11-17T13:15:08 CREATE_IN_PROGRESS   AWS::Lambda::Function                  ListNotesFunction - Resource creation Initiated
+2026-11-17T13:15:15 CREATE_COMPLETE      AWS::Lambda::Function                  DeleteNoteFunction 
+2026-11-17T13:15:15 CREATE_COMPLETE      AWS::Lambda::Function                  UpdateNoteFunction 
+2026-11-17T13:15:15 CREATE_COMPLETE      AWS::Lambda::Function                  GetNoteFunction 
+2026-11-17T13:15:15 CREATE_COMPLETE      AWS::Lambda::Function                  CreateNoteFunction 
+2026-11-17T13:15:15 CREATE_COMPLETE      AWS::Lambda::Function                  ListNotesFunction 
+2026-11-17T13:15:15 CREATE_IN_PROGRESS   AWS::CloudWatch::Alarm                 LambdaErrorsAlarm 
+2026-11-17T13:15:16 CREATE_IN_PROGRESS   AWS::ApiGateway::RestApi               NotesApi 
+2026-11-17T13:15:17 CREATE_IN_PROGRESS   AWS::CloudWatch::Alarm                 LambdaErrorsAlarm - Resource creation Initiated
+2026-11-17T13:15:18 CREATE_COMPLETE      AWS::CloudWatch::Alarm                 LambdaErrorsAlarm 
+2026-11-17T13:15:19 CREATE_IN_PROGRESS   AWS::ApiGateway::RestApi               NotesApi - Resource creation Initiated
+2026-11-17T13:15:19 CREATE_COMPLETE      AWS::ApiGateway::RestApi               NotesApi 
+2026-11-17T13:15:19 CREATE_IN_PROGRESS   AWS::Lambda::Permission                DeleteNoteFunctionApiPermissionStage 
+2026-11-17T13:15:20 CREATE_IN_PROGRESS   AWS::Lambda::Permission                ListNotesFunctionApiPermissionStage 
+2026-11-17T13:15:20 CREATE_IN_PROGRESS   AWS::Lambda::Permission                UpdateNoteFunctionApiPermissionStage 
+2026-11-17T13:15:20 CREATE_IN_PROGRESS   AWS::Lambda::Permission                GetNoteFunctionApiPermissionStage 
+2026-11-17T13:15:20 CREATE_IN_PROGRESS   AWS::Lambda::Permission                CreateNoteFunctionApiPermissionStage 
+2026-11-17T13:15:20 CREATE_IN_PROGRESS   AWS::ApiGateway::Deployment            NotesApiDeploymentdb07b95e32 
+2026-11-17T13:15:20 CREATE_IN_PROGRESS   AWS::Lambda::Permission                DeleteNoteFunctionApiPermissionStage - Resource creation Initiated
+2026-11-17T13:15:20 CREATE_IN_PROGRESS   AWS::Lambda::Permission                ListNotesFunctionApiPermissionStage - Resource creation Initiated
+2026-11-17T13:15:20 CREATE_IN_PROGRESS   AWS::Lambda::Permission                CreateNoteFunctionApiPermissionStage - Resource creation Initiated
+2026-11-17T13:15:20 CREATE_IN_PROGRESS   AWS::Lambda::Permission                GetNoteFunctionApiPermissionStage - Resource creation Initiated
+2026-11-17T13:15:20 CREATE_IN_PROGRESS   AWS::Lambda::Permission                UpdateNoteFunctionApiPermissionStage - Resource creation Initiated
+2026-11-17T13:15:21 CREATE_COMPLETE      AWS::Lambda::Permission                ListNotesFunctionApiPermissionStage 
+2026-11-17T13:15:21 CREATE_COMPLETE      AWS::Lambda::Permission                DeleteNoteFunctionApiPermissionStage 
+2026-11-17T13:15:21 CREATE_COMPLETE      AWS::Lambda::Permission                GetNoteFunctionApiPermissionStage 
+2026-11-17T13:15:21 CREATE_COMPLETE      AWS::Lambda::Permission                CreateNoteFunctionApiPermissionStage 
+2026-11-17T13:15:21 CREATE_COMPLETE      AWS::Lambda::Permission                UpdateNoteFunctionApiPermissionStage 
+2026-11-17T13:15:21 CREATE_IN_PROGRESS   AWS::ApiGateway::Deployment            NotesApiDeploymentdb07b95e32 - Resource creation Initiated
+2026-11-17T13:15:21 CREATE_COMPLETE      AWS::ApiGateway::Deployment            NotesApiDeploymentdb07b95e32 
+2026-11-17T13:15:21 CREATE_IN_PROGRESS   AWS::ApiGateway::Stage                 NotesApiStage 
+2026-11-17T13:15:22 CREATE_IN_PROGRESS   AWS::ApiGateway::Stage                 NotesApiStage - Resource creation Initiated
+2026-11-17T13:15:24 CREATE_COMPLETE      AWS::ApiGateway::Stage                 NotesApiStage 
+2026-11-17T13:15:25 CREATE_COMPLETE      AWS::CloudFormation::Stack             serverless-notes-dev 
+failures: 0

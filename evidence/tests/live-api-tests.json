@@ -1,0 +1,318 @@
+{
+  "stack": "serverless-notes-dev",
+  "region": "eu-north-1",
+  "executedAt": "2026-11-17T13:45:26+00:00",
+  "passed": 38,
+  "failed": 0,
+  "results": [
+    {
+      "id": "T01",
+      "description": "POST valid token + body",
+      "expected": 201,
+      "actual": 201,
+      "status": "PASS"
+    },
+    {
+      "id": "T02",
+      "description": "POST missing token",
+      "expected": 401,
+      "actual": 401,
+      "status": "PASS"
+    },
+    {
+      "id": "T03",
+      "description": "POST missing title",
+      "expected": 400,
+      "actual": 400,
+      "status": "PASS"
+    },
+    {
+      "id": "T04",
+      "description": "GET list",
+      "expected": 200,
+      "actual": 200,
+      "status": "PASS"
+    },
+    {
+      "id": "T04b",
+      "description": "list contains only caller's notes",
+      "expected": true,
+      "actual": true,
+      "status": "PASS"
+    },
+    {
+      "id": "T05",
+      "description": "GET list missing token",
+      "expected": 401,
+      "actual": 401,
+      "status": "PASS"
+    },
+    {
+      "id": "T06",
+      "description": "GET own note",
+      "expected": 200,
+      "actual": 200,
+      "status": "PASS"
+    },
+    {
+      "id": "T07",
+      "description": "GET other user's note",
+      "expected": 403,
+      "actual": 403,
+      "status": "PASS"
+    },
+    {
+      "id": "T08",
+      "description": "GET missing note",
+      "expected": 404,
+      "actual": 404,
+      "status": "PASS"
+    },
+    {
+      "id": "T09",
+      "description": "PUT own note",
+      "expected": 200,
+      "actual": 200,
+      "status": "PASS"
+    },
+    {
+      "id": "T10",
+      "description": "PUT other user's note",
+      "expected": 403,
+      "actual": 403,
+      "status": "PASS"
+    },
+    {
+      "id": "T11",
+      "description": "PUT missing note",
+      "expected": 404,
+      "actual": 404,
+      "status": "PASS"
+    },
+    {
+      "id": "T13",
+      "description": "DELETE other user's note",
+      "expected": 403,
+      "actual": 403,
+      "status": "PASS"
+    },
+    {
+      "id": "H01",
+      "description": "note unchanged by other user's attempts",
+      "expected": "Updated",
+      "actual": "Updated",
+      "status": "PASS"
+    },
+    {
+      "id": "H02",
+      "description": "other user's list does not contain the note",
+      "expected": true,
+      "actual": true,
+      "status": "PASS"
+    },
+    {
+      "id": "A01",
+      "description": "garbage bearer token",
+      "expected": 401,
+      "actual": 401,
+      "status": "PASS"
+    },
+    {
+      "id": "A02",
+      "description": "tampered signature",
+      "expected": [
+        401,
+        403
+      ],
+      "actual": 403,
+      "status": "PASS"
+    },
+    {
+      "id": "A03",
+      "description": "ID token instead of access token",
+      "expected": [
+        401,
+        403
+      ],
+      "actual": 401,
+      "status": "PASS"
+    },
+    {
+      "id": "A04",
+      "description": "non-Bearer scheme",
+      "expected": 401,
+      "actual": 401,
+      "status": "PASS"
+    },
+    {
+      "id": "A05",
+      "description": "unknown route with token",
+      "expected": [
+        403,
+        "BAD_REQUEST"
+      ],
+      "actual": [
+        403,
+        "BAD_REQUEST"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "A06",
+      "description": "read-only token can list",
+      "expected": 200,
+      "actual": 200,
+      "status": "PASS"
+    },
+    {
+      "id": "A07",
+      "description": "read-only token cannot create (missing scope)",
+      "expected": [
+        401,
+        403
+      ],
+      "actual": 401,
+      "status": "PASS"
+    },
+    {
+      "id": "R01",
+      "description": "unknown route without token",
+      "expected": [
+        404,
+        "NOT_FOUND"
+      ],
+      "actual": [
+        404,
+        "NOT_FOUND"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "R02",
+      "description": "unsupported method with token",
+      "expected": [
+        403,
+        "BAD_REQUEST"
+      ],
+      "actual": [
+        403,
+        "BAD_REQUEST"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "V01",
+      "description": "client-supplied userId rejected",
+      "expected": [
+        400,
+        "VALIDATION_ERROR"
+      ],
+      "actual": [
+        400,
+        "VALIDATION_ERROR"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "V02",
+      "description": "malformed JSON",
+      "expected": 400,
+      "actual": 400,
+      "status": "PASS"
+    },
+    {
+      "id": "V03",
+      "description": "invalid note id",
+      "expected": 400,
+      "actual": 400,
+      "status": "PASS"
+    },
+    {
+      "id": "V04",
+      "description": "body over 128 KB",
+      "expected": 413,
+      "actual": 413,
+      "status": "PASS"
+    },
+    {
+      "id": "C01",
+      "description": "preflight allows the configured origin",
+      "expected": [
+        200,
+        "http://localhost:5173"
+      ],
+      "actual": [
+        200,
+        "http://localhost:5173"
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "C02",
+      "description": "preflight allows Authorization header",
+      "expected": true,
+      "actual": true,
+      "status": "PASS"
+    },
+    {
+      "id": "C03",
+      "description": "CORS header on a successful response",
+      "expected": "http://localhost:5173",
+      "actual": "http://localhost:5173",
+      "status": "PASS"
+    },
+    {
+      "id": "C04",
+      "description": "CORS header on a gateway 401",
+      "expected": "http://localhost:5173",
+      "actual": "http://localhost:5173",
+      "status": "PASS"
+    },
+    {
+      "id": "T12",
+      "description": "DELETE own note",
+      "expected": 200,
+      "actual": 200,
+      "status": "PASS"
+    },
+    {
+      "id": "T14",
+      "description": "GET after delete",
+      "expected": 404,
+      "actual": 404,
+      "status": "PASS"
+    },
+    {
+      "id": "T15",
+      "description": "DELETE missing note",
+      "expected": 404,
+      "actual": 404,
+      "status": "PASS"
+    },
+    {
+      "id": "L01",
+      "description": "burst above the stage limit is throttled (429 present)",
+      "expected": true,
+      "actual": true,
+      "status": "PASS"
+    },
+    {
+      "id": "L02",
+      "description": "burst produces only 200/429",
+      "expected": true,
+      "actual": true,
+      "status": "PASS"
+    },
+    {
+      "id": "L03",
+      "description": "429 uses the error envelope",
+      "expected": "THROTTLED",
+      "actual": "THROTTLED",
+      "status": "PASS"
+    }
+  ],
+  "notAutomated": [
+    "expired token (wait for the 60 min access-token lifetime, then expect 401)",
+    "token from a different user pool / wrong issuer (needs a second pool)"
+  ]
+}

@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     env:
-      AWS_REGION: eu-central-1
+      AWS_REGION: eu-north-1
       STACK_NAME: serverless-notes-${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v4
@@ -48,6 +48,7 @@ jobs:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
       - run: aws sts get-caller-identity
+      - run: sam validate -t infrastructure/template.yaml
       - run: sam validate --lint -t infrastructure/template.yaml
       - run: sam build -t infrastructure/template.yaml
       - name: Deploy

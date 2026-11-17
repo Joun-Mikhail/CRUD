@@ -25,7 +25,7 @@ OUTPUT_TO_ENV = {
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--stack-name", default="serverless-notes-dev")
-    parser.add_argument("--region", default=os.environ.get("AWS_REGION", "eu-central-1"))
+    parser.add_argument("--region", default=os.environ.get("AWS_REGION", "eu-north-1"))
     parser.add_argument("--origin", default="http://localhost:5173")
     args = parser.parse_args()
 

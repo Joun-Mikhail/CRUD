@@ -1,0 +1,42 @@
+# python scripts/testing/live_api_tests.py --stack-name serverless-notes-dev  (2026-11-17T13:45:26+00:00, real AWS: eu-north-1 development stack)
+[PASS] T01      POST valid token + body: 201
+[PASS] T02      POST missing token: 401
+[PASS] T03      POST missing title: 400
+[PASS] T04      GET list: 200
+[PASS] T04b     list contains only caller's notes: True
+[PASS] T05      GET list missing token: 401
+[PASS] T06      GET own note: 200
+[PASS] T07      GET other user's note: 403
+[PASS] T08      GET missing note: 404
+[PASS] T09      PUT own note: 200
+[PASS] T10      PUT other user's note: 403
+[PASS] T11      PUT missing note: 404
+[PASS] T13      DELETE other user's note: 403
+[PASS] H01      note unchanged by other user's attempts: Updated
+[PASS] H02      other user's list does not contain the note: True
+[PASS] A01      garbage bearer token: 401
+[PASS] A02      tampered signature: 403
+[PASS] A03      ID token instead of access token: 401
+[PASS] A04      non-Bearer scheme: 401
+[PASS] A05      unknown route with token: (403, 'BAD_REQUEST')
+[PASS] A06      read-only token can list: 200
+[PASS] A07      read-only token cannot create (missing scope): 401
+[PASS] R01      unknown route without token: (404, 'NOT_FOUND')
+[PASS] R02      unsupported method with token: (403, 'BAD_REQUEST')
+[PASS] V01      client-supplied userId rejected: (400, 'VALIDATION_ERROR')
+[PASS] V02      malformed JSON: 400
+[PASS] V03      invalid note id: 400
+[PASS] V04      body over 128 KB: 413
+[PASS] C01      preflight allows the configured origin: (200, 'http://localhost:5173')
+[PASS] C02      preflight allows Authorization header: True
+[PASS] C03      CORS header on a successful response: http://localhost:5173
+[PASS] C04      CORS header on a gateway 401: http://localhost:5173
+[PASS] T12      DELETE own note: 200
+[PASS] T14      GET after delete: 404
+[PASS] T15      DELETE missing note: 404
+         2 bursts of 120 -> {200: 183, 429: 57}
+[PASS] L01      burst above the stage limit is throttled (429 present): True
+[PASS] L02      burst produces only 200/429: True
+[PASS] L03      429 uses the error envelope: THROTTLED
+
+38 passed, 0 failed -> evidence/tests/live-api-tests.json

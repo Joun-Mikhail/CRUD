@@ -53,9 +53,9 @@ Tests can also check what must *not* happen:
 for forbidden in (SECRET_TITLE, SECRET_CONTENT, "eyJTOKEN", "Bearer"):
     assert forbidden not in output      # nothing sensitive in the logs
 ```
-Results on 2026-11-15: 166 backend tests, 63 frontend tests, 12 browser tests, all passing (`evidence/tests/`).
+Results on 2026-11-17: 187 backend tests, 66 frontend tests, 14 browser tests, all passing; on the deployed AWS stack 38/38 live checks (`evidence/tests/`).
 
-**The honest limit.** `make_event(user=BOB)` simply *writes* Bob's id into the event. That proves what Lambda does when API Gateway says "this is Bob". It cannot prove that API Gateway rejects a forged token — only the live script against a deployed stack can (`scripts/testing/live_api_tests.py`, never run so far).
+**The honest limit.** `make_event(user=BOB)` simply *writes* Bob's id into the event. That proves what Lambda does when API Gateway says "this is Bob". It cannot prove that API Gateway rejects a forged token — only the live script against a deployed stack can (`scripts/testing/live_api_tests.py`; on 2026-11-17 it showed, for example, that API Gateway answers a tampered signature with 403 and a missing scope with 401 — details nobody had predicted correctly).
 
 ## Important source files
 `backend/tests/conftest.py` · `tests/integration/test_api_flow.py` · `tests/security/test_isolation.py` · `docs/testing/TESTING.md` · `evidence/tests/`

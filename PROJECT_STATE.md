@@ -1,58 +1,54 @@
 # Project state
 
-Last updated: 2026-11-15.
+Last updated: 2026-11-17.
 
 ## Current phase
 
-Phase 12 (delivery) complete for everything that can be done without AWS. Phases needing AWS (real deployment verification, live tests, AWS performance measurement) are **blocked**: no usable AWS credentials were available (the keys present in the build environment were rejected by STS with `InvalidClientTokenId`).
+**Deployed and verified on AWS.** The development stack `serverless-notes-dev` runs in **eu-north-1** (Stockholm; ADR 0008 — the account's organization policy denies eu-central-1). It was deployed from this repository on 2026-11-17 and tested end to end: live API suite, browser test of the AWS mode with real Cognito users, CloudWatch checks and a bounded benchmark.
 
 ## Completed
 
 | Area | State |
 |---|---|
-| Discovery | Thesis PDF (25 pages) read in full; requirements and inconsistencies in `docs/REQUIREMENTS.md` |
-| Backend | 5 handlers, operations, service, DynamoDB repository, validation, pagination, identity, logging |
+| Discovery | Thesis PDF read in full; requirements and inconsistencies in `docs/REQUIREMENTS.md` |
+| Backend | 5 handlers, operations, service, DynamoDB repository, validation, pagination, identity, logging; boto3 set-up during Lambda init (`runtime.prewarm()`) |
 | Local Demo | `backend/local_demo/server.py` (real handlers + moto) |
-| Infrastructure | `infrastructure/template.yaml` — passes cfn-lint, `sam validate --lint`, `sam build` |
-| Frontend | auth (demo + Cognito PKCE), dashboard, notes, editor, architecture explorer, API explorer, settings |
-| Tests | backend 166 passed (98.99 % coverage); frontend 66 passed; Playwright 14 passed (incl. axe accessibility audit, zero violations) |
+| Infrastructure | `infrastructure/template.yaml` — cfn-lint, `sam validate` (SAM transform), `sam build`, template tests; **deployed** (33 resources) |
+| Frontend | auth (demo + Cognito PKCE), dashboard, notes, editor, architecture explorer, API explorer, settings; **AWS mode verified in a real browser** |
+| Local tests | backend 187 passed (99 % coverage); frontend 66 passed; Playwright 14 passed (incl. axe audit) |
+| AWS tests | live suite 38/38 (`evidence/tests/live-api-tests.json`); browser test (sign-up, sign-in, CRUD, reload, isolation, sign-out, token storage); CloudWatch logs/Insights/alarm metrics (`evidence/aws/cloudwatch.txt`); benchmark 500/500 (`evidence/benchmarks/aws-dev-eu-north-1.json`) |
 | Static checks | ruff, mypy strict, eslint, tsc, pip-audit, npm audit — clean |
-| CI | `.github/workflows/ci.yml` green on PR #1 (4 jobs) |
-| Docs | README, START_HERE, architecture, API + OpenAPI, database, security, testing, deployment, troubleshooting, performance, cost, decisions, 12 lessons, supervisor questions, traceability, completion report |
-| Evidence | `evidence/tests`, `evidence/builds`, `evidence/benchmarks` (local only), `evidence/screenshots` |
+| CI | `.github/workflows/ci.yml` (now also runs the plain `sam validate`) |
+| Docs | all documents updated with the AWS results (2026-11-17) |
+| Cost | Stockholm unit prices from the AWS Price List API; account pre-flight in `evidence/builds/aws-account-preflight.md` |
 
-## Pending (all require an AWS account — to be done by the repository owner)
+## Deployed resources (eu-north-1)
 
-1. `make deploy` to a development account in eu-central-1; note and fix any first-deployment issues.
-2. `make frontend-env`, `npm run dev:aws`: first real sign-up / verification / sign-in / CRUD in AWS mode.
-3. `make live-test` (never executed; expect to debug the script itself, especially the hosted-login form flow).
-4. Confirm on the live stack: status returned by the authorizer for an insufficient scope; unknown route → 404 mapping; CORS preflight from the browser; 429 throttling; `scope` claim forwarded to Lambda; alarms; log output in CloudWatch.
-5. Measure warm/cold latency (`docs/performance/PERFORMANCE.md`); store results in `evidence/benchmarks/`.
-6. Verify the Frankfurt unit prices still marked unconfirmed in `AWS_COST_ANALYSIS.md`; compare with the real bill.
-7. Configure the GitHub environment + OIDC role if the deploy workflow is wanted.
-8. Update `docs/testing/TESTING.md`, `REQUIREMENTS_TRACEABILITY.md` and the completion report with the real results.
+Stack `serverless-notes-dev`: REST API `serverless-notes-dev-api` (stage `dev`), 5 Lambda functions `serverless-notes-dev-*-note(s)`, table `serverless-notes-dev-notes`, user pool `serverless-notes-dev-users` with hosted domain `serverless-notes-dev-<account-id>`, web and read-only test clients, 5 log groups (14 days), 4 alarms. Plus the SAM artifact stack `aws-sam-cli-managed-default` (one S3 bucket). After the tests the pool has no users and the table no notes. `frontend/.env.aws` (git-ignored) points the app at this stack.
+
+Expected cost: about $0.90 per month for the alarm metrics at list price (possibly free under CloudWatch's always-free allowance) plus fractions of a cent per thousand requests; covered by the account's Free-plan credits. `make destroy` removes the stack.
+
+## Pending
+
+1. Register once with a real mailbox, enter the e-mailed code, try password reset (the automated run used the SES mailbox simulator; the account was confirmed by the operator).
+2. Compare the cost estimate with Cost Explorer after a few days.
+3. Optional: GitHub OIDC role + environment for `.github/workflows/deploy.yml`; frontend hosting (S3 + CloudFront); raise the stage throttle for real use (see "Known gaps").
 
 ## Important decisions
 
-See `docs/decisions/README.md` (ADR 0001–0007): REST API + Cognito authorizer with scopes; `noteId` PK + `byUser` GSI; five functions; uniform envelope, 403/404 and DELETE 200 per thesis; Local Demo on moto; in-app sign-up + hosted sign-in with PKCE and in-memory tokens; Python 3.13 arm64.
+See `docs/decisions/README.md` (ADR 0001–0008): REST API + Cognito authorizer with scopes; `noteId` PK + `byUser` GSI; five functions; uniform envelope, 403/404 and DELETE 200 per thesis; Local Demo on moto; in-app sign-up + hosted sign-in with PKCE and in-memory tokens; Python 3.13 arm64; region eu-north-1.
 
 ## Known bugs
 
-None open. Fixed during the build: logger bound to the wrong stdout stream; Local Demo server raised `BrokenPipeError` when a browser cancelled a request; production build was built without mode-specific configuration (CSP `connect-src` lacked the API origin) — `npm run build` now builds demo mode and `build:aws` AWS mode.
+None open. Fixed during deployment (2026-11-16/17): SAM transform rejected `AuthorizationScopes` without an explicit `Authorizer`; validation in CI/Makefile only ran cfn-lint (`--lint`), not the transform; first request after every cold start took ≈ 1 s (lazy boto3 set-up); Windows: Playwright could not start the backend, Local Demo printed tracebacks on aborted connections; live test script bugs (tuple expectations, shadowed variable, no 429 retry).
 
 ## Known gaps (not bugs)
 
-- No account-deletion screen in the app (password reset was added).
-- Frontend hosting (S3 + CloudFront) not included.
-- Per-user rate limiting, MFA, WAF not included.
-- Chromium only; no manual screen-reader review (the automated axe audit passes).
-- Expired-token and wrong-issuer cases are not automated even in the live script.
-
-## Environment limitations of the build session
-
-- No AWS access (see above). No Docker, so `sam local` was not used.
-- Three helper agents (frontend, learning docs, pricing research) were cut off by a usage limit early on; their work was completed directly. Pricing could therefore not be re-verified online.
+- Measured API Gateway behaviour that cannot be changed in the template: unknown route *with* an `Authorization` header → 403 `BAD_REQUEST` (404 without); bodies over 10 MB → plain-text 413 without CORS; stage throttling is approximate and can keep throttling a method for minutes after a burst (`docs/performance/PERFORMANCE.md`).
+- Not verified: entering a real e-mailed code, password reset against real Cognito, expired-token and wrong-issuer cases, alarm notifications, `destroy.sh`, the GitHub deploy workflow.
+- No account-deletion screen; no frontend hosting; per-user rate limiting, MFA, WAF not included.
+- Chromium only; no manual screen-reader review.
 
 ## Exact next action
 
-Owner: obtain AWS development credentials → `cd infrastructure && cp samconfig.example.toml samconfig.toml` → `make deploy` → follow "Pending" 2–8.
+Owner: register with a real e-mail address in `npm run dev:aws` (step 1 above); review and merge the pull request; decide whether to keep the stack running or `make destroy` it.

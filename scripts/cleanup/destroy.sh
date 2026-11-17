@@ -5,7 +5,7 @@
 set -euo pipefail
 
 STACK_NAME="${1:-serverless-notes-dev}"
-REGION="${AWS_REGION:-eu-central-1}"
+REGION="${AWS_REGION:-eu-north-1}"
 
 echo "Account / identity:"
 aws sts get-caller-identity --region "$REGION" --output table

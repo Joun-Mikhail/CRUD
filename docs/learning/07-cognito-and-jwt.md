@@ -26,7 +26,7 @@ eyJraWQiOiJhYmMiLCJhbGciOiJSUzI1NiJ9 . eyJzdWIiOiJjM2E0Li4uIiwidG9rZW5fdXNlIjoiY
 Claims in a Cognito **access token**:
 | Claim | Meaning |
 |---|---|
-| `iss` | issuer: `https://cognito-idp.eu-central-1.amazonaws.com/<userPoolId>` |
+| `iss` | issuer: `https://cognito-idp.eu-north-1.amazonaws.com/<userPoolId>` |
 | `sub` | the user's permanent unique id — this becomes `userId` on notes |
 | `client_id` | which app client requested the token |
 | `token_use` | `access` (an ID token says `id`) |

@@ -1,5 +1,23 @@
-# cfn-lint + sam validate --lint + sam build (2026-11-15T09:56Z; SAM CLI, version 1.172.1; cfn-lint 1.58.0)
-cfn-lint: no findings
-/home/user/CRUD/infrastructure/template.yaml is a valid SAM Template
-Building codeuri: /home/user/CRUD/backend/src runtime: python3.13 architecture: arm64 functions: CreateNoteFunction, ListNotesFunction, GetNoteFunction, UpdateNoteFunction, DeleteNoteFunction
+# Infrastructure validation and build for eu-north-1 (2026-11-17T13:54:19Z; Windows 11; SAM CLI, version 1.172.1; cfn-lint 1.60.1; Python 3.13.17)
+
+## cfn-lint infrastructure/template.yaml
+no findings (exit 0)
+
+## sam validate --region eu-north-1  (SAM transform; run on a copy without samconfig.toml)
+<repo>\infrastructure\template.yaml is a valid SAM Template. This is according to basic SAM Validation, for additional validation, please run with "--lint" option
+
+## pytest tests/security/test_template.py
+15 passed in 0.05s
+
+## sam build
+Starting Build use cache
+Building codeuri: <repo>\backend\src runtime: python3.13 architecture: arm64 functions: CreateNoteFunction, ListNotesFunction, GetNoteFunction, UpdateNoteFunction, DeleteNoteFunction
+requirements.txt file not found. Continuing the build without dependencies.
+ Running PythonPipBuilder:CopySource
+
 Build Succeeded
+
+## For the record: the template as it was before 2026-11-16 (commit 6f768ed) fails the SAM transform
+## although `sam validate --lint` accepted it. Same command on a copy of that version:
+Template provided at '<copy of the pre-fix template>\infrastructure\template.yaml' was invalid SAM Template.
+Error: [InvalidResourceException('CreateNoteFunction', 'Event with id [Api] is invalid. AuthorizationScopes works only when Authorizer is set'), InvalidResourceException('ListNotesFunction', 'Event with id [Api] is invalid. AuthorizationScopes works only when Authorizer is set'), InvalidResourceException('GetNoteFunction', 'Event with id [Api] is invalid. AuthorizationScopes works only when Authorizer is set'), Inval
