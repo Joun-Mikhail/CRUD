@@ -1,0 +1,354 @@
+{
+  "collectedAt": "2026-11-17T19:13:56+00:00",
+  "window": [
+    "2026-11-17T19:05:00Z",
+    "2026-11-17T19:14:30Z"
+  ],
+  "logGroups": [
+    {
+      "name": "/aws/lambda/serverless-notes-dev-create-note",
+      "retentionDays": 14,
+      "storedBytes": 0
+    },
+    {
+      "name": "/aws/lambda/serverless-notes-dev-delete-note",
+      "retentionDays": 14,
+      "storedBytes": 0
+    },
+    {
+      "name": "/aws/lambda/serverless-notes-dev-get-note",
+      "retentionDays": 14,
+      "storedBytes": 0
+    },
+    {
+      "name": "/aws/lambda/serverless-notes-dev-list-notes",
+      "retentionDays": 14,
+      "storedBytes": 0
+    },
+    {
+      "name": "/aws/lambda/serverless-notes-dev-update-note",
+      "retentionDays": 14,
+      "storedBytes": 0
+    }
+  ],
+  "lambdaReport": [
+    {
+      "@log": "<account-id>:/aws/lambda/serverless-notes-dev-delete-note",
+      "invocations": "15",
+      "p50ms": "12.27",
+      "p95ms": "130.31",
+      "p99ms": "130.31",
+      "maxms": "130.31",
+      "coldStarts": "1",
+      "avgInitMs": "388.35",
+      "maxMemMB": "93"
+    },
+    {
+      "@log": "<account-id>:/aws/lambda/serverless-notes-dev-get-note",
+      "invocations": "429",
+      "p50ms": "9.9926",
+      "p95ms": "25.0129",
+      "p99ms": "137.7634",
+      "maxms": "165.53",
+      "coldStarts": "4",
+      "avgInitMs": "429.78",
+      "maxMemMB": "93"
+    },
+    {
+      "@log": "<account-id>:/aws/lambda/serverless-notes-dev-create-note",
+      "invocations": "15",
+      "p50ms": "15.62",
+      "p95ms": "151.88",
+      "p99ms": "151.88",
+      "maxms": "151.88",
+      "coldStarts": "1",
+      "avgInitMs": "386.27",
+      "maxMemMB": "93"
+    },
+    {
+      "@log": "<account-id>:/aws/lambda/serverless-notes-dev-update-note",
+      "invocations": "130",
+      "p50ms": "8.3891",
+      "p95ms": "29.3799",
+      "p99ms": "116.5851",
+      "maxms": "160.18",
+      "coldStarts": "2",
+      "avgInitMs": "329.72",
+      "maxMemMB": "93"
+    },
+    {
+      "@log": "<account-id>:/aws/lambda/serverless-notes-dev-list-notes",
+      "invocations": "140",
+      "p50ms": "13.3392",
+      "p95ms": "29.8535",
+      "p99ms": "145.258",
+      "maxms": "155.77",
+      "coldStarts": "3",
+      "avgInitMs": "388.1233",
+      "maxMemMB": "93"
+    }
+  ],
+  "requestLogsByStatus": [
+    {
+      "operation": "DeleteNote",
+      "status": "200",
+      "n": "15",
+      "p50ms": "7.25",
+      "p95ms": "126.75"
+    },
+    {
+      "operation": "GetNote",
+      "status": "200",
+      "n": "429",
+      "p50ms": "3.9961",
+      "p95ms": "13.4194"
+    },
+    {
+      "operation": "CreateNote",
+      "status": "201",
+      "n": "15",
+      "p50ms": "6.44",
+      "p95ms": "149.15"
+    },
+    {
+      "operation": "UpdateNote",
+      "status": "200",
+      "n": "130",
+      "p50ms": "5.91",
+      "p95ms": "14.16"
+    },
+    {
+      "operation": "ListNotes",
+      "status": "200",
+      "n": "140",
+      "p50ms": "4.7789",
+      "p95ms": "16.1773"
+    }
+  ],
+  "errorLines": [],
+  "accountConcurrentExecutionsMax1min": [
+    [
+      "2026-11-17T20:05:00+01:00",
+      1.0
+    ],
+    [
+      "2026-11-17T20:06:00+01:00",
+      1.0
+    ],
+    [
+      "2026-11-17T20:07:00+01:00",
+      4.0
+    ],
+    [
+      "2026-11-17T20:08:00+01:00",
+      8.0
+    ],
+    [
+      "2026-11-17T20:09:00+01:00",
+      1.0
+    ],
+    [
+      "2026-11-17T20:10:00+01:00",
+      8.0
+    ],
+    [
+      "2026-11-17T20:11:00+01:00",
+      1.0
+    ],
+    [
+      "2026-11-17T20:12:00+01:00",
+      8.0
+    ],
+    [
+      "2026-11-17T20:13:00+01:00",
+      1.0
+    ]
+  ],
+  "lambdaAccountLimit": 400,
+  "alarms": [
+    {
+      "name": "serverless-notes-dev-api-5xx",
+      "state": "OK",
+      "actionsEnabled": true,
+      "alarmActions": 0,
+      "threshold": 1.0,
+      "evaluationPeriods": 1,
+      "comparison": "GreaterThanOrEqualToThreshold",
+      "metric": "5XXError",
+      "treatMissingData": "notBreaching",
+      "stateUpdated": "2026-11-17T14:14:54.292000+01:00"
+    },
+    {
+      "name": "serverless-notes-dev-api-latency-p95",
+      "state": "OK",
+      "actionsEnabled": true,
+      "alarmActions": 0,
+      "threshold": 2000.0,
+      "evaluationPeriods": 3,
+      "comparison": "GreaterThanThreshold",
+      "metric": "Latency",
+      "treatMissingData": "notBreaching",
+      "stateUpdated": "2026-11-17T14:15:13.409000+01:00"
+    },
+    {
+      "name": "serverless-notes-dev-dynamodb-throttles",
+      "state": "OK",
+      "actionsEnabled": true,
+      "alarmActions": 0,
+      "threshold": 1.0,
+      "evaluationPeriods": 1,
+      "comparison": "GreaterThanOrEqualToThreshold",
+      "metric": "metric math",
+      "treatMissingData": "notBreaching",
+      "stateUpdated": "2026-11-17T14:16:28.841000+01:00"
+    },
+    {
+      "name": "serverless-notes-dev-lambda-errors",
+      "state": "OK",
+      "actionsEnabled": true,
+      "alarmActions": 0,
+      "threshold": 1.0,
+      "evaluationPeriods": 1,
+      "comparison": "GreaterThanOrEqualToThreshold",
+      "metric": "metric math",
+      "treatMissingData": "notBreaching",
+      "stateUpdated": "2026-11-17T14:15:43.696000+01:00"
+    }
+  ],
+  "costExplorer": {
+    "note": "UnblendedCost; Usage = gross list-price usage before credits",
+    "period": {
+      "Start": "2026-10-01",
+      "End": "2026-11-18"
+    },
+    "usageByService": [
+      {
+        "month": "2026-10",
+        "key": "AWS CloudShell",
+        "usd": 0.0
+      },
+      {
+        "month": "2026-10",
+        "key": "AWS Glue",
+        "usd": 0.0
+      },
+      {
+        "month": "2026-10",
+        "key": "AWS Key Management Service",
+        "usd": 0.0
+      },
+      {
+        "month": "2026-10",
+        "key": "AWS Secrets Manager",
+        "usd": 0.0
+      },
+      {
+        "month": "2026-10",
+        "key": "EC2 - Other",
+        "usd": 0.913
+      },
+      {
+        "month": "2026-10",
+        "key": "Amazon Elastic Compute Cloud - Compute",
+        "usd": 7.0172
+      },
+      {
+        "month": "2026-10",
+        "key": "Amazon Simple Notification Service",
+        "usd": 0.0
+      },
+      {
+        "month": "2026-10",
+        "key": "Amazon Simple Queue Service",
+        "usd": 0.0
+      },
+      {
+        "month": "2026-10",
+        "key": "Amazon Simple Storage Service",
+        "usd": 0.0001
+      },
+      {
+        "month": "2026-10",
+        "key": "Amazon Virtual Private Cloud",
+        "usd": 1.6243
+      },
+      {
+        "month": "2026-11",
+        "key": "AWS CloudFormation",
+        "usd": 0.0
+      },
+      {
+        "month": "2026-11",
+        "key": "AWS Glue",
+        "usd": 0.0
+      },
+      {
+        "month": "2026-11",
+        "key": "AWS Key Management Service",
+        "usd": 0.0
+      },
+      {
+        "month": "2026-11",
+        "key": "EC2 - Other",
+        "usd": 1.1292
+      },
+      {
+        "month": "2026-11",
+        "key": "Amazon Elastic Compute Cloud - Compute",
+        "usd": 8.4225
+      },
+      {
+        "month": "2026-11",
+        "key": "Amazon Simple Notification Service",
+        "usd": 0.0
+      },
+      {
+        "month": "2026-11",
+        "key": "Amazon Simple Queue Service",
+        "usd": 0.0
+      },
+      {
+        "month": "2026-11",
+        "key": "Amazon Simple Storage Service",
+        "usd": 0.0001
+      },
+      {
+        "month": "2026-11",
+        "key": "Amazon Virtual Private Cloud",
+        "usd": 1.955
+      }
+    ],
+    "byRecordType": [
+      {
+        "month": "2026-10",
+        "key": "Credit",
+        "usd": -9.5546
+      },
+      {
+        "month": "2026-10",
+        "key": "Tax",
+        "usd": 0.0
+      },
+      {
+        "month": "2026-10",
+        "key": "Usage",
+        "usd": 9.5546
+      },
+      {
+        "month": "2026-11",
+        "key": "Credit",
+        "usd": -11.5068
+      },
+      {
+        "month": "2026-11",
+        "key": "Tax",
+        "usd": 0.0
+      },
+      {
+        "month": "2026-11",
+        "key": "Usage",
+        "usd": 11.5068
+      }
+    ]
+  }
+}
