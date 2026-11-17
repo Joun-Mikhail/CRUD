@@ -1,0 +1,419 @@
+{
+    "Changes": [
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "Api5xxAlarm",
+                "ResourceType": "AWS::CloudWatch::Alarm",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "ApiLatencyAlarm",
+                "ResourceType": "AWS::CloudWatch::Alarm",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "CreateNoteFunctionApiPermissionStage",
+                "ResourceType": "AWS::Lambda::Permission",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "CreateNoteFunctionRole",
+                "ResourceType": "AWS::IAM::Role",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "CreateNoteFunction",
+                "ResourceType": "AWS::Lambda::Function",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "CreateNoteLogGroup",
+                "ResourceType": "AWS::Logs::LogGroup",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "DeleteNoteFunctionApiPermissionStage",
+                "ResourceType": "AWS::Lambda::Permission",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "DeleteNoteFunctionRole",
+                "ResourceType": "AWS::IAM::Role",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "DeleteNoteFunction",
+                "ResourceType": "AWS::Lambda::Function",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "DeleteNoteLogGroup",
+                "ResourceType": "AWS::Logs::LogGroup",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "DynamoThrottleAlarm",
+                "ResourceType": "AWS::CloudWatch::Alarm",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "GetNoteFunctionApiPermissionStage",
+                "ResourceType": "AWS::Lambda::Permission",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "GetNoteFunctionRole",
+                "ResourceType": "AWS::IAM::Role",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "GetNoteFunction",
+                "ResourceType": "AWS::Lambda::Function",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "GetNoteLogGroup",
+                "ResourceType": "AWS::Logs::LogGroup",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "LambdaErrorsAlarm",
+                "ResourceType": "AWS::CloudWatch::Alarm",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "ListNotesFunctionApiPermissionStage",
+                "ResourceType": "AWS::Lambda::Permission",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "ListNotesFunctionRole",
+                "ResourceType": "AWS::IAM::Role",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "ListNotesFunction",
+                "ResourceType": "AWS::Lambda::Function",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "ListNotesLogGroup",
+                "ResourceType": "AWS::Logs::LogGroup",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "NotesApiDeploymentdb07b95e32",
+                "ResourceType": "AWS::ApiGateway::Deployment",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "NotesApiStage",
+                "ResourceType": "AWS::ApiGateway::Stage",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "NotesApi",
+                "ResourceType": "AWS::ApiGateway::RestApi",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "NotesResourceServer",
+                "ResourceType": "AWS::Cognito::UserPoolResourceServer",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "NotesTable",
+                "ResourceType": "AWS::DynamoDB::Table",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "ReadOnlyTestClient",
+                "ResourceType": "AWS::Cognito::UserPoolClient",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "UpdateNoteFunctionApiPermissionStage",
+                "ResourceType": "AWS::Lambda::Permission",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "UpdateNoteFunctionRole",
+                "ResourceType": "AWS::IAM::Role",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "UpdateNoteFunction",
+                "ResourceType": "AWS::Lambda::Function",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "UpdateNoteLogGroup",
+                "ResourceType": "AWS::Logs::LogGroup",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "UserPoolDomain",
+                "ResourceType": "AWS::Cognito::UserPoolDomain",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "UserPool",
+                "ResourceType": "AWS::Cognito::UserPool",
+                "Scope": [],
+                "Details": []
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Add",
+                "LogicalResourceId": "WebClient",
+                "ResourceType": "AWS::Cognito::UserPoolClient",
+                "Scope": [],
+                "Details": []
+            }
+        }
+    ],
+    "ChangeSetName": "samcli-deploy1794851343",
+    "ChangeSetId": "arn:aws:cloudformation:eu-north-1:<account-id>:changeSet/samcli-deploy1794851343/43f63eb2-3366-4a28-9840-3403f4674f86",
+    "StackId": "arn:aws:cloudformation:eu-north-1:<account-id>:stack/serverless-notes-dev/b40590a0-e1e5-11f1-be7b-0affd6d6814b",
+    "StackName": "serverless-notes-dev",
+    "Description": "Created by SAM CLI at 2026-11-16T17:49:03.004316+00:00 UTC",
+    "Parameters": [
+        {
+            "ParameterKey": "CallbackUrls",
+            "ParameterValue": "http://localhost:5173/auth/callback"
+        },
+        {
+            "ParameterKey": "ThrottlingBurstLimit",
+            "ParameterValue": "20"
+        },
+        {
+            "ParameterKey": "LogoutUrls",
+            "ParameterValue": "http://localhost:5173/"
+        },
+        {
+            "ParameterKey": "AlarmEmail",
+            "ParameterValue": ""
+        },
+        {
+            "ParameterKey": "Stage",
+            "ParameterValue": "dev"
+        },
+        {
+            "ParameterKey": "EnableScopeTestClient",
+            "ParameterValue": "true"
+        },
+        {
+            "ParameterKey": "AllowedOrigin",
+            "ParameterValue": "http://localhost:5173"
+        },
+        {
+            "ParameterKey": "CognitoDomainPrefix",
+            "ParameterValue": ""
+        },
+        {
+            "ParameterKey": "EnableApiAccessLogs",
+            "ParameterValue": "false"
+        },
+        {
+            "ParameterKey": "LogRetentionDays",
+            "ParameterValue": "14"
+        },
+        {
+            "ParameterKey": "LogLevel",
+            "ParameterValue": "INFO"
+        },
+        {
+            "ParameterKey": "ThrottlingRateLimit",
+            "ParameterValue": "10"
+        }
+    ],
+    "CreationTime": "2026-11-16T17:49:03.041000+00:00",
+    "ExecutionStatus": "AVAILABLE",
+    "Status": "CREATE_COMPLETE",
+    "StatusReason": null,
+    "NotificationARNs": [],
+    "RollbackConfiguration": {},
+    "Capabilities": [
+        "CAPABILITY_IAM"
+    ],
+    "Tags": [
+        {
+            "Key": "Project",
+            "Value": "serverless-notes"
+        },
+        {
+            "Key": "Stage",
+            "Value": "dev"
+        }
+    ],
+    "ParentChangeSetId": null,
+    "IncludeNestedStacks": false,
+    "RootChangeSetId": null,
+    "OnStackFailure": null,
+    "ImportExistingResources": null,
+    "StackDriftStatus": null,
+    "DeploymentMode": null,
+    "DeploymentConfig": {
+        "Mode": "STANDARD",
+        "DisableRollback": false
+    }
+}

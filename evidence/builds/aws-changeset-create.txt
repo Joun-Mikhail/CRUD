@@ -1,0 +1,79 @@
+# sam deploy --no-execute-changeset (change set created, NOT executed) - 2026-11-16T17:51Z
+# First attempt (template before the fix) - rejected by CloudFormation:
+Waiting for changeset to be created..
+
+Error: Failed to create changeset for the stack: serverless-notes-dev, ex: Waiter ChangeSetCreateComplete failed: Waiter encountered a terminal failure state: For expression "Status" we matched expected path: "FAILED" Status: FAILED. Reason: Transform AWS::Serverless-2016-10-31 failed with: Invalid Serverless Application Specification document. Number of errors found: 5. Resource with id [DeleteNoteFunction] is invalid. Event with id [Api] is invalid. AuthorizationScopes works only when Authorizer is set Resource with id [UpdateNoteFunction] is invalid. Event with id [Api] is invalid. AuthorizationScopes works only when Authorizer is set Resource with id [CreateNoteFunction] is invalid. Event with id [Api] is invalid. AuthorizationScopes works only when Authorizer is set Resource with id [ListNotesFunction] is invalid. Event with id [Api] is invalid. AuthorizationScopes works only when Authorizer is set Resource with id [GetNoteFunction] is invalid. Event with id [Api] is invalid. AuthorizationScopes works only when Authorizer is set
+
+# Second attempt (after adding 'Authorizer: CognitoAuthorizer' to each API event):
+	Deploying with following values
+	===============================
+	Stack name                   : serverless-notes-dev
+	Region                       : eu-north-1
+	Confirm changeset            : True
+	Disable rollback             : False
+	Deployment s3 bucket         : aws-sam-cli-managed-default-samclisourcebucket-zpb4ef1pngbb
+	Capabilities                 : ["CAPABILITY_IAM"]
+	Parameter overrides          : {"Stage": "dev", "AllowedOrigin": "http://localhost:5173", "CallbackUrls": "http://localhost:5173/auth/callback", "LogoutUrls": "http://localhost:5173/", "LogRetentionDays": "14", "EnableScopeTestClient": "true"}
+	Signing Profiles             : {}
+
+Initiating deployment
+=====================
+
+	Uploading to d0367b7c1070f9d34b82a0650a9b968e.template  27984 / 27984  (100.00%)
+
+
+Waiting for changeset to be created..
+
+CloudFormation stack changeset
+-------------------------------------------------------------------------------------------------
+Operation                LogicalResourceId        ResourceType             Replacement            
+-------------------------------------------------------------------------------------------------
++ Add                    Api5xxAlarm              AWS::CloudWatch::Alarm   N/A                    
++ Add                    ApiLatencyAlarm          AWS::CloudWatch::Alarm   N/A                    
++ Add                    CreateNoteFunctionApiP   AWS::Lambda::Permissio   N/A                    
+                         ermissionStage           n                                               
++ Add                    CreateNoteFunctionRole   AWS::IAM::Role           N/A                    
++ Add                    CreateNoteFunction       AWS::Lambda::Function    N/A                    
++ Add                    CreateNoteLogGroup       AWS::Logs::LogGroup      N/A                    
++ Add                    DeleteNoteFunctionApiP   AWS::Lambda::Permissio   N/A                    
+                         ermissionStage           n                                               
++ Add                    DeleteNoteFunctionRole   AWS::IAM::Role           N/A                    
++ Add                    DeleteNoteFunction       AWS::Lambda::Function    N/A                    
++ Add                    DeleteNoteLogGroup       AWS::Logs::LogGroup      N/A                    
++ Add                    DynamoThrottleAlarm      AWS::CloudWatch::Alarm   N/A                    
++ Add                    GetNoteFunctionApiPerm   AWS::Lambda::Permissio   N/A                    
+                         issionStage              n                                               
++ Add                    GetNoteFunctionRole      AWS::IAM::Role           N/A                    
++ Add                    GetNoteFunction          AWS::Lambda::Function    N/A                    
++ Add                    GetNoteLogGroup          AWS::Logs::LogGroup      N/A                    
++ Add                    LambdaErrorsAlarm        AWS::CloudWatch::Alarm   N/A                    
++ Add                    ListNotesFunctionApiPe   AWS::Lambda::Permissio   N/A                    
+                         rmissionStage            n                                               
++ Add                    ListNotesFunctionRole    AWS::IAM::Role           N/A                    
++ Add                    ListNotesFunction        AWS::Lambda::Function    N/A                    
++ Add                    ListNotesLogGroup        AWS::Logs::LogGroup      N/A                    
++ Add                    NotesApiDeploymentdb07   AWS::ApiGateway::Deplo   N/A                    
+                         b95e32                   yment                                           
++ Add                    NotesApiStage            AWS::ApiGateway::Stage   N/A                    
++ Add                    NotesApi                 AWS::ApiGateway::RestA   N/A                    
+                                                  pi                                              
++ Add                    NotesResourceServer      AWS::Cognito::UserPool   N/A                    
+                                                  ResourceServer                                  
++ Add                    NotesTable               AWS::DynamoDB::Table     N/A                    
++ Add                    ReadOnlyTestClient       AWS::Cognito::UserPool   N/A                    
+                                                  Client                                          
++ Add                    UpdateNoteFunctionApiP   AWS::Lambda::Permissio   N/A                    
+                         ermissionStage           n                                               
++ Add                    UpdateNoteFunctionRole   AWS::IAM::Role           N/A                    
++ Add                    UpdateNoteFunction       AWS::Lambda::Function    N/A                    
++ Add                    UpdateNoteLogGroup       AWS::Logs::LogGroup      N/A                    
++ Add                    UserPoolDomain           AWS::Cognito::UserPool   N/A                    
+                                                  Domain                                          
++ Add                    UserPool                 AWS::Cognito::UserPool   N/A                    
++ Add                    WebClient                AWS::Cognito::UserPool   N/A                    
+                                                  Client                                          
+-------------------------------------------------------------------------------------------------
+
+
+Changeset created successfully. arn:aws:cloudformation:eu-north-1:<account-id>:changeSet/samcli-deploy1794851343/43f63eb2-3366-4a28-9840-3403f4674f86
+

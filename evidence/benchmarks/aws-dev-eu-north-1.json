@@ -1,0 +1,54 @@
+{
+  "label": "aws-dev eu-north-1, 100 sequential cycles starting right after a deployment (first cycle = cold starts), client in Central Europe, new TLS connection per request",
+  "baseUrl": "https://ygeyu1o34h.execute-api.eu-north-1.amazonaws.com/dev",
+  "measuredAt": "2026-11-17T13:44:34+00:00",
+  "cycles": 100,
+  "concurrency": 1,
+  "results": {
+    "POST /notes": {
+      "requests": 100,
+      "meanMs": 131.6,
+      "medianMs": 121.05,
+      "p95Ms": 141.6,
+      "maxMs": 807.63,
+      "successRate": 1.0,
+      "errorRate": 0.0
+    },
+    "GET /notes": {
+      "requests": 100,
+      "meanMs": 138.25,
+      "medianMs": 119.41,
+      "p95Ms": 149.27,
+      "maxMs": 949.14,
+      "successRate": 1.0,
+      "errorRate": 0.0
+    },
+    "GET /notes/{id}": {
+      "requests": 100,
+      "meanMs": 135.4,
+      "medianMs": 118.8,
+      "p95Ms": 145.82,
+      "maxMs": 768.55,
+      "successRate": 1.0,
+      "errorRate": 0.0
+    },
+    "PUT /notes/{id}": {
+      "requests": 100,
+      "meanMs": 133.69,
+      "medianMs": 121.69,
+      "p95Ms": 152.32,
+      "maxMs": 908.41,
+      "successRate": 1.0,
+      "errorRate": 0.0
+    },
+    "DELETE /notes/{id}": {
+      "requests": 100,
+      "meanMs": 132.04,
+      "medianMs": 122.13,
+      "p95Ms": 149.63,
+      "maxMs": 745.91,
+      "successRate": 1.0,
+      "errorRate": 0.0
+    }
+  }
+}

@@ -3,7 +3,7 @@
 Machine-readable version: [`openapi.yaml`](openapi.yaml). Implementation: `backend/src/notes_api/`.
 
 Base URL
-- AWS: `https://<api-id>.execute-api.eu-central-1.amazonaws.com/<stage>` (stack output `ApiBaseUrl`)
+- AWS: `https://<api-id>.execute-api.eu-north-1.amazonaws.com/<stage>` (stack output `ApiBaseUrl`)
 - Local Demo: `http://127.0.0.1:8787`
 
 ## Authentication
@@ -87,16 +87,19 @@ Send the `version` you last read with `PUT`. If the stored version differs, noth
 | 200 | — | read, update, delete succeeded | Lambda |
 | 201 | — | note created | Lambda |
 | 400 | `VALIDATION_ERROR`, `MALFORMED_JSON`, `INVALID_CURSOR` | bad input | Lambda |
-| 401 | `UNAUTHORIZED` | token missing, malformed, expired, wrong signature | API Gateway (Lambda repeats the check as defence in depth) |
-| 403 | `FORBIDDEN` | note exists but belongs to another user; token lacks the scope | Lambda / API Gateway |
-| 404 | `NOT_FOUND` | no note with this id; unknown route | Lambda / API Gateway |
-| 405 | `METHOD_NOT_ALLOWED` | Local Demo only. In AWS an unsupported method is an unknown route and is answered 404 `NOT_FOUND` (API Gateway reports it as "missing authentication token") | — |
+| 401 | `UNAUTHORIZED` | token missing or not parseable, expired, ID token instead of access token, token lacks the route's scope (measured: API Gateway answers 401, not 403, for a missing scope) | API Gateway (Lambda repeats the check as defence in depth) |
+| 403 | `FORBIDDEN` | note exists but belongs to another user (Lambda); a well-formed JWT whose signature does not verify (API Gateway, measured) | Lambda / API Gateway |
+| 403 | `BAD_REQUEST` | unknown route or method **sent with an `Authorization` header** (API Gateway `IncompleteSignatureException`; it has no gateway response type of its own, so the generic `DEFAULT_4XX` body is used — measured 2026-11-17). Without the header the same request gets 404 `NOT_FOUND`. The app never calls unknown routes. | API Gateway |
+| 404 | `NOT_FOUND` | no note with this id; unknown route without an `Authorization` header | Lambda / API Gateway |
+| 405 | `METHOD_NOT_ALLOWED` | Local Demo only. In AWS an unsupported method is an unknown route (404 without, 403 `BAD_REQUEST` with an `Authorization` header) | — |
 | 409 | `VERSION_CONFLICT` | stale `version` on PUT | Lambda |
-| 413 | `PAYLOAD_TOO_LARGE` | body over 128 KiB | Lambda / API Gateway |
+| 413 | `PAYLOAD_TOO_LARGE` | body over 128 KiB (Lambda). Bodies over 10 MB are cut off by API Gateway before any gateway response: 413 with a plain-text body and no CORS header | Lambda / API Gateway |
 | 415 | `UNSUPPORTED_MEDIA_TYPE` | Content-Type is not JSON | Lambda |
-| 429 | `THROTTLED` | stage throttle exceeded (default 10 req/s, burst 20) | API Gateway |
+| 429 | `THROTTLED` | stage throttle exceeded (default 10 req/s, burst 20; enforced approximately — see `docs/performance/PERFORMANCE.md`) | API Gateway |
 | 500 | `INTERNAL_ERROR` | unexpected failure; no details are exposed | Lambda / API Gateway |
 | 503 | `SERVICE_UNAVAILABLE` | DynamoDB failed or throttled; safe to retry | Lambda |
+
+All gateway-produced errors above were observed on the deployed stack on 2026-11-17 (`evidence/tests/live-api-tests.json`); they carry the same envelope and the `Access-Control-Allow-Origin` header as Lambda errors, except the >10 MB case.
 
 ### Two deliberate, thesis-driven choices
 

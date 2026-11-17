@@ -58,10 +58,10 @@ describe('Cognito registration (AWS mode)', () => {
     mode: 'aws',
     apiBaseUrl: 'https://api.example/dev',
     cognito: {
-      region: 'eu-central-1',
-      userPoolId: 'eu-central-1_Pool',
+      region: 'eu-north-1',
+      userPoolId: 'eu-north-1_Pool',
       clientId: 'client-1',
-      domain: 'https://notes.auth.eu-central-1.amazoncognito.com',
+      domain: 'https://notes.auth.eu-north-1.amazoncognito.com',
       redirectUri: 'http://localhost:5173/auth/callback',
       logoutUri: 'http://localhost:5173/',
       scopes: ['openid', 'notes/read', 'notes/write'],
@@ -147,10 +147,10 @@ describe('password reset (AWS mode)', () => {
     const redirect = vi.fn<(url: string) => void>()
     const auth = new CognitoAuthService({
       config: {
-        region: 'eu-central-1',
-        userPoolId: 'eu-central-1_Pool',
+        region: 'eu-north-1',
+        userPoolId: 'eu-north-1_Pool',
         clientId: 'client-1',
-        domain: 'https://notes.auth.eu-central-1.amazoncognito.com',
+        domain: 'https://notes.auth.eu-north-1.amazoncognito.com',
         redirectUri: 'http://localhost:5173/auth/callback',
         logoutUri: 'http://localhost:5173/',
         scopes: ['openid', 'notes/read', 'notes/write'],

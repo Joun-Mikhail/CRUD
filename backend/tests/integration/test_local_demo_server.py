@@ -12,10 +12,11 @@ import urllib.error
 import urllib.request
 from collections.abc import Iterator
 from typing import Any
+from unittest.mock import MagicMock
 
 import pytest
 
-from local_demo.server import build_server
+from local_demo.server import DemoRequestHandler, build_server
 
 
 @pytest.fixture
@@ -121,3 +122,15 @@ def test_reset_restores_seed_data(base_url: str) -> None:
     _, body, _ = request(base_url, "GET", "/notes")
     assert body
     assert body["meta"]["count"] == 2
+
+
+@pytest.mark.parametrize("error", [BrokenPipeError, ConnectionResetError, ConnectionAbortedError])
+def test_cancelled_request_is_ignored(error: type[ConnectionError]) -> None:
+    """A browser that goes away mid-response must not produce a traceback (Windows: aborted)."""
+    handler = MagicMock()
+    handler.headers.get.return_value = None
+    handler.wfile.write.side_effect = error()
+
+    DemoRequestHandler._send(handler, 200, {"data": []})
+
+    handler.wfile.write.assert_called_once()

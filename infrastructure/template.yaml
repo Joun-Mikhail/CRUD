@@ -257,8 +257,10 @@ Resources:
         Type: REGIONAL
       TracingEnabled: false
       # Every method requires a valid Cognito *access token*; the per-route OAuth scope is
-      # set on each function event below. Preflight (OPTIONS) requests stay unauthenticated
-      # because browsers never send credentials with them.
+      # set on each function event below. Each event also names the authorizer explicitly:
+      # the SAM transform rejects AuthorizationScopes that rely on DefaultAuthorizer alone.
+      # Preflight (OPTIONS) requests stay unauthenticated because browsers never send
+      # credentials with them.
       Auth:
         DefaultAuthorizer: CognitoAuthorizer
         AddDefaultAuthorizerToCorsPreflight: false
@@ -313,6 +315,10 @@ Resources:
               Access-Control-Allow-Origin: !Sub "'${AllowedOrigin}'"
           ResponseTemplates:
             application/json: '{"error":{"code":"NOT_FOUND","message":"No such route","requestId":"$context.requestId"}}'
+        # Note: the same unknown path or method sent WITH an Authorization header is answered
+        # by API Gateway with 403 IncompleteSignatureException, which has no gateway response
+        # type of its own (measured on 2026-11-17: $context.error.responseType = DEFAULT_4XX).
+        # It therefore uses DEFAULT_4XX below and cannot be turned into a 404 here.
         THROTTLED:
           StatusCode: 429
           ResponseParameters:
@@ -398,6 +404,7 @@ Resources:
             Path: /notes
             Method: POST
             Auth:
+              Authorizer: CognitoAuthorizer
               AuthorizationScopes: [notes/write]
 
   ListNotesFunction:
@@ -422,6 +429,7 @@ Resources:
             Path: /notes
             Method: GET
             Auth:
+              Authorizer: CognitoAuthorizer
               AuthorizationScopes: [notes/read]
 
   GetNoteFunction:
@@ -446,6 +454,7 @@ Resources:
             Path: /notes/{id}
             Method: GET
             Auth:
+              Authorizer: CognitoAuthorizer
               AuthorizationScopes: [notes/read]
 
   UpdateNoteFunction:
@@ -470,6 +479,7 @@ Resources:
             Path: /notes/{id}
             Method: PUT
             Auth:
+              Authorizer: CognitoAuthorizer
               AuthorizationScopes: [notes/write]
 
   DeleteNoteFunction:
@@ -494,6 +504,7 @@ Resources:
             Path: /notes/{id}
             Method: DELETE
             Auth:
+              Authorizer: CognitoAuthorizer
               AuthorizationScopes: [notes/write]
 
   # Explicit log groups so retention is controlled and the logs are deleted with the stack.

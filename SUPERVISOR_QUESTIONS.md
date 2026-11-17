@@ -5,7 +5,7 @@ Thirty-eight questions with short, accurate answers. Practise saying them aloud 
 ## Architecture
 
 **1. Describe the architecture in one minute.**
-A React client signs users in with Amazon Cognito and calls a REST API on API Gateway. API Gateway verifies the JWT with a Cognito authorizer and invokes one of five Python Lambda functions. The functions validate input, enforce ownership and store notes in a DynamoDB table. Logs, metrics and alarms go to CloudWatch. Everything is defined in one SAM template (`infrastructure/template.yaml`) in eu-central-1.
+A React client signs users in with Amazon Cognito and calls a REST API on API Gateway. API Gateway verifies the JWT with a Cognito authorizer and invokes one of five Python Lambda functions. The functions validate input, enforce ownership and store notes in a DynamoDB table. Logs, metrics and alarms go to CloudWatch. Everything is defined in one SAM template (`infrastructure/template.yaml`) in eu-north-1.
 
 **2. Why serverless rather than a virtual machine or container?**
 No servers to patch or scale, automatic scaling per request, and pay-per-use — idle cost is close to zero, which suits a small application with irregular traffic. The costs are cold starts, statelessness, vendor lock-in and a harder local test story. At constant high load, always-on capacity can become cheaper.
@@ -113,13 +113,13 @@ The thesis specifies a REST API with a Cognito authorizer. REST APIs also allow 
 ## Testing
 
 **33. How was the system tested?**
-166 backend tests (unit, integration against an in-memory DynamoDB emulator, security), 63 frontend tests and 12 browser end-to-end tests, all passing; coverage of backend logic about 99 %. The 13 cases from the semestral report are individual tests. Lint, strict type checking, dependency audits and template validation also pass. Outputs are in `evidence/`.
+187 backend tests (unit, integration against an in-memory DynamoDB emulator, security, template checks), 66 frontend tests and 14 browser end-to-end tests, all passing; coverage of backend logic about 99 %. On AWS (eu-north-1, 2026-11-17): a live suite of 38 checks against the deployed stack, all passing, plus a browser test of the AWS mode and a latency benchmark. The 13 cases from the semestral report are individual tests. Lint, strict type checking, dependency audits and template validation also pass. Outputs are in `evidence/`.
 
 **34. What do those tests not prove?**
-Anything that happens in real AWS services: API Gateway's JWT validation, Cognito flows, IAM, gateway responses, throttling, alarms. Mocked events only prove how Lambda reacts to claims. `scripts/testing/live_api_tests.py` covers this against a deployed stack.
+Anything that happens in real AWS services: API Gateway's JWT validation, Cognito flows, IAM, gateway responses, throttling, alarms. Mocked events only prove how Lambda reacts to claims. `scripts/testing/live_api_tests.py` covers this against a deployed stack; it passed 38/38 on 2026-11-17. Still not covered: token expiry, a token from another pool, reading a real verification e-mail.
 
 **35. Was this deployed and measured on AWS?**
-*Answer truthfully for your situation.* The reference implementation was built and verified locally and was **not** deployed by the tooling that produced it. If you have since deployed it: state the date, region, what `make live-test` reported and your measured latencies. If you have not: say so, and explain exactly what remains (deploy, live tests, measurements).
+Yes: on 2026-11-17 to eu-north-1 (the account's organization policy does not allow Frankfurt). `make live-test`: 38/38 passed. Measured from Central Europe: median ≈ 120 ms per request end to end, of which ≈ 10–20 ms inside Lambda; cold start ≈ 0.75–0.95 s end to end after a fix that moved boto3 set-up into the Lambda init phase (it was ≈ 1.3 s before). Be ready to explain what the first deployment revealed (`docs/deployment/TROUBLESHOOTING.md`) and that the stage throttle behaves only approximately.
 
 ## Deployment and operations
 

@@ -53,11 +53,11 @@ Source: the semestral thesis *Serverless CRUD API with Authentication* (Brno Uni
 | Errors | appropriate status + JSON | unspecified format | uniform envelope with code and request id, also for gateway errors | consistent and traceable | `test_http.py`, template `GatewayResponses` |
 | Extra data fields | F-6 | six attributes | six + `version` (+ internal `userSortKey`) | lost-update protection | `test_optimistic_locking…` |
 | Pagination | not required (named as future work) | none | `limit` + opaque `nextToken` | bounded responses | `test_pagination_walks…` |
-| Deployment | not prescribed | AWS Console + CLI by hand; region text says eu-central-1 but screenshots show Stockholm (eu-north-1) | AWS SAM template, eu-central-1 | reproducible; region consistent | cfn-lint, `sam validate` |
+| Deployment | not prescribed | AWS Console + CLI by hand; region text says eu-central-1 but screenshots show Stockholm (eu-north-1) | AWS SAM template, eu-north-1 (the account's organization policy denies eu-central-1; ADR 0008) | reproducible; matches the report's screenshots | cfn-lint, `sam validate`, CloudFormation change set |
 | Runtime | Python | "Python 3.11" in text; the CloudWatch screenshot shows a Node.js 22 function failing with a ReferenceError | Python 3.13, arm64 | newer supported runtime; evidence must come from the real system | ADR 0007 |
-| Throttling / stage | "must be completed" | defaults | stage throttle 10/20 → 429 | abuse and cost guard | template (not verified live) |
+| Throttling / stage | "must be completed" | defaults | stage throttle 10/20 → 429 | abuse and cost guard | live L01–L03 (2026-11-17; enforced approximately) |
 | Logging | log all API calls, inspect individual requests | default Lambda logs | one structured JSON line per request with request id; 14-day retention | searchable in Logs Insights | `test_http.py` |
-| Monitoring | required for bachelor stage | none | 4 CloudWatch alarms, optional e-mail | first failure signals | template (not verified live) |
+| Monitoring | required for bachelor stage | none | 4 CloudWatch alarms, optional e-mail | first failure signals | alarm metrics checked on AWS (2026-11-17); no alarm fired |
 | IAM | "detailed IAM policies … future work" | unspecified | one action per function, resource-scoped | least privilege | template |
 | S3 | — | appears in Figure 1 | not used | nothing requires it | — |
 | User management | A-4 | Cognito console | Cognito self sign-up, e-mail verification, password policy, hosted sign-in; registration UI | users manage their own accounts | component tests (mocked); AWS not run |
