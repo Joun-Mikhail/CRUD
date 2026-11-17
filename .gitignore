@@ -30,3 +30,6 @@ frontend/.env.aws
 .DS_Store
 .idea/
 .vscode/
+
+# Playwright MCP scratch output (snapshots, console logs)
+.playwright-mcp/

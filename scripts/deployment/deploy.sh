@@ -5,15 +5,19 @@
 set -euo pipefail
 cd "$(dirname "$0")/../../infrastructure"
 
-# Region: AWS_REGION if set, otherwise the thesis default (Frankfurt).
-REGION="${AWS_REGION:-eu-central-1}"
+# Region: AWS_REGION if set, otherwise the project default (Stockholm, ADR 0008).
+REGION="${AWS_REGION:-eu-north-1}"
 echo "==> Region: $REGION"
 [ -f samconfig.toml ] || { echo "Copy samconfig.example.toml to samconfig.toml first." >&2; exit 1; }
 
 echo "==> Target account / identity (check this is your DEVELOPMENT account):"
 aws sts get-caller-identity --region "$REGION" --output table
 
-echo "==> sam validate --lint"
+# Both forms are needed: the plain one runs the SAM transform (what CloudFormation executes),
+# `--lint` runs cfn-lint only. --config-env keeps samconfig.toml from adding --lint to the first.
+echo "==> sam validate (SAM transform)"
+sam validate --region "$REGION" --config-env transform-only
+echo "==> sam validate --lint (cfn-lint)"
 sam validate --lint --region "$REGION"
 
 echo "==> sam build"

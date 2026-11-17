@@ -36,11 +36,11 @@ describe('config', () => {
   const origin = 'http://localhost:5173'
   const aws = {
     VITE_APP_MODE: 'aws',
-    VITE_API_BASE_URL: 'https://abc.execute-api.eu-central-1.amazonaws.com/dev/',
-    VITE_AWS_REGION: 'eu-central-1',
-    VITE_COGNITO_USER_POOL_ID: 'eu-central-1_AbCdEf123',
+    VITE_API_BASE_URL: 'https://abc.execute-api.eu-north-1.amazonaws.com/dev/',
+    VITE_AWS_REGION: 'eu-north-1',
+    VITE_COGNITO_USER_POOL_ID: 'eu-north-1_AbCdEf123',
     VITE_COGNITO_CLIENT_ID: 'client123',
-    VITE_COGNITO_DOMAIN: 'https://notes.auth.eu-central-1.amazoncognito.com',
+    VITE_COGNITO_DOMAIN: 'https://notes.auth.eu-north-1.amazoncognito.com',
   }
 
   it('accepts demo mode', () => {
@@ -51,7 +51,7 @@ describe('config', () => {
   it('accepts a complete aws configuration and applies defaults', () => {
     const result = loadConfig(aws, origin)
     if (!result.ok || result.config.mode !== 'aws') throw new Error('expected aws config')
-    expect(result.config.apiBaseUrl).toBe('https://abc.execute-api.eu-central-1.amazonaws.com/dev')
+    expect(result.config.apiBaseUrl).toBe('https://abc.execute-api.eu-north-1.amazonaws.com/dev')
     expect(result.config.cognito.redirectUri).toBe('http://localhost:5173/auth/callback')
     expect(result.config.cognito.scopes).toEqual(['openid', 'email', 'notes/read', 'notes/write'])
   })

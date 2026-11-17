@@ -6,7 +6,13 @@
 |---|---|
 | Ownership / isolation logic, validation, error and log hygiene (Lambda code) | **Verified** by automated tests against in-memory DynamoDB (`backend/tests/security`, `tests/integration`) |
 | Frontend token handling (PKCE, state check, in-memory tokens) | **Verified** by unit tests with a mocked Cognito |
-| Real JWT validation by API Gateway, real Cognito flows, IAM policies in effect | **Not verified** — the stack has not been deployed. `scripts/testing/live_api_tests.py` exists for this and has never been run |
+| Real JWT validation by API Gateway (missing, garbage, tampered and ID tokens, non-Bearer scheme, missing scope) | **Verified on AWS** (eu-north-1, 2026-11-17): all rejected — live checks A01–A07 in `evidence/tests/live-api-tests.json` |
+| Cross-user isolation on the real stack (read, update, delete, list) | **Verified on AWS**: 403 for the other user's note, note unchanged, not in the other user's list (T07, T10, T13, H01, H02); also in the browser with two real Cognito users |
+| IAM policies in effect | **Verified on AWS**: each function's role has exactly one DynamoDB action on the table or index ARN plus `AWSLambdaBasicExecutionRole` (`evidence/aws/deployed-resources.txt`); every API call in the live suite succeeded, so no action is missing |
+| Real Cognito flows | **Verified on AWS**: sign-up, wrong-code rejection, hosted sign-in with PKCE + `state`, session restore, sign-out. **Not verified**: entering a real e-mailed code, password reset |
+| Tokens in the browser | **Verified on AWS**: none in `localStorage`, `sessionStorage`, app cookies or the DOM |
+| Log hygiene in CloudWatch | **Verified on AWS**: no note text, tokens, passwords or e-mail addresses in the five log groups after the test runs (`evidence/aws/cloudwatch.txt`) |
+| Expired token, token from another user pool | **Not verified** (not automated) |
 
 ## Threat model
 
@@ -27,7 +33,7 @@ Assets: note contents; user accounts; the AWS account (cost).
 | T11 | Sensitive data in logs | Logs contain ids/status/duration only — never title, content, headers or tokens (asserted by a test) | `logging_utils.py`, `test_logs_contain_no_note_content_or_credentials` |
 | T12 | Token theft from browser storage | Tokens kept in memory only; PKCE verifier/state in `sessionStorage` only during the redirect | `frontend/src/services/auth/cognitoAuth.ts` |
 | T13 | Authorization-code interception / login CSRF | PKCE (S256) + `state` verified on callback | same |
-| T14 | Cost exhaustion / abuse | Stage throttling 10 req/s (burst 20) → 429; 128 KiB body limit; on-demand billing with alarms | `MethodSettings`, `config.py` |
+| T14 | Cost exhaustion / abuse | Stage throttling 10 req/s (burst 20) → 429; 128 KiB body limit; on-demand billing with alarms. Measured: the throttle is approximate and is not applied to requests the authorizer rejects; after a burst it can keep throttling one method for minutes (`docs/performance/PERFORMANCE.md`) | `MethodSettings`, `config.py` |
 | T15 | Over-privileged functions | One IAM action per function, scoped to the table or index ARN; no wildcards | `template.yaml` `Policies` |
 | T16 | Cross-origin abuse | CORS allows one configured origin; no credentials/cookies are used at all | `Cors`, `CORS_ALLOW_ORIGIN` |
 | T17 | Account enumeration | `PreventUserExistenceErrors: ENABLED` on the app client (sign-in and password reset; the reset screen shows the same message whether or not the address is registered). Sign-**up** still reveals that an e-mail is registered — inherent to Cognito self-registration | `WebClient` |
@@ -44,7 +50,7 @@ A JWT is three base64url parts, `header.payload.signature`:
 | Part | Content in a Cognito access token |
 |---|---|
 | Header | `alg: RS256`, `kid` — which of the pool's public keys signed it |
-| Payload | `iss` = `https://cognito-idp.eu-central-1.amazonaws.com/<poolId>`; `sub` = user id; `client_id` = app client (access tokens have no `aud`; ID tokens do); `token_use` = `access`; `scope` = `openid email notes/read notes/write`; `exp`, `iat`, `auth_time`, `jti`, `username` |
+| Payload | `iss` = `https://cognito-idp.eu-north-1.amazonaws.com/<poolId>`; `sub` = user id; `client_id` = app client (access tokens have no `aud`; ID tokens do); `token_use` = `access`; `scope` = `openid email notes/read notes/write`; `exp`, `iat`, `auth_time`, `jti`, `username` |
 | Signature | RSA-SHA256 over `header.payload` with Cognito's private key |
 
 Who verifies what:

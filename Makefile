@@ -1,6 +1,8 @@
 # Serverless Notes - common developer commands. Run `make help`.
 SHELL := /bin/bash
-PY := backend/.venv/bin
+# The virtual environment's programs live in bin/ on Linux/macOS and Scripts/ on Windows.
+VENV_BIN := $(if $(wildcard backend/.venv/Scripts),Scripts,bin)
+PY := backend/.venv/$(VENV_BIN)
 STACK ?= serverless-notes-dev
 
 .PHONY: help setup demo-backend demo-frontend lint typecheck test test-backend test-frontend \
@@ -13,21 +15,21 @@ setup: ## Install backend + frontend dependencies
 	./scripts/setup/setup.sh
 
 demo-backend: ## Terminal 1: Local Demo backend on :8787 (real handlers, in-memory DynamoDB)
-	cd backend && PYTHONPATH=src .venv/bin/python -m local_demo.server --port 8787 --seed
+	cd backend && PYTHONPATH=src .venv/$(VENV_BIN)/python -m local_demo.server --port 8787 --seed
 
 demo-frontend: ## Terminal 2: frontend in Local Demo mode on :5173
 	cd frontend && npm run dev
 
 lint: ## Ruff (lint + format check) and ESLint
-	cd backend && .venv/bin/ruff check . && .venv/bin/ruff format --check .
+	cd backend && .venv/$(VENV_BIN)/ruff check . && .venv/$(VENV_BIN)/ruff format --check .
 	cd frontend && npm run lint
 
 typecheck: ## mypy (strict) and tsc
-	cd backend && .venv/bin/mypy
+	cd backend && .venv/$(VENV_BIN)/mypy
 	cd frontend && npm run typecheck
 
 test-backend: ## Backend unit + integration + security tests with coverage
-	cd backend && .venv/bin/pytest --cov --cov-report=term-missing
+	cd backend && .venv/$(VENV_BIN)/pytest --cov --cov-report=term-missing
 
 test-frontend: ## Frontend unit/component tests
 	cd frontend && npm test
@@ -42,10 +44,11 @@ build: ## Production build of the frontend
 
 validate: ## Validate the SAM/CloudFormation template (needs cfn-lint + SAM CLI)
 	cfn-lint infrastructure/template.yaml
-	sam validate --lint --region eu-central-1 -t infrastructure/template.yaml
+	sam validate --region eu-north-1 -t infrastructure/template.yaml          # SAM transform
+	sam validate --lint --region eu-north-1 -t infrastructure/template.yaml   # cfn-lint only
 
 audit: ## Dependency vulnerability scans
-	cd backend && .venv/bin/pip-audit
+	cd backend && .venv/$(VENV_BIN)/pip-audit
 	cd frontend && npm audit --omit=dev
 
 check: lint typecheck test build ## Everything CI runs except e2e and template validation

@@ -1,0 +1,32 @@
+# CloudWatch checks on the deployed stack (2026-11-17)
+
+## Alarms after all live tests, the benchmark and the throttle bursts (2026-11-17T13:45:44Z)
+serverless-notes-dev-api-5xx	OK	Threshold Crossed: no datapoints were received for 1 period and 1 missing datapoint was treated as [NonBreaching].
+serverless-notes-dev-api-latency-p95	OK	Threshold Crossed: no datapoints were received for 3 periods and 3 missing datapoints were treated as [NonBreaching].
+serverless-notes-dev-dynamodb-throttles	OK	Threshold Crossed: no datapoints were received for 1 period and 1 missing datapoint was treated as [NonBreaching].
+serverless-notes-dev-lambda-errors	OK	Threshold Crossed: no datapoints were received for 1 period and 1 missing datapoint was treated as [NonBreaching].
+
+## Structured application logs (one JSON line per request), 13:14-14:20 UTC
+Lines scanned for note titles/content written by the tests, 'eyJ' (JWT prefix), 'Bearer', test passwords and e-mail addresses: 0 matches in all five log groups.
+Statuses logged per function: create-note {201: 6, 400: 15, 415: 1, 413: 4}; list-notes {200: 623}; get-note {200: 11, 403: 6, 404: 39, 400: 5}; update-note {200: 6, 403: 5, 404: 5}; delete-note {200: 6, 403: 5, 404: 5}
+Sample: {"timestamp": "2026-11-17T13:35:28.760+00:00", "level": "INFO", "message": "request_completed", "requestId": "30a1a320-...", "operation": "UpdateNote", "httpMethod": "PUT", "status": 200, "durationMs": 981.52, "userId": "104c895c-...", "errorCode": null, "errorCategory": null}
+
+## Logs Insights: tracing the request id shown in the UI (TROUBLESHOOTING.md procedure)
+Query: fields @timestamp, operation, status, errorCode, errorCategory, durationMs, userId | filter requestId = "bec53b5e-9f1d-40b2-b1d7-98cc9c3ff5e3"   (5 log groups, 0.54 MB scanned)
+Result: 2026-11-17 13:36:25.991  GetNote  403  FORBIDDEN  client  17.09 ms  userId=404c994c-... (the second user opening the first user's note in the browser)
+
+## Cold starts, from Lambda REPORT lines
+Before runtime.prewarm() (13:14-14:20 UTC): Init Duration 184-355 ms, then the first request after each cold start took ~980-1030 ms (p95 of list/update/delete Duration); warm median 2-19 ms.
+After runtime.prewarm() (benchmark from 13:43 UTC, 100 invocations per function):
+  create-note  invocations=100 init=396 ms first request=141 ms warm median=13.8 ms warm p95=21.1 ms
+  list-notes   invocations=100 init=522 ms first request=170 ms warm median=11.8 ms warm p95=22.9 ms
+  get-note     invocations=100 init=406 ms first request=141 ms warm median=10.3 ms warm p95=21.1 ms
+  update-note  invocations=100 init=524 ms first request=153 ms warm median=11.5 ms warm p95=22.8 ms
+  delete-note  invocations=100 init=386 ms first request=143 ms warm median=11.4 ms warm p95=20.5 ms
+
+## Alarm metrics receive data (alarm dimensions, last 60 min, 5-minute periods)
+AWS/ApiGateway 5XXError ApiName=serverless-notes-dev-api Stage=dev: 6 datapoints, max 0
+AWS/ApiGateway Latency (p95), same dimensions: 6 datapoints, max 1553.7 ms (threshold 2000 ms for 3 periods)
+AWS/Lambda Errors FunctionName=serverless-notes-dev-list-notes: 6 datapoints, max 0
+AWS/DynamoDB ReadThrottleEvents: no datapoints (published only when throttling occurs); ConsumedReadCapacityUnits: 8 datapoints
+Alarm history: each alarm went INSUFFICIENT_DATA -> OK at creation; none entered ALARM. Alarm notifications were not exercised (AlarmEmail is empty, no SNS topic).

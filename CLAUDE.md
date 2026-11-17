@@ -19,7 +19,7 @@ make test-backend               # cd backend && .venv/bin/pytest --cov
 make test-frontend              # cd frontend && npm test
 make test-e2e                   # Playwright (use --trace off)
 make lint typecheck build
-cfn-lint infrastructure/template.yaml && sam validate --lint --region eu-central-1 -t infrastructure/template.yaml
+cfn-lint infrastructure/template.yaml && sam validate --region eu-north-1 -t infrastructure/template.yaml   # plain form = SAM transform; --lint = cfn-lint only
 ```
 Single backend test: `cd backend && .venv/bin/pytest tests/security -k isolation -v`.
 
@@ -45,15 +45,17 @@ Single backend test: `cd backend && .venv/bin/pytest tests/security -k isolation
 
 ## Honesty rules
 
-- Never claim AWS deployment, live test results, benchmarks or prices that were not actually produced. As of the last update the stack has **never been deployed**.
+- Never claim AWS deployment, live test results, benchmarks or prices that were not actually produced. As of 2026-11-17 the development stack `serverless-notes-dev` is **deployed in eu-north-1** and the live suite passed; anything not listed as verified in `docs/testing/TESTING.md` is still unverified.
 - Local Demo results must be labelled as local/emulator results.
 - Record real command outputs under `evidence/`.
 
 ## Decisions already made (see `docs/decisions/README.md`)
 
-REST API + Cognito authorizer with scopes (not HTTP API) · `noteId` PK + GSI (not composite key) · five functions · Local Demo runs real handlers on moto · in-app sign-up + hosted sign-in with PKCE · Python 3.13 arm64.
+Region eu-north-1 (Stockholm; the organization's policy denies eu-central-1) · REST API + Cognito authorizer with scopes (not HTTP API) · `noteId` PK + GSI (not composite key) · five functions · Local Demo runs real handlers on moto · in-app sign-up + hosted sign-in with PKCE · Python 3.13 arm64.
 
 ## Current constraints
 
-- No AWS credentials in the build environment; anything requiring AWS is unverified.
+- AWS access exists on the owner's machine only (CLI profile via `aws login`, account restricted to eu-north-1); CI has none. Anything requiring AWS stays unverified until it is run there and recorded under `evidence/`.
+- Changes to the deployed stack go through a reviewed change set (`sam deploy --no-execute-changeset`, inspect, then execute); never touch resources outside the stack.
+- `sam validate --lint` runs cfn-lint only. Always run the plain `sam validate` as well: it executes the SAM transform, which is what CloudFormation runs at deployment.
 - CI triggers on pull requests and on pushes to `main`. Deploy workflow is manual only.

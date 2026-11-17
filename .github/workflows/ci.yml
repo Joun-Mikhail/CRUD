@@ -101,5 +101,8 @@ jobs:
           python-version: "3.13"
       - run: pip install cfn-lint aws-sam-cli
       - run: cfn-lint infrastructure/template.yaml
-      - run: sam validate --lint --region eu-central-1 -t infrastructure/template.yaml
+      # `--lint` runs cfn-lint only; the plain form runs the SAM transform, which is what
+      # CloudFormation executes at deployment. Both are needed.
+      - run: sam validate --region eu-north-1 -t infrastructure/template.yaml
+      - run: sam validate --lint --region eu-north-1 -t infrastructure/template.yaml
       - run: sam build -t infrastructure/template.yaml
