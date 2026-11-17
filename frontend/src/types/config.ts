@@ -4,7 +4,7 @@ export interface CognitoConfig {
   region: string
   userPoolId: string
   clientId: string
-  /** Hosted UI base URL, e.g. https://xxx.auth.eu-central-1.amazoncognito.com (no trailing slash) */
+  /** Hosted UI base URL, e.g. https://xxx.auth.eu-north-1.amazoncognito.com (no trailing slash) */
   domain: string
   redirectUri: string
   logoutUri: string

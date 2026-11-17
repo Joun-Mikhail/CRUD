@@ -1,6 +1,6 @@
 # Project completion report
 
-Date: 2026-11-15 · Branch: `claude/serverless-notes-build-h3po79` · Pull request: #1 (draft)
+Date: 2026-11-17 (AWS deployment and tests added) · first version 2026-11-15
 
 ## Executive summary
 
@@ -8,42 +8,40 @@ Serverless Notes is a multi-user private notes application that demonstrates a s
 
 **Delivered and verified locally:** the complete Python backend (five Lambda handlers with validation, ownership enforcement, pagination, optimistic locking, structured logging), a SAM template for the whole AWS stack, a React web client with two clearly separated modes, automated tests at every level, CI, and full documentation including a learning package.
 
-**Not delivered:** a verified AWS deployment. No usable AWS credentials were available, so the stack was never deployed and nothing that depends on real AWS services has been observed working.
+**Deployed and verified on AWS (2026-11-17):** the development stack `serverless-notes-dev` in eu-north-1. The live suite passed 38/38 checks (thesis table, authentication, scopes, isolation, routing, validation, CORS, throttling); the React app worked against real Cognito and the real API in a browser; CloudWatch logs, Logs Insights and alarm metrics were checked; a bounded benchmark measured latency and cold starts.
 
-> **AWS DEPLOYMENT: NOT VERIFIED — NO AUTHORIZED CLOUD ENVIRONMENT**
-
-The project is therefore **not 100 % complete** against the brief: the code and infrastructure definition are complete; the live verification and AWS measurements are open.
+**Still open:** entering a real e-mailed verification code and password reset against real Cognito, expired-token / wrong-issuer cases, alarm notifications, the GitHub deploy workflow, and a comparison with the real bill.
 
 ## Architecture summary
 
-Browser (React) → Amazon Cognito (sign-up, hosted sign-in, Authorization Code + PKCE) → API Gateway REST API with Cognito user-pool authorizer and OAuth scopes → five AWS Lambda functions (Python 3.13, arm64) → Amazon DynamoDB (partition key `noteId`, GSI `byUser`) · Amazon CloudWatch (logs, 4 alarms) · AWS SAM/CloudFormation in `eu-central-1` · GitHub Actions.
+Browser (React) → Amazon Cognito (sign-up, hosted sign-in, Authorization Code + PKCE) → API Gateway REST API with Cognito user-pool authorizer and OAuth scopes → five AWS Lambda functions (Python 3.13, arm64) → Amazon DynamoDB (partition key `noteId`, GSI `byUser`) · Amazon CloudWatch (logs, 4 alarms) · AWS SAM/CloudFormation in `eu-north-1` (ADR 0008) · GitHub Actions.
 
 ## Functional completion
 
 | Requirement | Code | Verified locally | Verified on AWS |
 |---|---|---|---|
-| FR-001 Registration (Cognito sign-up, password policy, verification) and password reset | yes | component tests with mocked Cognito | **no** |
-| FR-002 Login (PKCE, in-memory tokens, refresh, expiry, logout) | yes | unit tests with mocked Cognito | **no** |
-| FR-003 Create note | yes | yes | no |
-| FR-004 List notes (index query, pagination, ordering) | yes | yes | no |
-| FR-005 Get note (UUID validation, 403/404) | yes | yes | no |
-| FR-006 Update note (atomic ownership, version) | yes | yes | no |
-| FR-007 Delete note | yes | yes | no |
-| FR-008 User isolation (every method, list, pagination, concurrency) | yes | yes | no |
-| FR-009 Error management (uniform envelope, request ids, no leakage) | yes | yes (Lambda); gateway responses unverified | no |
-| FR-010 Logging and monitoring | yes | logging yes; alarms template-validated only | no |
-| REST contract: 5 endpoints, 201/200/400/401/403/404 (+409/413/415/429/503) | yes | yes except gateway-generated responses | no |
-| Infrastructure as code | yes | cfn-lint, `sam validate --lint`, `sam build` | **not deployed** |
-| Frontend (all 7 page types, both modes) | yes | Local Demo: unit + browser tests; AWS mode: mocks only | no |
+| FR-001 Registration (Cognito sign-up, password policy, verification) and password reset | yes | component tests with mocked Cognito | sign-up and wrong-code handling yes; reading the e-mailed code and password reset **no** |
+| FR-002 Login (PKCE, in-memory tokens, refresh, expiry, logout) | yes | unit tests with mocked Cognito | yes (hosted sign-in with PKCE, session restore after reload, sign-out); expiry not observed |
+| FR-003 Create note | yes | yes | yes |
+| FR-004 List notes (index query, pagination, ordering) | yes | yes | yes (pagination not exercised on AWS) |
+| FR-005 Get note (UUID validation, 403/404) | yes | yes | yes |
+| FR-006 Update note (atomic ownership, version) | yes | yes | yes |
+| FR-007 Delete note | yes | yes | yes |
+| FR-008 User isolation (every method, list, pagination, concurrency) | yes | yes | yes (API and browser) |
+| FR-009 Error management (uniform envelope, request ids, no leakage) | yes | yes | yes, incl. gateway responses (exceptions documented in `docs/api/API.md`) |
+| FR-010 Logging and monitoring | yes | logging yes | yes (CloudWatch logs, Logs Insights, alarm metrics; no alarm fired) |
+| REST contract: 5 endpoints, 201/200/400/401/403/404 (+409/413/415/429/503) | yes | yes | yes except 409 and 503 (not provoked live) |
+| Infrastructure as code | yes | cfn-lint, `sam validate`, `sam build`, template tests | **deployed** (eu-north-1) |
+| Frontend (all 7 page types, both modes) | yes | Local Demo: unit + browser tests | AWS mode: browser test against the deployed stack |
 | Local Demo mode | yes | yes | n/a |
 | CI | yes | green on GitHub (PR #1) | n/a |
-| Deploy workflow (OIDC, manual) | yes | syntax only | no |
+| Deploy workflow (OIDC, manual) | yes | syntax only | no (OIDC role not set up) |
 
-## Test results (actually executed, 2026-11-15)
+## Test results (actually executed; local runs repeated 2026-11-17)
 
 | Command | Outcome |
 |---|---|
-| `cd backend && .venv/bin/pytest --cov` | 166 passed; coverage 98.99 % |
+| `cd backend && .venv/bin/pytest --cov` | 187 passed; coverage 99.01 % |
 | `ruff check .` · `ruff format --check .` · `mypy` | clean |
 | `pip-audit` | no known vulnerabilities |
 | `cd frontend && npm test` | 66 passed |
@@ -52,13 +50,16 @@ Browser (React) → Amazon Cognito (sign-up, hosted sign-in, Authorization Code 
 | `npm run test:e2e -- --trace off` | 14 passed (Chromium, Local Demo), including the axe accessibility audit with zero violations |
 | `npm run build` | passes (JS 131.9 kB gzip); built app smoke-tested under its CSP with no console errors |
 | `cfn-lint infrastructure/template.yaml` | no findings |
-| `sam validate --lint` · `sam build` | valid · build succeeded |
+| `sam validate` (SAM transform) · `sam validate --lint` · `sam build` | valid · valid · build succeeded |
 | `openapi-spec-validator docs/api/openapi.yaml` | OK |
 | GitHub Actions CI on PR #1 | backend, frontend, e2e, infrastructure — all successful |
 | `scripts/testing/benchmark.py` against Local Demo, 100 cycles | 100 % success; medians 2.4–4.4 ms — **emulator on one machine, not AWS** |
-| `scripts/testing/live_api_tests.py` | **not run** |
+| `sam deploy` (reviewed change set, eu-north-1) | `CREATE_COMPLETE`, 33 resources, no failures |
+| `scripts/testing/live_api_tests.py` (real AWS) | **38 passed, 0 failed** |
+| Browser test of the AWS mode (Playwright, real Cognito) | sign-up, sign-in, CRUD, reload, isolation, sign-out pass; e-mailed code not read |
+| `scripts/testing/benchmark.py` against AWS, 100 cycles | 500/500 succeeded; median ≈ 120 ms end to end; cold start ≈ 0.75–0.95 s end to end |
 
-Raw outputs: `evidence/`. Acceptance scenarios A–L with status: `docs/testing/TESTING.md` (B–H, J, K, L pass locally; A passes with mocked Cognito only; I — persistence across restarts in AWS mode — not run).
+Raw outputs: `evidence/`. Acceptance scenarios A–L with status: `docs/testing/TESTING.md` (all pass; A passes on AWS except entering the e-mailed code).
 
 ## Security review
 
@@ -66,15 +67,17 @@ Approach: identity only from claims verified by API Gateway; unknown request fie
 
 Verified by tests (local): cross-user GET/PUT/DELETE rejected with no disclosure or side effect; owner cannot be set or transferred; lists and pagination isolated; ID tokens and missing scopes refused at the Lambda layer; concurrent writers cannot bypass ownership or versions; logs and error bodies leak nothing.
 
-Remaining risks: the platform controls (JWT validation, scopes, IAM, CORS, throttling) are configured but unobserved; no MFA; stage-level rather than per-user throttling; sign-up reveals registered e-mails; 403-vs-404 reveals existence of a guessed UUID (thesis requirement); unsigned pagination token; access tokens valid until expiry after sign-out. No critical or high-severity finding is known in the application logic; no penetration test was performed. Full list: `docs/security/SECURITY.md`.
+Verified on AWS: JWT validation, scopes, isolation, IAM (one action per function), CORS, throttling, log hygiene, token storage in the browser.
+
+Remaining risks: the stage throttle is approximate and can lock one method for minutes after a burst; no MFA; stage-level rather than per-user throttling; sign-up reveals registered e-mails; 403-vs-404 reveals existence of a guessed UUID (thesis requirement); unsigned pagination token; access tokens valid until expiry after sign-out. No critical or high-severity finding is known in the application logic; no penetration test was performed. Full list: `docs/security/SECURITY.md`.
 
 ## AWS deployment status
 
-Not deployed. The credentials in the build environment were rejected by AWS STS. Prepared and statically validated: template, example configuration, deploy / frontend-env / live-test / destroy scripts, deploy workflow. None of the scripts has been executed against AWS; expect small corrections on first use (`docs/deployment/TROUBLESHOOTING.md` lists the likely ones).
+Deployed on 2026-11-17 to eu-north-1 (stack `serverless-notes-dev`, development stage). The first change set exposed a template error that offline validation had missed (`AuthorizationScopes` without an explicit `Authorizer`; CI only ran cfn-lint); it was fixed and CI now runs the SAM transform too. Later updates added nothing but the cold-start fix. Every problem met is recorded in `docs/deployment/TROUBLESHOOTING.md`. `scripts/cleanup/destroy.sh` and the GitHub deploy workflow have not been executed.
 
 ## Frontend status
 
-Built, launched and tested in Local Demo mode in a real browser (14 tests, four viewport widths, light and dark theme); screenshots reviewed in `evidence/screenshots/`. Production build passes. AWS mode (Cognito registration, hosted sign-in with PKCE, token refresh, session expiry) is implemented and unit-tested against mocked Cognito responses, but has never talked to a real user pool.
+Built, launched and tested in Local Demo mode in a real browser (14 tests, four viewport widths, light and dark theme); screenshots in `evidence/screenshots/`. Production build passes. AWS mode was tested in a real browser against the deployed stack on 2026-11-17: registration, hosted sign-in with PKCE, CRUD, reload, cross-user access (refused with a clear message), sign-out; tokens stay in memory. Token refresh after expiry was not observed.
 
 ## Repository navigation — most important files
 
@@ -91,19 +94,19 @@ Built, launched and tested in Local Demo mode in a real browser (14 tests, four 
 | `backend/tests/security/test_isolation.py` | isolation and security regression |
 | `infrastructure/template.yaml` | all AWS resources |
 | `frontend/src/services/apiClient.ts`, `services/auth/cognitoAuth.ts` | API client; PKCE and token handling |
-| `scripts/testing/live_api_tests.py` | live acceptance tests (unexecuted) |
+| `scripts/testing/live_api_tests.py` | live acceptance tests (38 checks, run on AWS) |
 
 ## Remaining limitations
 
-1. No AWS deployment, live tests, CloudWatch evidence or AWS performance data.
-2. Cost analysis: a later web check confirmed the Free Tier and Cognito allowances but not the Frankfurt-specific unit prices (see the verification table in `AWS_COST_ANALYSIS.md`); no real bill.
-3. The pricing research and two documentation/frontend helper runs were interrupted by a usage limit; that work was finished directly, but without the online price check.
-4. AWS-mode UI unverified against real Cognito; deploy/cleanup scripts and the deploy workflow unexecuted.
+1. Not verified on AWS: entering a real e-mailed code, password reset, token expiry, wrong-issuer tokens, alarm notifications, pagination, 409/503 paths.
+2. Cost analysis uses Stockholm list prices from the AWS Price List API; no real bill yet.
+3. Gateway behaviour that the template cannot change: unknown route with an `Authorization` header → 403 `BAD_REQUEST`; >10 MB bodies → plain-text 413; approximate throttling (see `docs/performance/PERFORMANCE.md`).
+4. `destroy.sh` and the GitHub deploy workflow unexecuted.
 5. No frontend hosting; no account-deletion screen; no server-side search.
 6. No MFA, WAF or per-user rate limits; `dev` stage has no backups.
 7. Chromium only. An automated axe audit (WCAG A/AA rule sets, both themes) passes with zero violations; no manual screen-reader review.
 8. Expired-token and foreign-issuer cases are not automated.
-9. Performance and scalability evaluation is theoretical.
+9. Performance measured with one sequential client only; scalability remains a theoretical evaluation.
 10. The semestral report's text and figures contain errors listed in `docs/REQUIREMENTS.md` §4 that only the author can correct.
 
 ## Academic learning roadmap
@@ -111,8 +114,8 @@ Built, launched and tested in Local Demo mode in a real browser (14 tests, four 
 1. `START_HERE.md`, run the Local Demo, read the eight files in the listed order.
 2. Lessons 1–12 in `docs/learning/`, doing every exercise.
 3. Rebuild the backend from an empty folder using the two-week plan in `docs/learning/README.md`, using the existing tests as the acceptance check.
-4. Deploy to your own AWS account; run `make live-test`; fix what the first deployment reveals and write it down.
-5. Measure latency and cold starts; verify prices; replace the theoretical sections with your data.
+4. Read `docs/deployment/TROUBLESHOOTING.md` ("First deployment") — what the real deployment revealed and why; rerun `make live-test` yourself.
+5. Register once with your own mailbox; look at the measured latency and cold starts in `docs/performance/PERFORMANCE.md` and be ready to explain them.
 6. Rehearse `SUPERVISOR_QUESTIONS.md`. Declare AI assistance according to your faculty's rules.
 
 ## Demonstration guide (about 10 minutes)
@@ -125,17 +128,17 @@ Without AWS (always works):
 5. **API explorer**: `GET /notes` → 200 with timing; tick "Send without the Authorization header" → 401 with the error envelope.
 6. Copy the note id. **Settings → switch to Bob**. Notes list no longer contains it. In the API explorer `GET /notes/{id}` with Alice's id → 403; `DELETE` → 403. Switch back to Alice: the note is intact.
 7. Invalid input: API explorer `POST /notes` with `{"title": 5}` → 400 with `details`.
-8. Terminal: `make test-backend` (166 passing; point at `tests/security`), open `infrastructure/template.yaml` and show one function's single-action IAM policy and the authorizer scopes.
+8. Terminal: `make test-backend` (187 passing; point at `tests/security`), open `infrastructure/template.yaml` and show one function's single-action IAM policy and the authorizer scopes.
 
-With AWS (after you have deployed): repeat steps 3–7 in AWS mode with two real accounts, show the Cognito hosted sign-in, the CloudWatch log entry found by request id, and the `make live-test` output.
+With AWS (the stack is deployed): `make frontend-env`, `cd frontend && npm run dev:aws`; repeat steps 3–7 with two real accounts, show the Cognito hosted sign-in, the CloudWatch log entry found by request id (Logs Insights query in `docs/deployment/TROUBLESHOOTING.md`) and the `make live-test` output.
 
 ## Professional quality assessment
 
 Evidence-based, not a percentage:
 
 - **Correctness of application logic — strong.** Every endpoint, error path and ownership rule is exercised by tests against an emulated DynamoDB, including concurrency; strict typing and linting are clean; CI reproduces the results on GitHub.
-- **Security design — sound for the scope**, with the central rule (ownership) enforced atomically in the database and limits documented. Platform-level controls are configured but unproven.
-- **Infrastructure — plausible but unproven.** It passes every offline validator; a first real deployment commonly surfaces issues validators cannot see.
-- **Frontend — complete and polished in demo mode**, honest about its mode and data; AWS mode is the least-verified code in the repository.
+- **Security design — sound for the scope**, with the central rule (ownership) enforced atomically in the database; the platform controls were observed working on AWS.
+- **Infrastructure — deployed and working.** The first real deployment did surface one issue the validators had missed; it is fixed and CI now catches that class of error.
+- **Frontend — complete in both modes**; AWS mode verified in a real browser except the e-mail code entry and token expiry.
 - **Documentation — comprehensive and consistent with the code**, with unverified claims labelled.
-- **Overall:** a deployment-ready, well-tested implementation whose remaining work is concentrated in one place — running it on AWS. It should not be described as production-ready or as verified on AWS until that has been done.
+- **Overall:** a deployed, tested development stack of a well-tested implementation. It is not production-ready (no MFA, WAF, per-user limits, backups in `dev`, frontend hosting), and the open items above are listed in `PROJECT_STATE.md`.

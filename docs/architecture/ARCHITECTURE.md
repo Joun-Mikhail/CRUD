@@ -1,6 +1,6 @@
 # Architecture
 
-Everything in this document describes what is implemented in this repository. Region: `eu-central-1` (Frankfurt). All diagrams are Mermaid (GitHub renders them).
+Everything in this document describes what is implemented in this repository. Region: `eu-north-1` (Stockholm; ADR 0008). All diagrams are Mermaid (GitHub renders them).
 
 ## 1. System overview
 

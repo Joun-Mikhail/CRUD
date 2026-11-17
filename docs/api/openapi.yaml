@@ -6,7 +6,7 @@ info:
     Secure serverless CRUD API for personal notes (AWS Lambda, API Gateway, DynamoDB, Cognito).
     Human-readable reference: docs/api/API.md.
 servers:
-  - url: https://{apiId}.execute-api.eu-central-1.amazonaws.com/{stage}
+  - url: https://{apiId}.execute-api.eu-north-1.amazonaws.com/{stage}
     description: AWS
     variables:
       apiId: { default: example }
@@ -144,8 +144,8 @@ components:
       description: Amazon Cognito user pool. Send the ACCESS token as "Authorization Bearer".
       flows:
         authorizationCode:
-          authorizationUrl: https://example.auth.eu-central-1.amazoncognito.com/oauth2/authorize
-          tokenUrl: https://example.auth.eu-central-1.amazoncognito.com/oauth2/token
+          authorizationUrl: https://example.auth.eu-north-1.amazoncognito.com/oauth2/authorize
+          tokenUrl: https://example.auth.eu-north-1.amazoncognito.com/oauth2/token
           scopes:
             notes/read: Read your notes
             notes/write: Create, update and delete your notes
@@ -237,10 +237,10 @@ components:
       description: Invalid input (validation error, malformed JSON, invalid cursor)
       content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
     Unauthorized:
-      description: Missing or invalid access token
+      description: Missing, unparseable or expired access token, an ID token, or a token without the route's scope
       content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
     Forbidden:
-      description: The note belongs to another user, or the token lacks the required scope
+      description: The note belongs to another user, or the token's signature does not verify (API Gateway)
       content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
     NotFound:
       description: No such note

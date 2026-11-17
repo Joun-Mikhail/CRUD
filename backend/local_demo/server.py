@@ -68,7 +68,7 @@ def configure_environment() -> None:
         {
             "NOTES_TABLE_NAME": TABLE_NAME,
             "NOTES_USER_INDEX_NAME": INDEX_NAME,
-            "AWS_DEFAULT_REGION": "eu-central-1",
+            "AWS_DEFAULT_REGION": "eu-north-1",
             "AWS_ACCESS_KEY_ID": "local-demo",
             "AWS_SECRET_ACCESS_KEY": "local-demo",  # noqa: S105 - placeholder for moto
         }
@@ -187,8 +187,10 @@ class DemoRequestHandler(BaseHTTPRequestHandler):
         try:
             self.end_headers()
             self.wfile.write(data)
-        except (BrokenPipeError, ConnectionResetError):
-            pass  # the browser cancelled the request (e.g. navigated away); nothing to send
+        except ConnectionError:
+            # The browser cancelled the request (e.g. navigated away); nothing to send. Linux
+            # reports a broken pipe or reset, Windows an aborted connection.
+            pass
 
     def log_message(self, format: str, *args: Any) -> None:  # noqa: A002
         """Silence http.server's access log; the backend already logs each request as JSON."""

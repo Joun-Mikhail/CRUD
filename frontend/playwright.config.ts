@@ -1,8 +1,12 @@
 import { existsSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { defineConfig, devices } from '@playwright/test'
 
-const venvPython = '../backend/.venv/bin/python'
-const python = existsSync(venvPython) ? venvPython : 'python'
+// The virtual environment's interpreter lives in bin/ on Linux/macOS and Scripts/ on Windows.
+// Resolved to an absolute path because cmd.exe cannot run a relative path that starts with '..'.
+const venvPythons = ['../backend/.venv/bin/python', '../backend/.venv/Scripts/python.exe'].map((p) => resolve(p))
+const venvPython = venvPythons.find((candidate) => existsSync(candidate))
+const python = venvPython ? `"${venvPython}"` : 'python'
 // Cloud/CI images may ship Chromium outside Playwright's default cache.
 const chromiumPath = process.env.PW_CHROMIUM_PATH ?? (existsSync('/opt/pw-browsers/chromium') ? '/opt/pw-browsers/chromium' : undefined)
 const launchOptions = chromiumPath && !process.env.CI ? { executablePath: chromiumPath } : {}

@@ -11,3 +11,5 @@ handler = api_handler(
     cors_allow_origin=runtime.cors_allow_origin,
     log_level=runtime.log_level,
 )
+
+runtime.prewarm()  # boto3 set-up during Lambda init, not on the first request
