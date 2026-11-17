@@ -12,7 +12,9 @@ Serverless Notes is a multi-user private notes application that demonstrates a s
 
 **Public site:** https://d11c0a7q5fx9qi.cloudfront.net (S3 + CloudFront, 2026-11-17). Registration with a real mailbox, password reset and CRUD were checked manually by the project owner on 2026-11-17.
 
-**Still open:** expired-token / wrong-issuer cases, alarm notifications, the GitHub deploy workflow, and a comparison with the real bill.
+**Bachelor-stage evaluation (2026-11-17):** concurrency benchmark up to 8 clients / 60 req/s (100 % success, median 120–126 ms), per-method throttle measured, negative-token tests 9/9 (immediate checks) (incl. a real expired token: pending (expected 401)), security/monitoring/cost evaluations, Cost Explorer reconciliation (payable USD 0; gross usage from an unrelated EC2 instance). Draft: `docs/thesis/BACHELOR_THESIS_DRAFT.md`.
+
+**Still open:** alarm notifications (no `AlarmEmail`), the GitHub deploy workflow, the thesis services' share of the real bill (not yet in Cost Explorer), load above ≈ 60 req/s.
 
 ## Architecture summary
 
@@ -100,7 +102,7 @@ Built, launched and tested in Local Demo mode in a real browser (14 tests, four 
 
 ## Remaining limitations
 
-1. Not verified on AWS by an automated test: e-mailed code and password reset (manual owner check only), token expiry, wrong-issuer tokens, alarm notifications, pagination, 409/503 paths.
+1. Not verified on AWS by an automated test: e-mailed code and password reset (manual owner check only), a token from a second real user pool, alarm notifications, pagination, 409/503 paths.
 2. Cost analysis uses Stockholm list prices from the AWS Price List API; no real bill yet.
 3. Gateway behaviour that the template cannot change: unknown route with an `Authorization` header → 403 `BAD_REQUEST`; >10 MB bodies → plain-text 413; approximate throttling (see `docs/performance/PERFORMANCE.md`).
 4. `destroy.sh` and the GitHub deploy workflow unexecuted.

@@ -1,0 +1,116 @@
+{
+  "stack": "serverless-notes-dev",
+  "region": "eu-north-1",
+  "endpoint": "GET /notes",
+  "passed": 9,
+  "failed": 0,
+  "note": "immediate checks done; expiry check pending",
+  "results": [
+    {
+      "id": "P01",
+      "description": "control: real access token",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "errorCode": null,
+      "status": "PASS",
+      "at": "2026-11-17T19:05:38+00:00"
+    },
+    {
+      "id": "N01",
+      "description": "alg none, real claims, no signature",
+      "expected": [
+        401,
+        403
+      ],
+      "actual": 401,
+      "errorCode": "UNAUTHORIZED",
+      "status": "PASS",
+      "at": "2026-11-17T19:05:38+00:00"
+    },
+    {
+      "id": "N02",
+      "description": "HS256 with a random secret (algorithm confusion)",
+      "expected": [
+        401,
+        403
+      ],
+      "actual": 401,
+      "errorCode": "UNAUTHORIZED",
+      "status": "PASS",
+      "at": "2026-11-17T19:05:38+00:00"
+    },
+    {
+      "id": "N03",
+      "description": "RS256 signed with a foreign key, real issuer and kid",
+      "expected": [
+        401,
+        403
+      ],
+      "actual": 403,
+      "errorCode": "FORBIDDEN",
+      "status": "PASS",
+      "at": "2026-11-17T19:05:39+00:00"
+    },
+    {
+      "id": "N04",
+      "description": "foreign issuer (unauthorized user pool), own key",
+      "expected": [
+        401,
+        403
+      ],
+      "actual": 401,
+      "errorCode": "UNAUTHORIZED",
+      "status": "PASS",
+      "at": "2026-11-17T19:05:39+00:00"
+    },
+    {
+      "id": "N05",
+      "description": "exp extended by one day, original signature",
+      "expected": [
+        401,
+        403
+      ],
+      "actual": 403,
+      "errorCode": "FORBIDDEN",
+      "status": "PASS",
+      "at": "2026-11-17T19:05:39+00:00"
+    },
+    {
+      "id": "N06",
+      "description": "sub replaced (impersonation), original signature",
+      "expected": [
+        401,
+        403
+      ],
+      "actual": 403,
+      "errorCode": "FORBIDDEN",
+      "status": "PASS",
+      "at": "2026-11-17T19:05:39+00:00"
+    },
+    {
+      "id": "N07",
+      "description": "self-signed token with exp in the past",
+      "expected": [
+        401,
+        403
+      ],
+      "actual": 401,
+      "errorCode": "UNAUTHORIZED",
+      "status": "PASS",
+      "at": "2026-11-17T19:05:39+00:00"
+    },
+    {
+      "id": "R01",
+      "description": "real token after the user was deleted (observation: valid until exp)",
+      "expected": [
+        200
+      ],
+      "actual": 200,
+      "errorCode": null,
+      "status": "PASS",
+      "at": "2026-11-17T19:05:39+00:00"
+    }
+  ]
+}

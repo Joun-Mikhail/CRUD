@@ -24,6 +24,8 @@ Local results were last produced on 2026-11-17 on Windows 11 (Python 3.13.17, No
 | **Live AWS tests** | `scripts/testing/live_api_tests.py` | **38 passed, 0 failed** on the deployed stack | `evidence/tests/live-api-tests.json`, `live-api-tests.txt` |
 | **AWS browser test** | the React app in AWS mode, driven through Playwright | sign-up, sign-in, CRUD, reload, isolation, sign-out all work (details below) | `evidence/screenshots/aws-*.png` |
 | **Hosted frontend (CloudFront)** | curl checks, live suite with `--origin https://d11c0a7q5fx9qi.cloudfront.net`, Playwright on the public URL | headers, HTTPS redirect, deep links, private bucket (403), CORS as designed; live suite **38/38**; sign-in, CRUD, reload, sign-out pass | `evidence/tests/frontend-hosting-http-checks.txt`, `evidence/tests/live-api-tests.json`, `evidence/screenshots/aws-13-hosted-cloudfront-notes.png` |
+| **Negative-token tests (AWS)** | `scripts/testing/token_security_tests.py` | 9/9 (immediate checks) passed: forged, re-signed, tampered, foreign-issuer and expired tokens rejected; deleted user's token accepted until expiry (observation) | `evidence/tests/token-security-tests.json` |
+| **Concurrency benchmark (AWS)** | `scripts/testing/concurrency_benchmark.py`, 1/2/4/8 clients + throttle runs (≈ 620 requests) | 100 % success on mixed workload up to 60 req/s, median 120–126 ms; single method: 6–17 % 429 | `evidence/benchmarks/aws-concurrency-*.json`, `aws-throttle-single-method-eu-north-1.json` |
 | **AWS benchmark** | `scripts/testing/benchmark.py`, 100 cycles | 500/500 requests succeeded; median ≈ 120 ms | `evidence/benchmarks/aws-dev-eu-north-1.json` |
 | **CloudWatch** | logs, Logs Insights, alarm metrics | structured logs, no data leaks, alarms `OK` with data | `evidence/aws/cloudwatch.txt` |
 
@@ -76,7 +78,7 @@ Each row is one test named `test_thesis_table_NN_…` in `backend/tests/integrat
 | ID token instead of access token | pass — `token_use=id` rejected by Lambda | live A03 — not run |
 | Missing required scope | pass — Lambda `require_scope` | live A06/A07 (needs `EnableScopeTestClient=true`) — not run |
 | Invalid/garbage token, tampered signature | cannot be tested locally (Lambda never sees raw tokens) | live A01/A02 — not run |
-| Expired token | cannot be tested locally | manual: wait 60 min, expect 401 — not run |
+| Expired token | cannot be tested locally | real token 90 s after `exp` on AWS (E01): pending (expected 401) |
 | Wrong issuer / wrong client | cannot be tested locally | needs a second user pool — not automated |
 
 A mocked Lambda event proves how the function reacts to claims. It proves nothing about signature, issuer or expiry checking — those happen in API Gateway.
@@ -224,7 +226,7 @@ Details and the cold-start analysis: `docs/performance/PERFORMANCE.md`.
 ## Not verified
 
 - Automated: receiving and entering the e-mailed verification code (the run used the SES mailbox simulator; the account was confirmed by the operator), password reset and the "send a new code" path. These were checked manually by the project owner on 2026-11-17 with a real mailbox (registration, e-mailed code, sign-in, password reset, CRUD, public site); no automated evidence file.
-- Expired tokens (60-minute lifetime) and tokens from another user pool (wrong issuer) — not automated.
+- A token from a second *real* Cognito user pool (a self-signed token with a foreign issuer was rejected instead, N04). Expired tokens: verified on AWS (E01).
 - Alarm notifications (no `AlarmEmail` configured); no alarm has been in `ALARM` state.
 - `scripts/cleanup/destroy.sh`, `scripts/cleanup/destroy_hosting.sh` and `.github/workflows/deploy.yml` (both jobs) have not been executed (the GitHub OIDC roles are not set up).
 - Concurrent load beyond the throttle bursts; long-running stability; the real monthly bill.
