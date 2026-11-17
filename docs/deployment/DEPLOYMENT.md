@@ -3,7 +3,9 @@
 > **Status: AWS DEPLOYMENT: NOT VERIFIED — NO AUTHORIZED CLOUD ENVIRONMENT.**
 > The template passes `cfn-lint`, `sam validate --lint` and `sam build`, but it has never been deployed. Expect to fix small things on the first deployment and record what you changed. The most likely candidates are listed in `TROUBLESHOOTING.md`.
 
-Region: `eu-central-1`. Stack name used below: `serverless-notes-dev`.
+Region: `eu-central-1` (the region named in the thesis). Stack name used below: `serverless-notes-dev`.
+
+**Deploying to another region** (for example `eu-north-1`): the template itself is region-neutral. Set `region` in `infrastructure/samconfig.toml` and `export AWS_REGION=<region>` before `make deploy`, `make frontend-env`, `make live-test` and `make destroy`; the scripts use `AWS_REGION` and fall back to `eu-central-1`. Before choosing another region, confirm there that Cognito user pools, Lambda on arm64 with the `python3.13` runtime, API Gateway REST APIs and DynamoDB are available, and note the deviation from the thesis text.
 
 ## 0. Prerequisites
 
