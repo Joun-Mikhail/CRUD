@@ -1,4 +1,6 @@
+import { formatLabDate, fromNote } from '../../lab/experimentFormat'
 import type { Note } from '../../types/api'
+import { excerpt } from '../../utils/format'
 
 export type NoteSort = 'created-desc' | 'updated-desc' | 'title-asc'
 
@@ -34,4 +36,18 @@ export function recentlyUpdated(notes: readonly Note[], count: number): Note[] {
 /** "20+" when the API reported more pages than have been loaded. */
 export function loadedCountLabel(count: number, hasMore: boolean): string {
   return hasMore ? `${count}+` : String(count)
+}
+
+/** LabProof experiments open in the lab; every other note opens in the note editor. */
+export function noteLink(note: Note): string {
+  return fromNote(note) ? `/lab/${note.noteId}` : `/notes/${note.noteId}`
+}
+
+/** One-line preview: a readable summary for experiments instead of their stored JSON. */
+export function noteExcerpt(note: Note, max: number): string {
+  const experiment = fromNote(note)
+  if (experiment) {
+    return `LabProof experiment · ${experiment.course} · ${formatLabDate(experiment.date)} · ${experiment.readings.length} readings`
+  }
+  return excerpt(note.content, max)
 }

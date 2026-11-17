@@ -60,6 +60,7 @@ Paths: `B/` = `backend/src/notes_api/`, `T/` = `backend/tests/`, `I` = `infrastr
 | Deploy pipeline (OIDC, manual) | `.github/workflows/deploy.yml` | YAML syntax only | Implemented, not verified (API job and frontend job; OIDC roles not created) | — |
 | Live acceptance tests | `scripts/testing/live_api_tests.py` | executed 2026-11-17 | **38/38 passed** on the deployed stack | `evidence/tests/live-api-tests.json`, `evidence/tests/live-api-tests.txt` |
 | Throttling (429), custom gateway errors | `I` | live L01–L03, A01–A07, R01–R02, C04 | **Verified on AWS**; throttling is best-effort (see `docs/performance/PERFORMANCE.md`) | `evidence/tests/live-api-tests.json` |
+| LabProof Lite (frontend extension): Ohm's law experiment — create, reopen, edit, delete, V–I graph, printable report | `F/src/lab/`, `F/src/pages/lab/`; stored as versioned JSON (`labproof/ohms-law` v1) in `note.content` through the unchanged five `/notes` endpoints | `F/src/lab/*.test.ts`, `F/src/pages/lab/lab.test.tsx`, `F/tests/e2e/lab.spec.ts`, axe audit | **Implemented and verified (local)**; not exercised on AWS | `evidence/tests/labproof-frontend-vitest.txt`, `evidence/tests/labproof-frontend-e2e.txt` |
 | Learning package | `docs/learning/`, `START_HERE.md`, `SUPERVISOR_QUESTIONS.md` | commands in lessons spot-checked | Implemented | — |
 
 ## What the author must still do personally

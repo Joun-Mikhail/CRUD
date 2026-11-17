@@ -1,6 +1,6 @@
-import { Plus, StickyNote } from 'lucide-react'
+import { FlaskConical, Plus, StickyNote } from 'lucide-react'
 import { Link } from 'react-router'
-import { loadedCountLabel, recentlyUpdated } from '../components/notes/noteHelpers'
+import { loadedCountLabel, noteExcerpt, noteLink, recentlyUpdated } from '../components/notes/noteHelpers'
 import { buttonClasses } from '../components/ui/buttonStyles'
 import { Card } from '../components/ui/Card'
 import { EmptyState } from '../components/ui/EmptyState'
@@ -9,8 +9,9 @@ import { Skeleton } from '../components/ui/Skeleton'
 import { useAuth } from '../hooks/useAuth'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { useNotes } from '../hooks/useNotes'
+import { LabHero } from '../lab/LabHero'
 import { PageHeader } from '../layouts/AppLayout'
-import { excerpt, formatDateTime, formatRelative } from '../utils/format'
+import { formatDateTime, formatRelative } from '../utils/format'
 
 function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
@@ -35,12 +36,31 @@ export function DashboardPage() {
         title={`Welcome, ${user?.displayName ?? 'there'}`}
         description={<>Signed in as {user?.email}. Only you can read or change your notes.</>}
         actions={
-          <Link to="/notes/new" className={buttonClasses('primary')}>
+          <Link to="/notes/new" className={buttonClasses('secondary')}>
             <Plus aria-hidden="true" className="size-4" />
             New note
           </Link>
         }
       />
+
+      <div className="mb-8">
+        <LabHero
+          level={2}
+          title="Ohm’s law verification"
+          text="Enter your voltage and current readings, get the resistance and the V–I graph instantly, and print a professional lab report."
+          action={
+            <>
+              <Link to="/lab/new" className={buttonClasses('inverse')}>
+                <FlaskConical aria-hidden="true" className="size-4" />
+                New experiment
+              </Link>
+              <Link to="/lab" className={buttonClasses('ghost', 'md', 'text-white hover:bg-white/15 hover:text-white')}>
+                Your experiments
+              </Link>
+            </>
+          }
+        />
+      </div>
 
       {notes.status === 'loading' ? (
         <div role="status" aria-label="Loading your notes" className="grid gap-4 sm:grid-cols-2">
@@ -98,13 +118,13 @@ export function DashboardPage() {
               <ul className="divide-y divide-line">
                 {recent.map((note) => (
                   <li key={note.noteId}>
-                    <Link to={`/notes/${note.noteId}`} className="block px-4 py-3 hover:bg-subtle">
+                    <Link to={noteLink(note)} className="block px-4 py-3 hover:bg-subtle">
                       <span className="flex items-baseline justify-between gap-3">
                         <span className="truncate text-sm font-medium text-fg">{note.title}</span>
                         <span className="shrink-0 text-xs text-muted">{formatRelative(note.updatedAt)}</span>
                       </span>
                       <span className="mt-0.5 block truncate text-sm text-muted">
-                        {excerpt(note.content, 110) || 'No content'}
+                        {noteExcerpt(note, 110) || 'No content'}
                       </span>
                     </Link>
                   </li>
