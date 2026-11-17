@@ -34,3 +34,7 @@ frontend/.env.hosted
 
 # Playwright MCP scratch output (snapshots, console logs)
 .playwright-mcp/
+
+# Thesis build intermediates and Word lock files
+docs/thesis/export/build/
+~$*
