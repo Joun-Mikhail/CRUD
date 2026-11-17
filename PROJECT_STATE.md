@@ -22,7 +22,7 @@ Last updated: 2026-11-17.
 | CI | `.github/workflows/ci.yml` (now also runs the plain `sam validate`) |
 | Docs | all documents updated with the AWS results (2026-11-17); stale "not deployed" statements removed (README, SECURITY, REQUIREMENTS, frontend README) |
 | Bachelor evaluation (2026-11-17) | concurrency benchmark 1–8 clients (median 120–126 ms, no errors, Lambda scaled to 8 environments), per-method throttle measured; negative-token tests 10/10; security, monitoring/reliability and cost evaluations incl. Cost Explorer reconciliation (`docs/performance/PERFORMANCE.md`, `docs/security/SECURITY_EVALUATION.md`, `docs/operations/MONITORING_RELIABILITY.md`, `AWS_COST_ANALYSIS.md`) |
-| Thesis | bachelor's thesis **content draft** `docs/thesis/BACHELOR_THESIS_DRAFT.md` with figures; semestral report **draft** `docs/thesis/SEMESTRAL_REPORT.md` (+ DOCX review copy), requirements matrix, author review list, supervisor summary, demo script (2026-11-17; AI-assisted, author review pending) |
+| Thesis | review copies (PDF + DOCX, unofficial FEKT-like layout) of the semestral thesis (`docs/thesis/export/SEMESTRAL_THESIS_REVIEW.*`, 43 pages) and the bachelor's thesis (`BACHELOR_THESIS_REVIEW.*`, 57 pages), built from `SEMESTRAL_REPORT.md` / `BACHELOR_THESIS_DRAFT.md` with six diagrams and four evidence charts; handover `docs/thesis/FINAL_HANDOVER.md` (2026-11-17; AI-assisted, author review and supervisor feedback pending) |
 | Cost | Stockholm unit prices from the AWS Price List API; account pre-flight in `evidence/builds/aws-account-preflight.md` |
 
 ## Deployed resources (eu-north-1)

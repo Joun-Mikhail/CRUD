@@ -1,0 +1,21 @@
+sequenceDiagram
+  participant G as API Gateway
+  participant H as Handler +<br/>HTTP wrapper
+  participant S as Operation +<br/>notes service
+  participant R as Repository
+  participant D as DynamoDB
+  G->>H: PUT /notes/{id},<br/>body, claims.sub
+  Note over H: caller = claims.sub,<br/>check token_use and scope
+  H->>S: validate id, body
+  S->>R: update(owner = sub,<br/>id, fields, version?)
+  R->>D: UpdateItem IF exists<br/>AND userId = :sub<br/>[AND version = :v]
+  alt condition satisfied
+    D-->>R: updated item
+    R-->>H: note
+    H-->>G: 200 {"data": note}<br/>+ JSON log line
+  else condition failed
+    D-->>R: stored item<br/>(ALL_OLD) or none
+    R-->>S: old item
+    S-->>H: AppError<br/>404 / 403 / 409
+    H-->>G: error envelope with<br/>requestId + log line
+  end

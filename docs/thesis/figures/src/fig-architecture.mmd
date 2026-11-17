@@ -1,0 +1,23 @@
+flowchart TB
+  B["Web browser<br/>React + TypeScript client"]
+  subgraph EDGE["Global edge"]
+    CF["Amazon CloudFront<br/>HTTPS only, security headers"]
+    S3["Amazon S3 bucket<br/>private, Origin Access Control"]
+  end
+  subgraph REG["AWS region eu-north-1 (Stockholm)"]
+    CO["Amazon Cognito user pool<br/>sign-up, hosted sign-in (PKCE)<br/>scopes notes/read, notes/write"]
+    AG["Amazon API Gateway (REST API)<br/>Cognito authorizer, per-route scopes<br/>throttling 10 req/s, burst 20,<br/>per method"]
+      FN["AWS Lambda: 5 functions<br/>CreateNote, ListNotes, GetNote,<br/>UpdateNote, DeleteNote<br/>Python 3.13, arm64, 256 MB"]
+    DB["Amazon DynamoDB (on-demand)<br/>table: partition key noteId<br/>GSI byUser: userId + userSortKey"]
+    CW["Amazon CloudWatch<br/>JSON logs (14 days), metrics, 4 alarms"]
+  end
+  B -->|"(1) static files"| CF
+  CF --> S3
+  B -->|"(2) sign-in, PKCE"| CO
+  CO -->|"(3) access token (JWT, RS256)"| B
+  B -->|"(4) HTTPS request + Bearer token"| AG
+  AG -.->|"public keys (JWKS)"| CO
+  AG -->|"(5) event with verified claims"| FN
+  FN -->|"(6) one DynamoDB action per function"| DB
+  FN -.->|"logs"| CW
+  AG -.->|"metrics"| CW
