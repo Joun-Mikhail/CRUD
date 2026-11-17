@@ -1,0 +1,10 @@
+flowchart TB
+  U["Cognito user (user pool)<br/>sub = immutable user ID<br/>e-mail and credentials managed by Cognito"]
+  N["DynamoDB table serverless-notes-dev-notes, item Note<br/>noteId (S, UUID v4): partition key<br/>userId (S) = owner's sub<br/>userSortKey (S) = createdAt#noteId<br/>title (S, 1-200 characters)<br/>content (S, 0-20 000 characters)<br/>createdAt, updatedAt (S, ISO 8601 UTC)<br/>version (N, optimistic lock)"]
+  GI["Global secondary index byUser (projection ALL)<br/>partition key userId<br/>sort key userSortKey"]
+  P1["GetItem, PutItem, UpdateItem,<br/>DeleteItem by noteId"]
+  P2["Query: one user's notes, newest<br/>first, Limit + continuation token"]
+  U -->|"1 : N, userId = sub"| N
+  P1 --> N
+  N -->|"maintained asynchronously"| GI
+  P2 --> GI

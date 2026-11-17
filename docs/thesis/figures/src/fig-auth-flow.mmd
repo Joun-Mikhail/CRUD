@@ -1,0 +1,22 @@
+sequenceDiagram
+  autonumber
+  participant B as Browser<br/>(React client)
+  participant C as Cognito<br/>user pool
+  participant G as API Gateway<br/>(authorizer)
+  participant L as Lambda<br/>function
+  Note over B: random code_verifier and state,<br/>code_challenge = SHA-256(code_verifier)
+  B->>C: /oauth2/authorize<br/>(code_challenge, state)
+  C-->>B: hosted sign-in page
+  B->>C: e-mail and password
+  C-->>B: redirect: code + state
+  B->>C: /oauth2/token<br/>(code, code_verifier)
+  C-->>B: ID, access, refresh token<br/>(kept in memory only)
+  B->>G: GET /notes<br/>Authorization: Bearer token
+  Note over G: verify RS256 signature with<br/>the pool keys (JWKS), issuer,<br/>expiry and route scope
+  alt token or scope invalid
+    G-->>B: 401 / 403 error envelope<br/>(no Lambda invocation)
+  else token valid
+    G->>L: event with verified claims
+    L-->>G: 200 {"data": [...]}
+    G-->>B: 200 response
+  end

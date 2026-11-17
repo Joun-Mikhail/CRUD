@@ -1,0 +1,18 @@
+flowchart TD
+  A["Request to /notes/{id}"] --> B{"Token valid,<br/>scope present?"}
+  B -->|no| E401["401 / 403 from<br/>API Gateway"]
+  B -->|yes| C{"id and body<br/>valid?"}
+  C -->|no| E400["400<br/>VALIDATION_ERROR"]
+  C -->|yes| M{"Method"}
+  M -->|GET| G1["GetItem(noteId),<br/>strongly consistent"]
+  G1 --> G2{"Item<br/>exists?"}
+  G2 -->|no| R404a["404 NOT_FOUND"]
+  G2 -->|yes| G3{"userId<br/>= sub?"}
+  G3 -->|no| R403a["403 FORBIDDEN"]
+  G3 -->|yes| OKa["200 + note"]
+  M -->|"PUT, DELETE"| W1["Conditional write:<br/>exists AND userId = sub<br/>[AND version = v]"]
+  W1 -->|success| OKb["200 + envelope"]
+  W1 -->|"condition failed"| W2{"Stored<br/>item?"}
+  W2 -->|none| R404b["404 NOT_FOUND"]
+  W2 -->|"other owner"| R403b["403 FORBIDDEN"]
+  W2 -->|"version differs"| R409["409<br/>VERSION_CONFLICT"]
