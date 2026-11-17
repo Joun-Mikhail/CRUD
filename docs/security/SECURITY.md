@@ -12,7 +12,7 @@
 | Real Cognito flows | **Verified on AWS**: sign-up, wrong-code rejection, hosted sign-in with PKCE + `state`, session restore, sign-out. Entering a real e-mailed code and password reset were checked manually by the project owner on 2026-11-17 (manual; no evidence file) |
 | Tokens in the browser | **Verified on AWS**: none in `localStorage`, `sessionStorage`, app cookies or the DOM |
 | Log hygiene in CloudWatch | **Verified on AWS**: no note text, tokens, passwords or e-mail addresses in the five log groups after the test runs (`evidence/aws/cloudwatch.txt`) |
-| Expired token, token from another user pool | **Not verified** (not automated) |
+| Expired token, foreign issuer, forged/tampered tokens | **Verified on AWS** (2026-11-17): `alg none`, HS256, foreign key, foreign issuer, modified `exp`/`sub`, self-signed expired → all rejected; real token after expiry → pending (expected 401); `evidence/tests/token-security-tests.json`, [SECURITY_EVALUATION.md](SECURITY_EVALUATION.md) |
 
 ## Threat model
 
@@ -94,7 +94,7 @@ Plus log writing, limited by SAM to each function's own log group. No function c
 
 1. Development stage only. Expired-token and wrong-issuer cases, alarm notifications and a penetration test were not performed (see "Verification status").
 2. MFA is off; no advanced threat protection (requires a paid Cognito tier); no WAF or CAPTCHA in front of sign-up. The hosted site uses the default `*.cloudfront.net` certificate, so its minimum TLS version follows CloudFront's default (a custom domain would allow TLS 1.2+ only).
-3. Throttling is per stage, not per user: one abusive user can consume the shared 10 req/s budget (usage plans/API keys or WAF rate rules would fix this).
+3. Throttling is per method (10 req/s, burst 20 each; measured 2026-11-17), not per user: one abusive user can consume the shared budget (usage plans/API keys or WAF rate rules would fix this).
 4. Sign-up reveals whether an e-mail is already registered.
 5. 403 vs 404 reveals that a guessed UUID exists (required by the thesis; see API.md).
 6. The pagination token is not signed. It is safe (cannot cross users) but a client can craft positions within its own notes.
