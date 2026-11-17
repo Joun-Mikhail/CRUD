@@ -84,15 +84,16 @@ Plus log writing, limited by SAM to each function's own log group. No function c
 
 ## CORS, headers, secrets
 
-- CORS: single origin from the `AllowedOrigin` parameter (pattern forbids `*`); methods `GET,POST,PUT,DELETE,OPTIONS`; headers `Authorization,Content-Type`. The API uses bearer tokens, not cookies, so CSRF against the API does not apply.
+- CORS: single origin from the `AllowedOrigin` parameter (pattern forbids `*`), since 2026-11-17 the hosted site `https://d11c0a7q5fx9qi.cloudfront.net`; local development reaches the API through the Vite dev-server proxy (same-origin), so localhost is no longer an allowed origin; methods `GET,POST,PUT,DELETE,OPTIONS`; headers `Authorization,Content-Type`. The API uses bearer tokens, not cookies, so CSRF against the API does not apply.
 - Response headers: `Cache-Control: no-store`, `X-Content-Type-Options: nosniff`.
 - Frontend CSP (production build): `default-src 'self'; script-src 'self'; style-src 'self'; connect-src` limited to the configured API and Cognito origins; `object-src 'none'`.
+- Frontend hosting (ADR 0009): private S3 bucket (all public access blocked, ACLs disabled, SSE-S3, versioned); the bucket policy allows only `s3:GetObject` by the CloudFront service principal with `AWS:SourceArn` = this distribution and denies any request without TLS. Direct S3 URLs answer 403 (checked 2026-11-17). CloudFront redirects HTTP to HTTPS and adds `Strict-Transport-Security: max-age=63072000; includeSubDomains`, `Content-Security-Policy: frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests` (in addition to the page's `<meta>` CSP, which carries `connect-src`), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `Permissions-Policy` and `Cross-Origin-Opener-Policy: same-origin`. Cognito accepts the CloudFront URL as callback/logout URL; `localhost` stays allowed for development.
 - Secrets: the system has none to store. No client secret (public client), no API keys, no database password (IAM roles). Pool id, client id and API URL are identifiers, not secrets.
 
 ## Known limitations
 
 1. Not deployed, so nothing above that depends on AWS behaviour has been observed in practice.
-2. MFA is off; no advanced threat protection (requires a paid Cognito tier); no WAF or CAPTCHA in front of sign-up.
+2. MFA is off; no advanced threat protection (requires a paid Cognito tier); no WAF or CAPTCHA in front of sign-up. The hosted site uses the default `*.cloudfront.net` certificate, so its minimum TLS version follows CloudFront's default (a custom domain would allow TLS 1.2+ only).
 3. Throttling is per stage, not per user: one abusive user can consume the shared 10 req/s budget (usage plans/API keys or WAF rate rules would fix this).
 4. Sign-up reveals whether an e-mail is already registered.
 5. 403 vs 404 reveals that a guessed UUID exists (required by the thesis; see API.md).

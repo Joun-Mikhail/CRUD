@@ -253,6 +253,11 @@ Resources:
       Name: !Sub ${AWS::StackName}-api
       StageName: !Ref Stage
       OpenApiVersion: 3.0.1
+      # Create a new stage deployment on every stack update. Without it, changing only a
+      # parameter (e.g. AllowedOrigin) updates the REST API definition but not the live
+      # stage: SAM hashes the unresolved template, so the CORS preflight and gateway error
+      # responses would keep the previous origin (seen in a change set on 2026-11-17).
+      AlwaysDeploy: true
       EndpointConfiguration:
         Type: REGIONAL
       TracingEnabled: false

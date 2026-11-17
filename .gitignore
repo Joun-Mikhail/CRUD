@@ -25,6 +25,7 @@ infrastructure/samconfig.toml
 .env.local
 .env.*.local
 frontend/.env.aws
+frontend/.env.hosted
 
 # OS / editors
 .DS_Store

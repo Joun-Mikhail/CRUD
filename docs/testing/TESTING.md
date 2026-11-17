@@ -23,6 +23,7 @@ Local results were last produced on 2026-11-17 on Windows 11 (Python 3.13.17, No
 | CI on GitHub Actions | `.github/workflows/ci.yml` on pull request #1 | all 4 jobs green (backend, frontend, browser e2e, infrastructure) | PR #1 checks |
 | **Live AWS tests** | `scripts/testing/live_api_tests.py` | **38 passed, 0 failed** on the deployed stack | `evidence/tests/live-api-tests.json`, `live-api-tests.txt` |
 | **AWS browser test** | the React app in AWS mode, driven through Playwright | sign-up, sign-in, CRUD, reload, isolation, sign-out all work (details below) | `evidence/screenshots/aws-*.png` |
+| **Hosted frontend (CloudFront)** | curl checks, live suite with `--origin https://d11c0a7q5fx9qi.cloudfront.net`, Playwright on the public URL | headers, HTTPS redirect, deep links, private bucket (403), CORS as designed; live suite **38/38**; sign-in, CRUD, reload, sign-out pass | `evidence/tests/frontend-hosting-http-checks.txt`, `evidence/tests/live-api-tests.json`, `evidence/screenshots/aws-13-hosted-cloudfront-notes.png` |
 | **AWS benchmark** | `scripts/testing/benchmark.py`, 100 cycles | 500/500 requests succeeded; median ≈ 120 ms | `evidence/benchmarks/aws-dev-eu-north-1.json` |
 | **CloudWatch** | logs, Logs Insights, alarm metrics | structured logs, no data leaks, alarms `OK` with data | `evidence/aws/cloudwatch.txt` |
 
@@ -188,6 +189,24 @@ The React app (`npm run dev:aws`, configuration from `make frontend-env`) driven
 | Token storage | no token in `localStorage`, `sessionStorage` (only a one-character "was signed in" flag), cookies of the app origin or the DOM |
 | Console | only the deliberate wrong-code 400 and a 404 for Cognito's own hosted-page favicon |
 
+### Hosted frontend on CloudFront (2026-11-17)
+
+Public URL https://d11c0a7q5fx9qi.cloudfront.net; raw output in `evidence/tests/frontend-hosting-http-checks.txt`.
+
+| Check | Result |
+|---|---|
+| `GET /` | 200, `Cache-Control: no-cache`, HSTS, header CSP with `frame-ancestors 'none'`, `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, COOP |
+| `http://…/notes` | 301 to `https://…/notes` |
+| Deep links `/notes`, `/notes/<id>`, `/auth/callback`, `/settings`, unknown path | 200 `text/html` (the SPA) |
+| Hashed bundle | `Cache-Control: public, max-age=31536000, immutable`, Brotli |
+| Direct S3 URLs (regional, global) | 403 |
+| API preflight and gateway 401 with `Origin: <site>` | `Access-Control-Allow-Origin: <site>` |
+| Live suite with `--origin <site> --redirect-uri <site>/auth/callback` | 38/38 (the hosted login accepted the CloudFront callback URL) |
+| Browser (Playwright, Chromium) on the public URL | `/notes` → sign-in page → Cognito hosted login (PKCE, CloudFront `redirect_uri`) → back on `/notes`; create, full reload of `/notes/<id>` restores the session, edit, delete; no token in storage or cookies; sign-out returns to the site and `/notes` requires sign-in again; console: no CSP violations (only Cognito's favicon 404 and 429s left over from the suite's throttle burst) |
+| Local development | `npm run dev:aws`: `http://localhost:5173/api/notes` proxied to API Gateway → 401 envelope (`evidence/tests/frontend-dev-proxy-check.txt`) |
+
+Not repeated: the second-user isolation check in the browser (covered by the live suite's cross-user tests on the same stack) and the benchmark (the API path is unchanged).
+
 ### AWS benchmark (2026-11-17)
 
 `scripts/testing/benchmark.py`, 100 sequential cycles (POST → list → GET → PUT → DELETE) with a 100 ms pause, from a client in Central Europe; a new TLS connection per request; the first cycle hit five cold starts because the functions had just been deployed. All values in milliseconds, end to end as the client sees them:
@@ -207,6 +226,6 @@ Details and the cold-start analysis: `docs/performance/PERFORMANCE.md`.
 - Receiving and entering the e-mailed verification code (the run used the SES mailbox simulator; the account was confirmed by the operator), password reset and the "send a new code" path against real Cognito.
 - Expired tokens (60-minute lifetime) and tokens from another user pool (wrong issuer) — not automated.
 - Alarm notifications (no `AlarmEmail` configured); no alarm has been in `ALARM` state.
-- `scripts/cleanup/destroy.sh` and `.github/workflows/deploy.yml` have not been executed (the GitHub OIDC role is not set up).
+- `scripts/cleanup/destroy.sh`, `scripts/cleanup/destroy_hosting.sh` and `.github/workflows/deploy.yml` (both jobs) have not been executed (the GitHub OIDC roles are not set up).
 - Concurrent load beyond the throttle bursts; long-running stability; the real monthly bill.
 - Browsers other than Chromium; manual screen-reader testing. The axe audit covers the Local Demo screens only.

@@ -18,6 +18,11 @@ on:
         type: choice
         options: [dev]
         default: dev
+      target:
+        description: What to deploy (api = SAM stack + live tests; frontend = build + publish to S3/CloudFront)
+        type: choice
+        options: [api, frontend]
+        default: api
 
 permissions:
   id-token: write # required to request the OIDC token
@@ -29,6 +34,7 @@ concurrency:
 
 jobs:
   deploy:
+    if: inputs.target == 'api'
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     env:
@@ -69,3 +75,41 @@ jobs:
         with:
           name: live-test-evidence
           path: evidence/tests/live-api-tests.json
+
+  # Builds the frontend for its CloudFront origin and publishes it to the private site bucket.
+  # Uses a separate least-privilege role (vars.AWS_FRONTEND_ROLE_ARN): DescribeStacks on the two
+  # stacks, ListBucket/PutObject/DeleteObject on the site bucket, CreateInvalidation on the
+  # distribution. The role is NOT created yet (docs/deployment/DEPLOYMENT.md), so this job
+  # fails at the credentials step until it exists.
+  publish-frontend:
+    if: inputs.target == 'frontend'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      AWS_REGION: eu-north-1
+      API_STACK: serverless-notes-${{ inputs.environment }}
+      WEB_STACK: serverless-notes-${{ inputs.environment }}-web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install boto3
+      - run: npm ci
+        working-directory: frontend
+      - name: Tests must pass before anything is published
+        run: npm run lint && npm run typecheck && npm test
+        working-directory: frontend
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_FRONTEND_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Build and publish
+        run: ./scripts/deployment/publish_frontend.sh
+        env:
+          PYTHON: python

@@ -100,7 +100,27 @@ aws cloudformation describe-stacks --stack-name serverless-notes-dev --region eu
 make frontend-env        # writes frontend/.env.aws from the outputs (identifiers only, git-ignored)
 cd frontend && npm run dev:aws      # http://localhost:5173
 ```
-Register with a real e-mail address, enter the code Cognito sends, sign in. (Verified on 2026-11-17 with an SES mailbox-simulator address, except reading the code — see `docs/testing/TESTING.md`.) Cognito's default e-mail sending is limited to a small number of messages per day; that is enough for development. The frontend is run locally; hosting it (S3 + CloudFront or Amplify Hosting) is future work — if you do, add the hosted origin to `AllowedOrigin`, `CallbackUrls` and `LogoutUrls` and build with `npm run build:aws`.
+Register with a real e-mail address, enter the code Cognito sends, sign in. (Verified on 2026-11-17 with an SES mailbox-simulator address, except reading the code — see `docs/testing/TESTING.md`.) Cognito's default e-mail sending is limited to a small number of messages per day; that is enough for development. `npm run dev:aws` calls the API through the Vite dev-server proxy (`http://localhost:5173/api` → API Gateway, `DEV_API_PROXY_TARGET` in `.env.aws`), so it works although the API's CORS origin is the hosted site (section 6a).
+
+## 6a. Host the frontend (S3 + CloudFront, HTTPS)
+
+Deployed on 2026-11-17: **https://d11c0a7q5fx9qi.cloudfront.net** (stack `serverless-notes-dev-web`, ADR 0009).
+
+```bash
+make deploy-hosting      # change set for infrastructure/frontend-hosting.yaml; confirm; prints SiteUrl
+```
+Then point the API stack at the new origin. In `infrastructure/samconfig.toml` set
+`AllowedOrigin=<SiteUrl>`, `CallbackUrls=http://localhost:5173/auth/callback,<SiteUrl>/auth/callback`,
+`LogoutUrls=http://localhost:5173/,<SiteUrl>/` and run `make deploy` (review the change set: only
+`Modify` without replacement, plus one new `AWS::ApiGateway::Deployment` replacing the old one).
+Keep `localhost` in the callback/logout lists so local development still signs in.
+
+```bash
+make publish-frontend    # writes frontend/.env.hosted, npm run build:hosted, s3 sync, invalidation
+make frontend-env        # refresh frontend/.env.aws (local development through the proxy)
+python scripts/testing/live_api_tests.py --origin <SiteUrl> --redirect-uri <SiteUrl>/auth/callback
+```
+Uploads: `assets/*` (content-hashed) with `Cache-Control: public, max-age=31536000, immutable`; everything else with `no-cache`; then an invalidation of `/*` (the first 1,000 paths a month are free). Rollback: the bucket is versioned (old versions kept 30 days) — re-run `publish-frontend` from an earlier commit. Teardown: `scripts/cleanup/destroy_hosting.sh` (empties every object version, deletes the stack), then remove the CloudFront URL from the three API parameters.
 
 ## 7. Test the deployment
 
@@ -146,3 +166,5 @@ make destroy             # scripts/cleanup/destroy.sh: lists resources, asks you
    `token.actions.githubusercontent.com:sub = repo:<owner>/<repo>:environment:dev`, and attach the deployment permissions from step 2 above.
 3. GitHub → Settings → Environments → `dev`: add required reviewers; add the environment **variable** `AWS_DEPLOY_ROLE_ARN`.
 4. Actions → "Deploy (manual)" → Run workflow → approve.
+
+**Frontend publishing job** (`publish-frontend` in the same workflow, manual, input `target: frontend`): builds with `npm run build:hosted` and syncs to the bucket. It uses a *separate*, narrower role (`AWS_FRONTEND_ROLE_ARN`) allowed only `cloudformation:DescribeStacks` on the two stacks, `s3:ListBucket` on the site bucket, `s3:PutObject`/`s3:DeleteObject` on `<bucket>/*` and `cloudfront:CreateInvalidation` on the distribution. **Not created yet** (decision of 2026-11-17); until it exists, publish from the workstation with `make publish-frontend`.
