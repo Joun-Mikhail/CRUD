@@ -113,7 +113,7 @@ The thesis specifies a REST API with a Cognito authorizer. REST APIs also allow 
 ## Testing
 
 **33. How was the system tested?**
-187 backend tests (unit, integration against an in-memory DynamoDB emulator, security, template checks), 66 frontend tests and 14 browser end-to-end tests, all passing; coverage of backend logic about 99 %. On AWS (eu-north-1, 2026-11-17): a live suite of 38 checks against the deployed stack, all passing, plus a browser test of the AWS mode and a latency benchmark. The 13 cases from the semestral report are individual tests. Lint, strict type checking, dependency audits and template validation also pass. Outputs are in `evidence/`.
+193 backend tests (unit, integration against an in-memory DynamoDB emulator, security, template checks), 66 frontend tests and 14 browser end-to-end tests, all passing; coverage of backend logic about 99 %. On AWS (eu-north-1, 2026-11-17): a live suite of 38 checks against the deployed stack, all passing, plus a browser test of the AWS mode and a latency benchmark. The 13 cases from the semestral report are individual tests. Lint, strict type checking, dependency audits and template validation also pass. Outputs are in `evidence/`.
 
 **34. What do those tests not prove?**
 Anything that happens in real AWS services: API Gateway's JWT validation, Cognito flows, IAM, gateway responses, throttling, alarms. Mocked events only prove how Lambda reacts to claims. `scripts/testing/live_api_tests.py` covers this against a deployed stack; it passed 38/38 on 2026-11-17. Still not covered: token expiry, a token from another pool, reading a real verification e-mail.

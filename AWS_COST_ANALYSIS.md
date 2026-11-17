@@ -43,6 +43,8 @@ Everything is pay-per-use; there is no always-on server, load balancer, NAT gate
 
 Not used, therefore no cost: VPC/NAT gateway, provisioned concurrency, X-Ray, API Gateway caching, WAF, KMS customer keys, CloudWatch dashboards, detailed API metrics, Cognito Essentials/Plus features, SES.
 
+**Update 2026-11-17 (after deployment and hosting):** `freetier:GetAccountPlanState` reports the Free plan **active with USD 158.72 of credits remaining** (plan end 2027-04-18). The unrelated EC2 instance was terminated by the owner on 2026-11-17, so the historical spending above is not part of this project and has stopped.
+
 ## Free tier — check your account, do not assume
 
 - AWS changed the Free Tier for accounts created **on or after 15 July 2025**: new accounts get a credit-based free plan (limited duration and credit amount) instead of the old 12-month offers. Older accounts keep the legacy rules (for example 1 million API Gateway REST calls per month for the first 12 months).
