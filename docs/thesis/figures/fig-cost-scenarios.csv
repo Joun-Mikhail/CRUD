@@ -1,0 +1,5 @@
+scenario,usd_per_month,source
+"Serverless: demo 10k req, 5 users",1.0,list-price estimate
+"Serverless: small 300k req, 200 users",2.35,list-price estimate
+"Serverless: moderate 5M req, 5k users",25.0,list-price estimate
+"Always-on EC2 t3.small (measured, unrelated)",20.31,Cost Explorer gross usage Nov 1-17 x 30/17

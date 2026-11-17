@@ -95,7 +95,7 @@ Send the `version` you last read with `PUT`. If the stored version differs, noth
 | 409 | `VERSION_CONFLICT` | stale `version` on PUT | Lambda |
 | 413 | `PAYLOAD_TOO_LARGE` | body over 128 KiB (Lambda). Bodies over 10 MB are cut off by API Gateway before any gateway response: 413 with a plain-text body and no CORS header | Lambda / API Gateway |
 | 415 | `UNSUPPORTED_MEDIA_TYPE` | Content-Type is not JSON | Lambda |
-| 429 | `THROTTLED` | stage throttle exceeded (default 10 req/s, burst 20; enforced approximately — see `docs/performance/PERFORMANCE.md`) | API Gateway |
+| 429 | `THROTTLED` | throttle exceeded (default 10 req/s, burst 20 per method; enforced approximately — see `docs/performance/PERFORMANCE.md`) | API Gateway |
 | 500 | `INTERNAL_ERROR` | unexpected failure; no details are exposed | Lambda / API Gateway |
 | 503 | `SERVICE_UNAVAILABLE` | DynamoDB failed or throttled; safe to retry | Lambda |
 

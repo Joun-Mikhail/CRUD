@@ -1,6 +1,6 @@
 # Requirements matrix — official assignment vs. delivered work
 
-Status on 2026-11-17. Authoritative sources: the official VUT assignment *Serverless CRUD API with Authentication* (academic requirements) and this repository (facts about the system). Detailed row-by-row traceability to code and tests: [`REQUIREMENTS_TRACEABILITY.md`](../../REQUIREMENTS_TRACEABILITY.md).
+Status on 2026-11-17 (updated after the bachelor-stage evaluation). Authoritative sources: the official VUT assignment *Serverless CRUD API with Authentication* (academic requirements) and this repository (facts about the system). Detailed row-by-row traceability to code and tests: [`REQUIREMENTS_TRACEABILITY.md`](../../REQUIREMENTS_TRACEABILITY.md).
 
 Status vocabulary: **Done (AWS)** = implemented and observed on the deployed stack; **Done (local)** = implemented and verified by automated tests locally; **Draft** = text exists, author must review; **Partial**; **Open**.
 
@@ -21,21 +21,22 @@ Status vocabulary: **Done (AWS)** = implemented and observed on the deployed sta
 
 **Verdict:** all mandatory semestral requirements are supported by implementation and evidence. The written report exists as a draft that the author must review and adopt.
 
-## B. Follow-up bachelor's thesis requirements (items 4–5)
+## B. Bachelor's thesis requirements (items 4–5) — updated 2026-11-17 after the bachelor-stage evaluation
 
 | # | Official requirement | Delivered | Evidence | Status | Missing work |
 |---|---|---|---|---|---|
-| 4a | Full serverless backend: REST API, database, authentication | Stack `serverless-notes-dev` (eu-north-1), 33 resources from one SAM template | `evidence/aws/deployed-resources.txt`, `evidence/aws/stack-events.txt` | **Done (AWS)** | Production stage (backups, `Stage=prod`) optional |
-| 4b | Support for all required entities | One entity (Note) — the only one the design defines | — | **Done** | Add entities only if the bachelor assignment asks for them |
-| 4c | User management | Self sign-up, e-mail verification, password policy, password reset, hosted sign-in with PKCE, sign-out | automated browser test on AWS; owner's manual check with a real mailbox (2026-11-17, no evidence file) | **Done (AWS)** | Account deletion UI (optional) |
-| 4d | Logging | One structured JSON line per request, request-id tracing, no personal data | `evidence/aws/cloudwatch.txt` | **Done (AWS)** | API Gateway access logs optional |
-| 4e | Monitoring | 4 CloudWatch alarms with data, state OK | `evidence/aws/cloudwatch.txt` | **Done (AWS)**; notification path not exercised | Set `AlarmEmail` and trigger once |
-| 5a | Evaluate functionality | 193 + 66 + 14 automated tests, 38 live checks | `evidence/tests/` | **Done (AWS)** | — |
-| 5b | Evaluate performance | Sequential benchmark, cold-start analysis | `docs/performance/PERFORMANCE.md` | **Partial** | Concurrent load test |
-| 5c | Evaluate scalability | Architectural argument only | `docs/performance/PERFORMANCE.md`, `docs/database/DATABASE.md` | **Open (theoretical only)** | Load test with raised limits |
-| 5d | Evaluate security | Threat model, automated + live security tests | `docs/security/SECURITY.md` | **Partial** | Expired/foreign-issuer tokens; optional penetration test |
-| 5e | Evaluate costs | Price List API unit prices, scenarios; Free plan credits USD 158.72 (2026-11-17) | `AWS_COST_ANALYSIS.md` | **Partial** | Compare with the real bill (Cost Explorer) |
-| 5f | Discuss extensions (web/mobile client, integrations) | Web client built and hosted; extensions listed | report ch. 9; `PROJECT_COMPLETION_REPORT.md` | **Done** (web); discussion draft | Mobile client: discussion only |
+| 4a | Full serverless backend: REST API, database, authentication | Stack `serverless-notes-dev` (eu-north-1), 33 resources from one SAM template | `evidence/aws/deployed-resources.txt`, `evidence/aws/stack-events.txt` | **Done (AWS)** | — |
+| 4b | All required entities | Note + user accounts (Cognito); the assignment names no other entity | report ch. 2, 8 | **Done** | only if the bachelor assignment text adds entities |
+| 4c | User management | sign-up, e-mail verification, password policy, reset, hosted sign-in with PKCE, sign-out | automated browser test on AWS; owner's manual real-mailbox check (no evidence file) | **Done (AWS)** | — |
+| 4d | Logging | structured JSON per request, request-id tracing, 14-day retention, no personal data | `evidence/aws/cloudwatch.txt`, `evidence/aws/bachelor-evaluation.json` | **Done (AWS)** | — |
+| 4e | Monitoring | 4 alarms (5xx, p95 latency, Lambda errors, DynamoDB throttles), state OK with data | `docs/operations/MONITORING_RELIABILITY.md` | **Done (AWS)**; notification path **not verified** (no `AlarmEmail`) | optional: set `AlarmEmail`, `set-alarm-state` test |
+| 5a | Functionality | 193 + 66 + 14 automated tests; 38 live checks | `evidence/tests/` | **Evaluated** | — |
+| 5b | Performance | sequential benchmark (500 req) + concurrency benchmark 1–8 clients (≈ 600 req) + Lambda REPORT statistics | `docs/performance/PERFORMANCE.md`, `evidence/benchmarks/aws-concurrency-*.json` | **Evaluated** (one client machine) | distributed load test (optional) |
+| 5c | Scalability | measured to 8 clients / 60 req/s: linear throughput, stable median, Lambda scale-out to 8 environments, per-method throttle measured; beyond that argued from quotas | `docs/performance/PERFORMANCE.md` "Scalability evaluation" | **Evaluated within bounds** — large scale not demonstrated | raising limits + distributed load (cost) — documented as limitation |
+| 5d | Security | 19-threat evaluation; live negative-token tests N01–N07, R01, E01; configuration review | `docs/security/SECURITY_EVALUATION.md`, `evidence/tests/token-security-tests.json` | **Evaluated**; no critical finding | penetration test (optional) |
+| 5e | Costs | Price List API model, scenarios, Cost Explorer reconciliation (payable USD 0; gross usage = unrelated EC2), EC2 comparison | `AWS_COST_ANALYSIS.md`, `evidence/aws/bachelor-evaluation.json` | **Evaluated**; thesis-service bill not yet visible (reporting delay) | re-run Cost Explorer after a few days |
+| 5f | Extensions | web client built and hosted; mobile client, integrations discussed | `docs/thesis/BACHELOR_THESIS_DRAFT.md` ch. 19 | **Done** | — |
+| — | Written bachelor's thesis | technical content draft with figures | `docs/thesis/BACHELOR_THESIS_DRAFT.md`, `BACHELOR_AUTHOR_REVIEW.md` | **Draft** | author rewriting, Czech abstract, template, supervisor approval |
 
 ## C. Optional production features (not required — do not implement just to reach 100 %)
 

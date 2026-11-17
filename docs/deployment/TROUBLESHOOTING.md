@@ -77,7 +77,7 @@ Locally the same JSON lines are printed by `make demo-backend`.
 | Sign-up: no e-mail arrives | Spam folder; Cognito's default sender has a low daily limit; for real use configure SES. |
 | 403 `FORBIDDEN` on your own note | You are signed in as a different user than the note's creator (compare `userId` with the "User id (sub)" on the Settings page). |
 | 409 on save | The note changed elsewhere; reload it. |
-| 429 | Stage throttle (10 req/s, burst 20) exceeded; slow down or raise the parameters. |
+| 429 | Throttle (10 req/s, burst 20, per method) exceeded; slow down or raise the parameters. |
 | 500 `INTERNAL_ERROR` | Follow the investigation steps above. `AccessDeniedException` in the stack trace = the function's IAM policy does not allow the DynamoDB call. |
 | 503 `SERVICE_UNAVAILABLE` | DynamoDB throttling or outage; see alarm `…-dynamodb-throttles`. |
 | New note missing from the list for a moment | Index eventual consistency; reload. |

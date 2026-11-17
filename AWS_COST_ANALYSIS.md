@@ -86,6 +86,31 @@ Observations:
 - Cost grows linearly with requests and falls to (almost) zero with no traffic. A comparable always-on setup (one small EC2 instance or container + a managed relational database + load balancer) costs tens of dollars per month even when idle.
 - Cognito becomes the largest item only beyond 10,000 monthly active users.
 
+## Reconciliation with Cost Explorer (2026-11-17, bachelor-stage evaluation)
+
+Source: two `ce:GetCostAndUsage` calls (USD 0.02 in total), period 2026-10-01 to 2026-11-17, metric `UnblendedCost`; raw output `evidence/aws/bachelor-evaluation.json` (`costExplorer`). "Usage" is gross list-price usage before credits; "Credit" is the Free-plan credit applied.
+
+| Month | Gross usage | Credits applied | Payable | Of which EC2 compute + EC2-other + VPC (unrelated instance) | Thesis services visible |
+|---|---|---|---|---|---|
+| 2026-10 | USD 9.55 | −9.55 | **0.00** | 7.02 + 0.91 + 1.62 = 9.55 | S3 0.0001 |
+| 2026-11 (1–17) | USD 11.51 | −11.51 | **0.00** | 8.42 + 1.13 + 1.96 = 11.51 | S3 0.0001; CloudFormation 0.00 |
+
+Findings:
+1. **All recorded spending so far comes from the unrelated EC2 `t3.small` instance** (compute, its EBS volume and its public IPv4 address). It ran from 2026-10-18 until the owner terminated it on 2026-11-17 and is not part of this project. Its measured gross cost, ≈ USD 0.68 per day ≈ **USD 20.3 per month**, is a useful real-world reference for an always-on small server (see the comparison below).
+2. **The thesis services do not yet appear with a non-zero amount.** The stack was deployed on 2026-11-17, Cost Explorer data lags by up to 24 hours, and the usage is tiny. Estimated from the recorded request counts (≈ 4,000 API requests, the same number of Lambda invocations, a few thousand DynamoDB request units, nine alarm-metrics for about one day) it is **below USD 0.10** at list price. This must be re-checked after a few days (`aws ce get-cost-and-usage … --group-by Type=DIMENSION,Key=SERVICE`) before the figure is quoted as a measured bill.
+3. **Payable charges: USD 0.00** in both months, because Free-plan credits covered all usage. Credits are not the same as "free": they are a finite balance (USD 158.72 remaining on 2026-11-17, plan end 2027-04-18).
+
+## Serverless vs. an always-on server
+
+| | Serverless (this project, list price) | Always-on small VM (measured, unrelated instance) |
+|---|---|---|
+| Idle month | ≈ USD 0.90 (alarms) + storage; ≈ 0 without alarms | ≈ USD 20.3 (t3.small + 20 GB gp2 + public IPv4), whether used or not |
+| 300,000 requests / month | ≈ USD 2.35 | ≈ USD 20.3 (+ database, TLS, patching effort not included) |
+| 5,000,000 requests / month | ≈ USD 25 | one t3.small would probably not suffice without a load balancer and a managed database (tens of USD more) — not measured |
+| Operations | none (managed) | OS patching, scaling, backups, TLS certificates |
+
+Figure: `docs/thesis/figures/fig-cost-scenarios.png` (data in `fig-cost-scenarios.csv`). The crossover where serverless becomes more expensive than a dedicated server lies above the moderate scenario and depends on the server set-up chosen; it was not measured.
+
 ## One-time and occasional costs
 
 | Item | Cost |
@@ -100,7 +125,7 @@ Observations:
 
 1. Use a dedicated AWS account for the project.
 2. Keep a budget with e-mail alerts: Billing → Budgets (this account has one of $10 per month — see the account table above; it is already exceeded). **A budget only notifies you — it does not stop resources or cap spending.**
-3. The stage throttle (10 req/s) bounds the worst case: 10 req/s × 30 days ≈ 26 million requests ≈ $125/month if someone hammered the API continuously with *valid* credentials; unauthenticated requests rejected by the authorizer are not billed by Lambda/DynamoDB (verify whether API Gateway bills rejected requests on the pricing page).
+3. The throttle (10 req/s per method, i.e. ≈ 50 req/s for the five methods — measured 2026-11-17) bounds the worst case: 50 req/s × 30 days ≈ 130 million requests ≈ $600/month if someone hammered the API continuously with *valid* credentials; unauthenticated requests rejected by the authorizer are not billed by Lambda/DynamoDB (verify whether API Gateway bills rejected requests on the pricing page).
 4. Log retention is 14 days, so log storage cannot grow without bound.
 5. When you are not working on the project for a while: `make destroy`. Redeploying takes minutes.
 6. Check actual usage: Billing → Bills (by service) and Free Tier; CloudWatch metric `AWS/ApiGateway Count` for request volume.

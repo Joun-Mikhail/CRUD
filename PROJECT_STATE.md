@@ -4,7 +4,7 @@ Last updated: 2026-11-17.
 
 ## Current phase
 
-**Deployed and verified on AWS; frontend publicly hosted; semestral report drafted (author review pending).** The app is public at **https://d11c0a7q5fx9qi.cloudfront.net** (S3 + CloudFront, stack `serverless-notes-dev-web`, ADR 0009, since 2026-11-17). The development stack `serverless-notes-dev` runs in **eu-north-1** (Stockholm; ADR 0008 — the account's organization policy denies eu-central-1). It was deployed from this repository on 2026-11-17 and tested end to end: live API suite, browser test of the AWS mode with real Cognito users, CloudWatch checks and a bounded benchmark.
+**Deployed and verified on AWS; frontend publicly hosted; semestral report drafted; bachelor-stage evaluation done and bachelor's thesis drafted (author review pending).** The app is public at **https://d11c0a7q5fx9qi.cloudfront.net** (S3 + CloudFront, stack `serverless-notes-dev-web`, ADR 0009, since 2026-11-17). The development stack `serverless-notes-dev` runs in **eu-north-1** (Stockholm; ADR 0008 — the account's organization policy denies eu-central-1). It was deployed from this repository on 2026-11-17 and tested end to end: live API suite, browser test of the AWS mode with real Cognito users, CloudWatch checks and a bounded benchmark.
 
 ## Completed
 
@@ -21,7 +21,8 @@ Last updated: 2026-11-17.
 | Static checks | ruff, mypy strict, eslint, tsc, pip-audit, npm audit — clean |
 | CI | `.github/workflows/ci.yml` (now also runs the plain `sam validate`) |
 | Docs | all documents updated with the AWS results (2026-11-17); stale "not deployed" statements removed (README, SECURITY, REQUIREMENTS, frontend README) |
-| Thesis | semestral report **draft** `docs/thesis/SEMESTRAL_REPORT.md` (+ DOCX review copy), requirements matrix, author review list, supervisor summary, demo script (2026-11-17; AI-assisted, author review pending) |
+| Bachelor evaluation (2026-11-17) | concurrency benchmark 1–8 clients (median 120–126 ms, no errors, Lambda scaled to 8 environments), per-method throttle measured; negative-token tests 10/10; security, monitoring/reliability and cost evaluations incl. Cost Explorer reconciliation (`docs/performance/PERFORMANCE.md`, `docs/security/SECURITY_EVALUATION.md`, `docs/operations/MONITORING_RELIABILITY.md`, `AWS_COST_ANALYSIS.md`) |
+| Thesis | bachelor's thesis **content draft** `docs/thesis/BACHELOR_THESIS_DRAFT.md` with figures; semestral report **draft** `docs/thesis/SEMESTRAL_REPORT.md` (+ DOCX review copy), requirements matrix, author review list, supervisor summary, demo script (2026-11-17; AI-assisted, author review pending) |
 | Cost | Stockholm unit prices from the AWS Price List API; account pre-flight in `evidence/builds/aws-account-preflight.md` |
 
 ## Deployed resources (eu-north-1)
@@ -34,7 +35,7 @@ Expected cost: about $0.90 per month for the alarm metrics at list price (possib
 
 1. Author: review, verify and adopt the report draft (`docs/thesis/AUTHOR_REVIEW.md`); take real console screenshots; agree the AI-use statement with the supervisor.
 2. Compare the cost estimate with Cost Explorer after a few days (Free plan credits USD 158.72 on 2026-11-17).
-3. Bachelor-stage evaluation: concurrent load test, expired/foreign-issuer token tests, alarm notification (`docs/thesis/REQUIREMENTS_MATRIX.md` section B).
+3. Author: review the bachelor's draft (`docs/thesis/BACHELOR_AUTHOR_REVIEW.md`); re-check Cost Explorer once the thesis services appear. Optional: `AlarmEmail` + notification test, distributed load test, PITR/deletion protection for a production stage.
 4. Optional: GitHub OIDC roles + environment for `.github/workflows/deploy.yml` (API job and frontend job); raise the stage throttle for real use (see "Known gaps").
 
 ## Important decisions
@@ -49,7 +50,8 @@ None open. Fixed during deployment (2026-11-16/17): SAM transform rejected `Auth
 
 - Measured API Gateway behaviour that cannot be changed in the template: unknown route *with* an `Authorization` header → 403 `BAD_REQUEST` (404 without); bodies over 10 MB → plain-text 413 without CORS; stage throttling is approximate and can keep throttling a method for minutes after a burst (`docs/performance/PERFORMANCE.md`).
 - Real mailbox, e-mailed code, password reset and CRUD on the public site: checked manually by the owner on 2026-11-17 (no evidence file).
-- Not verified: expired-token and wrong-issuer cases, alarm notifications, `destroy.sh`, the GitHub deploy workflow.
+- Verified 2026-11-17: expired tokens (401 (PASS)), forged/foreign-issuer tokens rejected. Not verified: alarm notifications (no `AlarmEmail`), a token from a second real user pool, `destroy.sh`, the GitHub deploy workflow, behaviour above ≈ 60 req/s.
+- Throttling is 10 req/s, burst 20 **per method** (measured), not per stage.
 - No account-deletion screen; the hosted site uses the default `*.cloudfront.net` certificate (no custom domain); per-user rate limiting, MFA, WAF not included.
 - Chromium only; no manual screen-reader review.
 
