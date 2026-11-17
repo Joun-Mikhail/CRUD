@@ -11,6 +11,7 @@
     "dev:aws": "vite --mode aws --port 5173 --strictPort",
     "build": "tsc -b && vite build --mode demo",
     "build:aws": "tsc -b && vite build --mode aws",
+    "build:hosted": "tsc -b && vite build --mode hosted",
     "typecheck": "tsc -b --noEmit",
     "lint": "eslint .",
     "test": "vitest run",

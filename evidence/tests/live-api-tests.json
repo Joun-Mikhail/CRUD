@@ -1,7 +1,7 @@
 {
   "stack": "serverless-notes-dev",
   "region": "eu-north-1",
-  "executedAt": "2026-11-17T13:45:26+00:00",
+  "executedAt": "2026-11-17T15:04:37+00:00",
   "passed": 38,
   "failed": 0,
   "results": [
@@ -239,11 +239,11 @@
       "description": "preflight allows the configured origin",
       "expected": [
         200,
-        "http://localhost:5173"
+        "https://d11c0a7q5fx9qi.cloudfront.net"
       ],
       "actual": [
         200,
-        "http://localhost:5173"
+        "https://d11c0a7q5fx9qi.cloudfront.net"
       ],
       "status": "PASS"
     },
@@ -257,15 +257,15 @@
     {
       "id": "C03",
       "description": "CORS header on a successful response",
-      "expected": "http://localhost:5173",
-      "actual": "http://localhost:5173",
+      "expected": "https://d11c0a7q5fx9qi.cloudfront.net",
+      "actual": "https://d11c0a7q5fx9qi.cloudfront.net",
       "status": "PASS"
     },
     {
       "id": "C04",
       "description": "CORS header on a gateway 401",
-      "expected": "http://localhost:5173",
-      "actual": "http://localhost:5173",
+      "expected": "https://d11c0a7q5fx9qi.cloudfront.net",
+      "actual": "https://d11c0a7q5fx9qi.cloudfront.net",
       "status": "PASS"
     },
     {

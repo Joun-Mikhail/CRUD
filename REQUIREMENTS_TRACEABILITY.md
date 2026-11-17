@@ -56,7 +56,8 @@ Paths: `B/` = `backend/src/notes_api/`, `T/` = `backend/tests/`, `I` = `infrastr
 | Pagination | `B/pagination.py`, repository, notes page | pagination tests, e2e | Implemented and verified (local) | same |
 | Infrastructure as code | `I`, `infrastructure/samconfig.example.toml` | cfn-lint, `sam validate`, `T/security/test_template.py`, deployment | **Deployed and verified** (eu-north-1) | `evidence/builds/`, `evidence/aws/` |
 | CI pipeline | `.github/workflows/ci.yml` | runs on GitHub for this branch | see pull request checks | PR #1 |
-| Deploy pipeline (OIDC, manual) | `.github/workflows/deploy.yml` | YAML syntax only | Implemented, not verified | — |
+| Public HTTPS frontend hosting | `infrastructure/frontend-hosting.yaml` (private S3 + CloudFront OAC + security headers), `scripts/deployment/deploy_hosting.sh`, `publish_frontend.sh`; ADR 0009 | `T/security/test_hosting_template.py`, cfn-lint; curl checks, live suite with the CloudFront origin, Playwright on the public URL | **Deployed and verified** (2026-11-17, https://d11c0a7q5fx9qi.cloudfront.net) | `evidence/tests/frontend-hosting-http-checks.txt`, `evidence/builds/aws-changeset-web-create.txt`, `evidence/screenshots/aws-13-hosted-cloudfront-notes.png` |
+| Deploy pipeline (OIDC, manual) | `.github/workflows/deploy.yml` | YAML syntax only | Implemented, not verified (API job and frontend job; OIDC roles not created) | — |
 | Live acceptance tests | `scripts/testing/live_api_tests.py` | executed 2026-11-17 | **38/38 passed** on the deployed stack | `evidence/tests/live-api-tests.json`, `evidence/tests/live-api-tests.txt` |
 | Throttling (429), custom gateway errors | `I` | live L01–L03, A01–A07, R01–R02, C04 | **Verified on AWS**; throttling is best-effort (see `docs/performance/PERFORMANCE.md`) | `evidence/tests/live-api-tests.json` |
 | Learning package | `docs/learning/`, `START_HERE.md`, `SUPERVISOR_QUESTIONS.md` | commands in lessons spot-checked | Implemented | — |
