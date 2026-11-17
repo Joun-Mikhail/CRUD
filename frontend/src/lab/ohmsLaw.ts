@@ -144,9 +144,10 @@ export function sig3(value: number): string {
   return Number(value.toPrecision(3)).toString()
 }
 
+/** Signed deviation with one decimal: '+0.2 %', '−3.0 %', and plain '0.0 %' when it rounds to zero. */
 export function formatPercent(value: number): string {
   const rounded = Math.round(value * 10) / 10
-  const sign = rounded > 0 ? '+' : rounded < 0 ? '−' : '±'
+  const sign = rounded > 0 ? '+' : rounded < 0 ? '−' : ''
   return `${sign}${Math.abs(rounded).toFixed(1)} %`
 }
 

@@ -9,7 +9,7 @@ Say at the start: *"This is the Local Demo: the real Lambda handler code with an
 | 0:00 | Sign in as **Alice**. Point at the LabProof banner on the dashboard. | "LabProof is one guided lab workflow built on the existing notes API, with no backend changes." |
 | 0:45 | **New experiment.** Type a title, course; leave the date as today. | "Title, course and date are validated in the browser, and the server validates again." |
 | 1:30 | Enter 100 Ω, then readings 1 V / 10.1 mA, 2 V / 19.8 mA, 3 V / 30,2 mA (comma on purpose). | "R = V / (I in mA / 1000) appears per row as I type; a decimal comma works." |
-| 2:15 | Point at the results and the graph. | "Mean versus least-squares slope through the origin, the deviation from the nominal value, PASS within ± 5 %. Graph: V on the y axis, so the slope is the resistance." |
+| 2:15 | Point at the results and the graph. | "Mean versus least-squares slope through the origin, the deviation from the nominal value, PASS means only that the fitted R is within ± 5 % of the printed value; linearity is read from the graph. Graph: V on the y axis, so the slope is the resistance." |
 | 3:00 | **Add reading**, type `4` V and `0` mA, press **Save experiment**. Show the message under that row, then delete the row. | "Zero current is rejected because R would be V/0. Nothing was sent to the server." |
 | 3:30 | Write a one-line conclusion → **Save experiment**. In the network tab show `POST /notes` → 201. | "An experiment is a note: the title is the title, the content is versioned JSON with only the inputs." |
 | 4:15 | **Reload the page** (F5). | "Everything comes back from the API: `GET /notes/{id}`, and the results are recomputed." |

@@ -105,7 +105,7 @@ Compared with a backend running on rented virtual machines or containers, a serv
 
 The trade-offs are equally important for an honest evaluation:
 
-- **cold starts** — the first request to a new execution environment waits for it to be created (measured for this prototype in Section 6.5);
+- **cold starts** — the first request to a new execution environment waits for it to be created (measured for this prototype in Section 6.4);
 - **statelessness** — nothing can be kept between requests except in external services, so all state lives in the database;
 - **limits** — for example, an AWS Lambda invocation runs for at most 15 minutes and a synchronous request or response payload is limited to 6 MB [5]; a DynamoDB item is limited to 400 KB [6];
 - **vendor lock-in** — the services and their configuration are provider-specific;
@@ -136,7 +136,7 @@ AWS was selected for these reasons:
 1. **Integrated JWT verification at the gateway.** An API Gateway REST API can use a Cognito user pool as an authorizer and require OAuth scopes per route, so unauthenticated or insufficiently privileged requests never reach the functions [7], [8].
 2. **Infrastructure as code for every component.** AWS SAM, an extension of CloudFormation, describes the API, functions, table, user pool, logs and alarms in one template, which makes the deployment reproducible and reviewable [11].
 3. **Literature and documentation.** The recommended literature for the assignment is written for AWS [3], and the services are documented in detail [5]–[8].
-4. **Cost.** All services used are billed per request or per active user, and the account used for the project had a Free plan with credits (Section 6.7).
+4. **Cost.** All services used are billed per request or per active user, and the account used for the project had a Free plan with credits (Section 6.6).
 
 **Region.** The original report named Frankfurt (eu-central-1). The AWS account used for the project belongs to an organization whose service control policy denies workload services in all regions except Stockholm (eu-north-1); this was confirmed with the IAM policy simulator on 16 November 2026 (repository, ADR 0008). The prototype therefore runs in eu-north-1, which is also an EU region and offers every service used [AUTHOR-VERIFY: confirm that the region choice is acceptable to the supervisor].
 
@@ -432,7 +432,7 @@ The following statements are architectural expectations based on the documentati
 - DynamoDB on-demand tables adapt to the request rate, and because every operation addresses a key and listing reads only the caller's partition of the index, no operation becomes slower as the number of users grows [6];
 - the throttle (10 requests per second and a burst of 20, which API Gateway applies to each method separately) is deliberately low to bound cost; it is the first limit a load test would hit and would have to be raised for real use.
 
-A concurrent load test belongs to the bachelor's thesis (Chapter 9), where it is reported.
+A concurrent load test belongs to the bachelor's thesis (Chapter 9) and is not reported here.
 
 ### 6.6 Costs
 

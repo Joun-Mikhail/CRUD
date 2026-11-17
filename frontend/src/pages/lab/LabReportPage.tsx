@@ -106,22 +106,23 @@ export function LabReportPage() {
 
         <ReportSection n={2} title="Method">
           <p>
-            Several voltages V were applied to the resistor and the current I through it was measured with an ammeter
-            in series. For each reading the resistance was calculated as R = V / I, with the current converted from
+            An adjustable DC supply, an ammeter and the resistor were connected in series, with the voltmeter connected
+            in parallel directly across the resistor. Several voltages V were applied, keeping the power V · I below
+            the resistor’s rating, and the current I was read from the ammeter. For each reading the resistance was calculated as R = V / I, with the current converted from
             milliamperes to amperes: R = V / (I<sub>mA</sub> / 1000).
           </p>
         </ReportSection>
 
         <ReportSection n={3} title="Measurements">
           <table className="w-full break-inside-avoid border-collapse text-right tabular-nums">
-            <caption className="mb-1 text-left text-xs text-muted">Table 1: Measured values and calculated resistance</caption>
+            <caption className="mb-1 text-left text-xs text-muted">Table 1: Measured values and calculated resistance. R = V / I, with the current converted from milliamperes to amperes: I (A) = I (mA) / 1000.</caption>
             <thead>
               <tr className="border-y border-line-strong bg-subtle text-xs">
                 <th scope="col" className="px-2 py-1.5 text-left font-semibold">#</th>
                 <th scope="col" className="px-2 py-1.5 font-semibold">V (V)</th>
                 <th scope="col" className="px-2 py-1.5 font-semibold">I (mA)</th>
                 <th scope="col" className="px-2 py-1.5 font-semibold">I (A)</th>
-                <th scope="col" className="px-2 py-1.5 font-semibold">R = V / I (Ω)</th>
+                <th scope="col" className="px-2 py-1.5 font-semibold">Resistance R (Ω)</th>
               </tr>
             </thead>
             <tbody>
