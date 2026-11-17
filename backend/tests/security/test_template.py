@@ -89,3 +89,8 @@ def test_gateway_errors_use_the_api_envelope(
     assert response["StatusCode"] == status
     assert f'"code":"{code}"' in response["ResponseTemplates"]["application/json"]
     assert "Access-Control-Allow-Origin" in response["ResponseParameters"]["Headers"]
+
+
+def test_api_redeploys_on_every_update(resources: dict[str, Any]) -> None:
+    """Parameter-only changes (AllowedOrigin) must reach the live stage (ADR 0009)."""
+    assert resources["NotesApi"]["Properties"]["AlwaysDeploy"] is True

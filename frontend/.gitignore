@@ -7,3 +7,4 @@ coverage/
 .env.aws
 .env.local
 .env.*.local
+.env.hosted

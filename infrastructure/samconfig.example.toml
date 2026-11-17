@@ -18,6 +18,8 @@ capabilities = "CAPABILITY_IAM"
 resolve_s3 = true
 confirm_changeset = true
 fail_on_empty_changeset = false
+# After deploying the hosting stack (ADR 0009) set AllowedOrigin to its SiteUrl and add
+# "<SiteUrl>/auth/callback" / "<SiteUrl>/" to CallbackUrls / LogoutUrls (keep localhost).
 parameter_overrides = [
   "Stage=dev",
   "AllowedOrigin=http://localhost:5173",

@@ -37,6 +37,8 @@ Everything is pay-per-use; there is no always-on server, load balancer, NAT gate
 | CloudWatch alarms | per alarm-metric-month | $0.10 per standard-resolution alarm metric (4 alarms; metric-math alarms are billed per metric they use: 1 + 1 + 5 + 2 = 9 alarm-metrics) | same |
 | Data transfer out | GB to the internet | first 100 GB/month free (account-wide), then ≈ $0.09 per GB (not queried) | aws.amazon.com/ec2/pricing/on-demand (Data Transfer) |
 | S3 (SAM deployment artifacts) | storage | $0.023 per GB-month; the package is about 18 KB → far below a cent | aws.amazon.com/s3/pricing |
+| S3 (frontend site bucket, since 2026-11-17) | storage, requests | $0.023 per GB-month; $0.005 per 1,000 PUT; $0.004 per 10,000 GET (Price List API, 2026-11-17). Site ≈ 0.5 MB per version → far below a cent | aws.amazon.com/s3/pricing |
+| CloudFront (frontend, since 2026-11-17) | data out, HTTPS requests, invalidations | Europe: $0.085 per GB (first 10 TB), $0.012 per 10,000 HTTPS requests, invalidations free for the first 1,000 paths a month (Price List API, 2026-11-17). **Always-free tier: 1 TB and 10 M requests a month** → $0 at thesis scale; ≈ 140 kB transferred per first visit | aws.amazon.com/cloudfront/pricing |
 | SNS e-mail (only if `AlarmEmail` set) | notifications | first 1,000 e-mails/month free (not queried) | aws.amazon.com/sns/pricing |
 
 Not used, therefore no cost: VPC/NAT gateway, provisioned concurrency, X-Ray, API Gateway caching, WAF, KMS customer keys, CloudWatch dashboards, detailed API metrics, Cognito Essentials/Plus features, SES.
