@@ -252,7 +252,7 @@ The median did not change with concurrency; p95 widened because each new executi
 | Unsigned (`alg: none`) or HS256-forged token | RS256 with the pool's keys only | N01, N02 | 401 |
 | Token signed with a foreign key / foreign issuer | JWKS signature, issuer check | N03, N04 | 403 / 401 |
 | Modified claims (`exp`, `sub`) | signature over the payload | N05, N06, A02 | 403 |
-| Expired token | `exp` check | N07 (self-signed) 401; E01 (real token 90 s after expiry) pending (expected 401) | see text |
+| Expired token | `exp` check | N07 (self-signed) 401; E01 (real token 90 s after expiry) 401 (PASS) | see text |
 | ID token instead of access token; missing scope | per-route scopes | A03, A07 | 401 |
 | Access to another user's note | owner in condition expression | T07, T10, T13, H01, H02, browser | 403, data unchanged |
 | Mass assignment, malformed or oversized input | strict validation | V01–V04, unit tests | 400 / 413 |

@@ -21,7 +21,7 @@ Last updated: 2026-11-17.
 | Static checks | ruff, mypy strict, eslint, tsc, pip-audit, npm audit — clean |
 | CI | `.github/workflows/ci.yml` (now also runs the plain `sam validate`) |
 | Docs | all documents updated with the AWS results (2026-11-17); stale "not deployed" statements removed (README, SECURITY, REQUIREMENTS, frontend README) |
-| Bachelor evaluation (2026-11-17) | concurrency benchmark 1–8 clients (median 120–126 ms, no errors, Lambda scaled to 8 environments), per-method throttle measured; negative-token tests 9/9 (immediate checks); security, monitoring/reliability and cost evaluations incl. Cost Explorer reconciliation (`docs/performance/PERFORMANCE.md`, `docs/security/SECURITY_EVALUATION.md`, `docs/operations/MONITORING_RELIABILITY.md`, `AWS_COST_ANALYSIS.md`) |
+| Bachelor evaluation (2026-11-17) | concurrency benchmark 1–8 clients (median 120–126 ms, no errors, Lambda scaled to 8 environments), per-method throttle measured; negative-token tests 10/10; security, monitoring/reliability and cost evaluations incl. Cost Explorer reconciliation (`docs/performance/PERFORMANCE.md`, `docs/security/SECURITY_EVALUATION.md`, `docs/operations/MONITORING_RELIABILITY.md`, `AWS_COST_ANALYSIS.md`) |
 | Thesis | bachelor's thesis **content draft** `docs/thesis/BACHELOR_THESIS_DRAFT.md` with figures; semestral report **draft** `docs/thesis/SEMESTRAL_REPORT.md` (+ DOCX review copy), requirements matrix, author review list, supervisor summary, demo script (2026-11-17; AI-assisted, author review pending) |
 | Cost | Stockholm unit prices from the AWS Price List API; account pre-flight in `evidence/builds/aws-account-preflight.md` |
 
@@ -50,7 +50,7 @@ None open. Fixed during deployment (2026-11-16/17): SAM transform rejected `Auth
 
 - Measured API Gateway behaviour that cannot be changed in the template: unknown route *with* an `Authorization` header → 403 `BAD_REQUEST` (404 without); bodies over 10 MB → plain-text 413 without CORS; stage throttling is approximate and can keep throttling a method for minutes after a burst (`docs/performance/PERFORMANCE.md`).
 - Real mailbox, e-mailed code, password reset and CRUD on the public site: checked manually by the owner on 2026-11-17 (no evidence file).
-- Verified 2026-11-17: expired tokens (pending (expected 401)), forged/foreign-issuer tokens rejected. Not verified: alarm notifications (no `AlarmEmail`), a token from a second real user pool, `destroy.sh`, the GitHub deploy workflow, behaviour above ≈ 60 req/s.
+- Verified 2026-11-17: expired tokens (401 (PASS)), forged/foreign-issuer tokens rejected. Not verified: alarm notifications (no `AlarmEmail`), a token from a second real user pool, `destroy.sh`, the GitHub deploy workflow, behaviour above ≈ 60 req/s.
 - Throttling is 10 req/s, burst 20 **per method** (measured), not per stage.
 - No account-deletion screen; the hosted site uses the default `*.cloudfront.net` certificate (no custom domain); per-user rate limiting, MFA, WAF not included.
 - Chromium only; no manual screen-reader review.
