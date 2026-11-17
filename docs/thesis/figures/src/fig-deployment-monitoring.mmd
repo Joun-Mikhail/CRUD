@@ -1,0 +1,25 @@
+flowchart TB
+  subgraph BUILD["Build and deployment"]
+    R["Git repository (GitHub)<br/>template.yaml, frontend-hosting.yaml"]
+    GH["GitHub Actions CI on pull requests:<br/>ruff, mypy, pytest, Vitest, Playwright,<br/>cfn-lint, sam validate"]
+    CS["Workstation: sam build, change set<br/>created, reviewed, then executed"]
+    CFN["AWS CloudFormation"]
+  end
+  subgraph RUN["Deployed stacks"]
+    ST1["serverless-notes-dev<br/>API, 5 functions, table,<br/>user pool, 4 alarms"]
+    ST2["serverless-notes-dev-web<br/>S3 bucket + CloudFront"]
+  end
+  subgraph MON["Amazon CloudWatch"]
+    LG["Logs: one JSON line<br/>per request, 14 days"]
+    LI["Logs Insights:<br/>trace by requestId"]
+    MT["Metrics"]
+    AL["4 alarms: API 5xx, p95 latency<br/>over 2 s, Lambda errors,<br/>DynamoDB throttles"]
+    SNS["SNS e-mail (optional,<br/>AlarmEmail not set)"]
+  end
+  R -->|"push, pull request"| GH
+  R --> CS --> CFN
+  CFN --> ST1
+  CFN --> ST2
+  ST1 -.-> LG --> LI
+  ST1 -.-> MT --> AL
+  AL -.-> SNS
