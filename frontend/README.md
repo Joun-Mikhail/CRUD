@@ -41,6 +41,9 @@ src/
   components/providers/     configuration, theme, toasts, auth, notes state
   layouts/                  AppLayout (sidebar / mobile drawer / top bar), RequireAuth
   pages/                    Auth, Dashboard, Notes, NoteEditor, Architecture, ApiExplorer, Settings
+  pages/lab/                LabProof Lite: LabHomePage (/lab), ExperimentEditorPage (/lab/new, /lab/:id), LabReportPage (/lab/:id/report)
+  lab/                      LabProof logic and parts: ohmsLaw.ts (calculations), experimentFormat.ts (JSON in note.content),
+                            ReadingsTable, ResultSummary, VIChart (SVG graph), LabHero, useExperimentNote
   utils/                    pkce, jwt (display only), validation mirror, formatting
 tests/e2e/                  Playwright journeys, axe accessibility audit, screenshot capture
 csp.ts                      builds the Content-Security-Policy injected into index.html
@@ -56,4 +59,6 @@ csp.ts                      builds the Content-Security-Policy injected into ind
 
 ## Verification
 
-66 unit/component tests and 14 browser tests (including an axe accessibility audit in both themes) pass against the Local Demo; the production build was smoke-tested under its CSP. AWS mode was tested in a real browser against the deployed stack and the public CloudFront site on 2026-11-17 (`docs/testing/TESTING.md`).
+LabProof Lite (Ohm's law experiments stored as versioned JSON notes, printable report): 106 unit/component tests and 17 browser tests pass on branch `feature/labproof-lite-ohms-law` against the Local Demo (`evidence/tests/labproof-frontend-*.txt`); not yet exercised against AWS. Guide: `docs/learning/LABPROOF_FOR_BEGINNERS.md`.
+
+Before LabProof: 66 unit/component tests and 14 browser tests (including an axe accessibility audit in both themes) pass against the Local Demo; the production build was smoke-tested under its CSP. AWS mode was tested in a real browser against the deployed stack and the public CloudFront site on 2026-11-17 (`docs/testing/TESTING.md`).

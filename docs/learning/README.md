@@ -19,6 +19,14 @@ Everything here runs **without AWS** (Local Demo + pytest). Set up once: `make s
 | 11 | [Security](11-security.md) | ownership, race conditions, least privilege, hygiene |
 | 12 | [Performance and cost](12-performance-and-cost.md) | latency, scaling, pay-per-use arithmetic |
 
+## LabProof Lite (frontend extension)
+
+| Document | Use it to |
+|---|---|
+| [LabProof for beginners](LABPROOF_FOR_BEGINNERS.md) | understand the Ohm's law workflow, formulas, JSON storage, the save path through AWS, the graph, printing, and ten likely supervisor questions |
+| [LabProof practice](LABPROOF_PRACTICE.md) | five small exercises that prove you understand it |
+| [LabProof demo script](LABPROOF_DEMO_SCRIPT.md) | an 8-minute live demonstration for your supervisor |
+
 ## Two-week rebuild plan
 
 The goal is not to copy files but to write them again from an empty folder, looking at the reference only when stuck.

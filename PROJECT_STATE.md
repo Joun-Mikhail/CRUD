@@ -23,6 +23,7 @@ Last updated: 2026-11-17.
 | Docs | all documents updated with the AWS results (2026-11-17); stale "not deployed" statements removed (README, SECURITY, REQUIREMENTS, frontend README) |
 | Bachelor evaluation (2026-11-17) | concurrency benchmark 1–8 clients (median 120–126 ms, no errors, Lambda scaled to 8 environments), per-method throttle measured; negative-token tests 10/10; security, monitoring/reliability and cost evaluations incl. Cost Explorer reconciliation (`docs/performance/PERFORMANCE.md`, `docs/security/SECURITY_EVALUATION.md`, `docs/operations/MONITORING_RELIABILITY.md`, `AWS_COST_ANALYSIS.md`) |
 | Thesis | review copies (PDF + DOCX, unofficial FEKT-like layout) of the semestral thesis (`docs/thesis/export/SEMESTRAL_THESIS_REVIEW.*`, 43 pages) and the bachelor's thesis (`BACHELOR_THESIS_REVIEW.*`, 57 pages), built from `SEMESTRAL_REPORT.md` / `BACHELOR_THESIS_DRAFT.md` with six diagrams and four evidence charts; handover `docs/thesis/FINAL_HANDOVER.md` (2026-11-17; AI-assisted, author review and supervisor feedback pending) |
+| LabProof Lite (branch `feature/labproof-lite-ohms-law`, 2026-11-17) | Frontend-only Ohm's law lab: experiment editor (title, course, date, resistor, 3–10 readings, observations, conclusion), live R = V / (I_mA/1000), mean, least-squares slope, deviation and PASS/CHECK, SVG V–I graph, printable report (browser Print → Save as PDF); stored as versioned JSON in ordinary notes, so the five endpoints, backend and AWS are unchanged; navy/electric-blue/violet palette. Local tests: frontend 106 passed, Playwright 17 passed (Local Demo). **Not exercised against AWS.** Guides: `docs/learning/LABPROOF_*.md` |
 | Cost | Stockholm unit prices from the AWS Price List API; account pre-flight in `evidence/builds/aws-account-preflight.md` |
 
 ## Deployed resources (eu-north-1)
@@ -36,7 +37,8 @@ Expected cost: about $0.90 per month for the alarm metrics at list price (possib
 1. Author: review, verify and adopt the report draft (`docs/thesis/AUTHOR_REVIEW.md`); take real console screenshots; agree the AI-use statement with the supervisor.
 2. Compare the cost estimate with Cost Explorer after a few days (Free plan credits USD 158.72 on 2026-11-17).
 3. Author: review the bachelor's draft (`docs/thesis/BACHELOR_AUTHOR_REVIEW.md`); re-check Cost Explorer once the thesis services appear. Optional: `AlarmEmail` + notification test, distributed load test, PITR/deletion protection for a production stage.
-4. Optional: GitHub OIDC roles + environment for `.github/workflows/deploy.yml` (API job and frontend job); raise the stage throttle for real use (see "Known gaps").
+4. LabProof Lite: review and merge the pull request; optionally run one manual create/reopen/delete in AWS mode (`npm run dev:aws`) and record it; the public CloudFront site is **not** redeployed (do it only deliberately with `publish_frontend.sh`).
+5. Optional: GitHub OIDC roles + environment for `.github/workflows/deploy.yml` (API job and frontend job); raise the stage throttle for real use (see "Known gaps").
 
 ## Important decisions
 
