@@ -6,7 +6,7 @@ PY := backend/.venv/$(VENV_BIN)
 STACK ?= serverless-notes-dev
 
 .PHONY: help setup demo-backend demo-frontend lint typecheck test test-backend test-frontend \
-        test-e2e build validate audit check benchmark-local deploy frontend-env live-test destroy
+        test-e2e build validate audit check benchmark-local deploy frontend-env live-test destroy \n        deploy-hosting publish-frontend
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-18s %s\n", $$1, $$2}'
@@ -43,7 +43,7 @@ build: ## Production build of the frontend
 	cd frontend && npm run build
 
 validate: ## Validate the SAM/CloudFormation template (needs cfn-lint + SAM CLI)
-	cfn-lint infrastructure/template.yaml
+	cfn-lint infrastructure/template.yaml infrastructure/frontend-hosting.yaml
 	sam validate --region eu-north-1 -t infrastructure/template.yaml          # SAM transform
 	sam validate --lint --region eu-north-1 -t infrastructure/template.yaml   # cfn-lint only
 
@@ -64,6 +64,12 @@ frontend-env: ## Write frontend/.env.aws from the stack outputs
 
 live-test: ## Acceptance + security tests against the deployed stack
 	$(PY)/python scripts/testing/live_api_tests.py --stack-name $(STACK)
+
+deploy-hosting: ## Create/update the frontend hosting stack (S3 + CloudFront; change set confirmation)
+	./scripts/deployment/deploy_hosting.sh
+
+publish-frontend: ## Build the hosted frontend and upload it to S3 + invalidate CloudFront
+	./scripts/deployment/publish_frontend.sh
 
 destroy: ## Delete the AWS stack (asks for confirmation)
 	./scripts/cleanup/destroy.sh $(STACK)

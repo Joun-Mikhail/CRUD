@@ -1,0 +1,5 @@
+Add	Distribution	AWS::CloudFront::Distribution
+Add	OriginAccessControl	AWS::CloudFront::OriginAccessControl
+Add	SecurityHeadersPolicy	AWS::CloudFront::ResponseHeadersPolicy
+Add	SiteBucketPolicy	AWS::S3::BucketPolicy
+Add	SiteBucket	AWS::S3::Bucket
