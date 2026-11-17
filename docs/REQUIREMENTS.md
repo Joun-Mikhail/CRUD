@@ -47,7 +47,7 @@ Source: the semestral thesis *Serverless CRUD API with Authentication* (Brno Uni
 | 403 vs 404 | 403 if exists and foreign; 404 if missing | same | same; trade-off documented | — | thesis rows 7, 8, 10, 11, 13 |
 | "404 independent of authentication state" | (report sentence) | contradicts F-3 | unauthenticated requests always get 401, as F-3 and table rows 2 and 5 require | inconsistency resolved in favour of authentication | `test_thesis_table_02/05` |
 | Missing DELETE-404 case | implied by F-5 | absent from the 13-row table | implemented and tested | gap closed | `test_delete_missing_note_returns_404` |
-| Token type | "JWT access tokens" | figure shows HS256 token with `aud`; text says API Gateway checks `aud` | RS256 access tokens; authorizer requires scopes so ID tokens are refused; access tokens carry `client_id`, not `aud` | accurate description; least-privilege scopes | SECURITY.md; live tests (not run) |
+| Token type | "JWT access tokens" | figure shows HS256 token with `aud`; text says API Gateway checks `aud` | RS256 access tokens; authorizer requires scopes so ID tokens are refused; access tokens carry `client_id`, not `aud` | accurate description; least-privilege scopes | SECURITY.md; live A01–A07 (2026-11-17) |
 | Cognito figure | user pool | figure shows *identity pools* / STS | user pool only | figure does not match the design; noted | — |
 | Validation | required fields | "required fields such as title and content" | types, lengths, unknown fields, UUID, JSON, size, pagination | far stricter; all issues reported at once | `test_validation.py` |
 | Errors | appropriate status + JSON | unspecified format | uniform envelope with code and request id, also for gateway errors | consistent and traceable | `test_http.py`, template `GatewayResponses` |
@@ -60,8 +60,8 @@ Source: the semestral thesis *Serverless CRUD API with Authentication* (Brno Uni
 | Monitoring | required for bachelor stage | none | 4 CloudWatch alarms, optional e-mail | first failure signals | alarm metrics checked on AWS (2026-11-17); no alarm fired |
 | IAM | "detailed IAM policies … future work" | unspecified | one action per function, resource-scoped | least privilege | template |
 | S3 | — | appears in Figure 1 | not used | nothing requires it | — |
-| User management | A-4 | Cognito console | Cognito self sign-up, e-mail verification, password policy, hosted sign-in; registration UI | users manage their own accounts | component tests (mocked); AWS not run |
-| Evaluation | A-5 | "not provided, must be measured" | theoretical analysis + local-emulator benchmark + procedure; AWS cost model | honest baseline; **AWS measurements still to be done by the author** | PERFORMANCE.md, AWS_COST_ANALYSIS.md |
+| User management | A-4 | Cognito console | Cognito self sign-up, e-mail verification, password policy, hosted sign-in; registration UI | users manage their own accounts | component tests (mocked); real browser on AWS (2026-11-17); real mailbox + password reset checked manually by the project owner on 2026-11-17 |
+| Evaluation | A-5 | "not provided, must be measured" | AWS benchmark (500 requests), CloudWatch REPORT lines, cost model from the AWS Price List API | measured on AWS 2026-11-17; scalability argued, not load-tested | PERFORMANCE.md, AWS_COST_ANALYSIS.md |
 | Client | future extension in A-5 | none | React web client (optional enhancement) | demonstrates the API; not a substitute for the backend work | vitest + Playwright |
 
 ## 4. Other defects noticed in the report (for the author to fix in the thesis text)
@@ -79,4 +79,4 @@ Duplicated and half-edited sentences (e.g. "AWS Region and Deployment", "DynamoD
 7. Frontend builds, passes type checks, unit tests and browser journeys in Local Demo.
 8. Every claim in the documentation is either backed by evidence in `evidence/` or labelled "not verified".
 
-Criteria 1–8 are met locally. What remains is everything that needs a real AWS deployment — see `REQUIREMENTS_TRACEABILITY.md`.
+Criteria 1–8 are met locally, and the AWS-dependent parts were verified on the deployed stack on 2026-11-17 — see `REQUIREMENTS_TRACEABILITY.md` and `docs/thesis/REQUIREMENTS_MATRIX.md`.

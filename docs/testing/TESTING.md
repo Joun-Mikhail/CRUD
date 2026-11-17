@@ -6,7 +6,7 @@ Local results were last produced on 2026-11-17 on Windows 11 (Python 3.13.17, No
 
 | Check | Command | Result | Evidence |
 |---|---|---|---|
-| Backend tests | `cd backend && .venv/bin/pytest --cov` | **187 passed**, 0 failed | `evidence/tests/backend-pytest.txt` |
+| Backend tests | `cd backend && .venv/bin/pytest --cov` | **193 passed**, 0 failed (re-run 2026-11-17 after the hosting tests were added) | `evidence/tests/backend-pytest.txt` |
 | Backend coverage | (same) | **99.01 %** line+branch of `src/notes_api`; gate 85 % | same |
 | Backend lint/format/types | `ruff check .`, `ruff format --check .`, `mypy` (strict) | no findings | `evidence/tests/backend-static-analysis.txt` |
 | Backend dependency audit | `pip-audit` | no known vulnerabilities | same |
@@ -123,7 +123,7 @@ Test data: every backend test creates a fresh in-memory table (fixture `table` i
 | I | Restart: notes persist in AWS mode | browser: full page reload in AWS mode | AWS | notes still there | the note was listed again after reload and after signing out and in | **Pass (AWS)** | AWS browser test below |
 | J | Production build | `npm run build` | local | no TS errors | passes | **Pass** | `evidence/builds/frontend-build.txt` |
 | K | Infrastructure validation | cfn-lint, sam validate, sam build | local | valid | valid | **Pass** | `evidence/builds/infrastructure-validation.txt` |
-| L | Automated tests run | pytest, vitest, Playwright, live suite | local; AWS | pass | 187 + 66 + 14 passed; 38/38 live | **Pass** | `evidence/tests/` |
+| L | Automated tests run | pytest, vitest, Playwright, live suite | local; AWS | pass | 193 + 66 + 14 passed; 38/38 live | **Pass** | `evidence/tests/` |
 
 ## Live AWS tests (2026-11-17, eu-north-1)
 
@@ -223,7 +223,7 @@ Details and the cold-start analysis: `docs/performance/PERFORMANCE.md`.
 
 ## Not verified
 
-- Receiving and entering the e-mailed verification code (the run used the SES mailbox simulator; the account was confirmed by the operator), password reset and the "send a new code" path against real Cognito.
+- Automated: receiving and entering the e-mailed verification code (the run used the SES mailbox simulator; the account was confirmed by the operator), password reset and the "send a new code" path. These were checked manually by the project owner on 2026-11-17 with a real mailbox (registration, e-mailed code, sign-in, password reset, CRUD, public site); no automated evidence file.
 - Expired tokens (60-minute lifetime) and tokens from another user pool (wrong issuer) — not automated.
 - Alarm notifications (no `AlarmEmail` configured); no alarm has been in `ALARM` state.
 - `scripts/cleanup/destroy.sh`, `scripts/cleanup/destroy_hosting.sh` and `.github/workflows/deploy.yml` (both jobs) have not been executed (the GitHub OIDC roles are not set up).

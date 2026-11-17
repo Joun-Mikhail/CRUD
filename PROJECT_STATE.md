@@ -4,7 +4,7 @@ Last updated: 2026-11-17.
 
 ## Current phase
 
-**Deployed and verified on AWS; frontend publicly hosted.** The app is public at **https://d11c0a7q5fx9qi.cloudfront.net** (S3 + CloudFront, stack `serverless-notes-dev-web`, ADR 0009, since 2026-11-17). The development stack `serverless-notes-dev` runs in **eu-north-1** (Stockholm; ADR 0008 — the account's organization policy denies eu-central-1). It was deployed from this repository on 2026-11-17 and tested end to end: live API suite, browser test of the AWS mode with real Cognito users, CloudWatch checks and a bounded benchmark.
+**Deployed and verified on AWS; frontend publicly hosted; semestral report drafted (author review pending).** The app is public at **https://d11c0a7q5fx9qi.cloudfront.net** (S3 + CloudFront, stack `serverless-notes-dev-web`, ADR 0009, since 2026-11-17). The development stack `serverless-notes-dev` runs in **eu-north-1** (Stockholm; ADR 0008 — the account's organization policy denies eu-central-1). It was deployed from this repository on 2026-11-17 and tested end to end: live API suite, browser test of the AWS mode with real Cognito users, CloudWatch checks and a bounded benchmark.
 
 ## Completed
 
@@ -15,25 +15,27 @@ Last updated: 2026-11-17.
 | Local Demo | `backend/local_demo/server.py` (real handlers + moto) |
 | Infrastructure | `infrastructure/template.yaml` — cfn-lint, `sam validate` (SAM transform), `sam build`, template tests; **deployed** (33 resources) |
 | Frontend | auth (demo + Cognito PKCE), dashboard, notes, editor, architecture explorer, API explorer, settings; **AWS mode verified in a real browser** |
-| Local tests | backend 187 passed (99 % coverage); frontend 66 passed; Playwright 14 passed (incl. axe audit) |
+| Local tests | backend 193 passed (99 % coverage, re-run 2026-11-17); frontend 66 passed; Playwright 14 passed (incl. axe audit) |
 | Frontend hosting | S3 + CloudFront deployed 2026-11-17; headers, HTTPS redirect, deep links, private bucket, CORS checked; live suite 38/38 with the CloudFront origin; browser sign-in/CRUD/reload/sign-out on the public URL (`docs/testing/TESTING.md`) |
 | AWS tests | live suite 38/38 (`evidence/tests/live-api-tests.json`); browser test (sign-up, sign-in, CRUD, reload, isolation, sign-out, token storage); CloudWatch logs/Insights/alarm metrics (`evidence/aws/cloudwatch.txt`); benchmark 500/500 (`evidence/benchmarks/aws-dev-eu-north-1.json`) |
 | Static checks | ruff, mypy strict, eslint, tsc, pip-audit, npm audit — clean |
 | CI | `.github/workflows/ci.yml` (now also runs the plain `sam validate`) |
-| Docs | all documents updated with the AWS results (2026-11-17) |
+| Docs | all documents updated with the AWS results (2026-11-17); stale "not deployed" statements removed (README, SECURITY, REQUIREMENTS, frontend README) |
+| Thesis | semestral report **draft** `docs/thesis/SEMESTRAL_REPORT.md` (+ DOCX review copy), requirements matrix, author review list, supervisor summary, demo script (2026-11-17; AI-assisted, author review pending) |
 | Cost | Stockholm unit prices from the AWS Price List API; account pre-flight in `evidence/builds/aws-account-preflight.md` |
 
 ## Deployed resources (eu-north-1)
 
-Stack `serverless-notes-dev`: REST API `serverless-notes-dev-api` (stage `dev`), 5 Lambda functions `serverless-notes-dev-*-note(s)`, table `serverless-notes-dev-notes`, user pool `serverless-notes-dev-users` with hosted domain `serverless-notes-dev-<account-id>`, web and read-only test clients, 5 log groups (14 days), 4 alarms. Plus the SAM artifact stack `aws-sam-cli-managed-default` (one S3 bucket) and the hosting stack `serverless-notes-dev-web` (private S3 bucket, CloudFront distribution `E8D7IG63UT1JB`, Origin Access Control, response-headers policy). The API's `AllowedOrigin` is the CloudFront URL; Cognito callback/logout URLs list both localhost and CloudFront; `npm run dev:aws` reaches the API through the Vite proxy. After the tests the pool has no users and the table no notes. `frontend/.env.aws` (git-ignored) points the app at this stack.
+Stack `serverless-notes-dev`: REST API `serverless-notes-dev-api` (stage `dev`), 5 Lambda functions `serverless-notes-dev-*-note(s)`, table `serverless-notes-dev-notes`, user pool `serverless-notes-dev-users` with hosted domain `serverless-notes-dev-<account-id>`, web and read-only test clients, 5 log groups (14 days), 4 alarms. Plus the SAM artifact stack `aws-sam-cli-managed-default` (one S3 bucket) and the hosting stack `serverless-notes-dev-web` (private S3 bucket, CloudFront distribution `E8D7IG63UT1JB`, Origin Access Control, response-headers policy). The API's `AllowedOrigin` is the CloudFront URL; Cognito callback/logout URLs list both localhost and CloudFront; `npm run dev:aws` reaches the API through the Vite proxy. The pool contains the owner's real account (test users were deleted after each run). `frontend/.env.aws` (git-ignored) points the app at this stack.
 
 Expected cost: about $0.90 per month for the alarm metrics at list price (possibly free under CloudWatch's always-free allowance) plus fractions of a cent per thousand requests; covered by the account's Free-plan credits. `make destroy` removes the stack.
 
 ## Pending
 
-1. Repeat the real-mailbox check on the public URL (sign-in, CRUD, sign-out). The owner reported on 2026-11-17 that registration with a real mailbox, the e-mailed code, sign-in, password reset and CRUD worked in `npm run dev:aws` (manual; no evidence file).
-2. Compare the cost estimate with Cost Explorer after a few days.
-3. Optional: GitHub OIDC roles + environment for `.github/workflows/deploy.yml` (API job and frontend job); raise the stage throttle for real use (see "Known gaps").
+1. Author: review, verify and adopt the report draft (`docs/thesis/AUTHOR_REVIEW.md`); take real console screenshots; agree the AI-use statement with the supervisor.
+2. Compare the cost estimate with Cost Explorer after a few days (Free plan credits USD 158.72 on 2026-11-17).
+3. Bachelor-stage evaluation: concurrent load test, expired/foreign-issuer token tests, alarm notification (`docs/thesis/REQUIREMENTS_MATRIX.md` section B).
+4. Optional: GitHub OIDC roles + environment for `.github/workflows/deploy.yml` (API job and frontend job); raise the stage throttle for real use (see "Known gaps").
 
 ## Important decisions
 
@@ -46,10 +48,11 @@ None open. Fixed during deployment (2026-11-16/17): SAM transform rejected `Auth
 ## Known gaps (not bugs)
 
 - Measured API Gateway behaviour that cannot be changed in the template: unknown route *with* an `Authorization` header → 403 `BAD_REQUEST` (404 without); bodies over 10 MB → plain-text 413 without CORS; stage throttling is approximate and can keep throttling a method for minutes after a burst (`docs/performance/PERFORMANCE.md`).
-- Not verified: entering a real e-mailed code, password reset against real Cognito, expired-token and wrong-issuer cases, alarm notifications, `destroy.sh`, the GitHub deploy workflow.
+- Real mailbox, e-mailed code, password reset and CRUD on the public site: checked manually by the owner on 2026-11-17 (no evidence file).
+- Not verified: expired-token and wrong-issuer cases, alarm notifications, `destroy.sh`, the GitHub deploy workflow.
 - No account-deletion screen; the hosted site uses the default `*.cloudfront.net` certificate (no custom domain); per-user rate limiting, MFA, WAF not included.
 - Chromium only; no manual screen-reader review.
 
 ## Exact next action
 
-Owner: sign in on https://d11c0a7q5fx9qi.cloudfront.net with the real account (step 1 above); review and merge the pull request; decide whether to keep both stacks running (`scripts/cleanup/destroy_hosting.sh`, `make destroy`).
+Owner: review the thesis-documentation pull request and work through `docs/thesis/AUTHOR_REVIEW.md`; decide whether to keep both stacks running (`scripts/cleanup/destroy_hosting.sh`, `make destroy`).
