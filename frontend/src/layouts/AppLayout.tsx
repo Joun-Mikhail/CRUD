@@ -1,4 +1,4 @@
-import { LayoutDashboard, LogOut, Menu, Network, Settings, StickyNote, Terminal, X } from 'lucide-react'
+import { FlaskConical, LayoutDashboard, LogOut, Menu, Network, Settings, StickyNote, Terminal, X } from 'lucide-react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router'
 import { Logo } from '../components/Logo'
@@ -10,6 +10,7 @@ import { cx } from '../utils/cx'
 const NAV = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/notes', label: 'Notes', icon: StickyNote, end: false },
+  { to: '/lab', label: 'LabProof', icon: FlaskConical, end: false },
   { to: '/architecture', label: 'Architecture', icon: Network, end: false },
   { to: '/api-explorer', label: 'API explorer', icon: Terminal, end: false },
   { to: '/settings', label: 'Settings', icon: Settings, end: false },
@@ -180,9 +181,12 @@ export function AppLayout() {
       >
         Skip to content
       </a>
-      <DemoBanner />
+      {/* print:hidden — printing a lab report prints only the report, not the app chrome. */}
+      <div className="print:hidden">
+        <DemoBanner />
+      </div>
       <div className="flex min-h-0 flex-1">
-        <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-line bg-surface p-3 lg:flex">
+        <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-line bg-surface p-3 lg:flex print:hidden">
           <div className="mb-5 px-1.5 pt-1.5">
             <Logo />
           </div>
@@ -194,7 +198,7 @@ export function AppLayout() {
           </p>
         </aside>
         <div className="flex min-w-0 flex-1 flex-col">
-          <div className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-line bg-canvas/90 px-4 backdrop-blur sm:px-6">
+          <div className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-line bg-canvas/90 px-4 backdrop-blur sm:px-6 print:hidden">
             <Button
               variant="ghost"
               size="sm"
@@ -213,7 +217,7 @@ export function AppLayout() {
               <AccountMenu />
             </div>
           </div>
-          <main id="main" ref={main} tabIndex={-1} className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
+          <main id="main" ref={main} tabIndex={-1} className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-8 print:max-w-none print:p-0">
             <Outlet />
           </main>
         </div>

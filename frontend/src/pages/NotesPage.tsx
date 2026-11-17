@@ -1,7 +1,7 @@
 import { LayoutGrid, List, Plus, Search, StickyNote, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
-import { filterAndSort, SORT_LABELS, type NoteSort } from '../components/notes/noteHelpers'
+import { filterAndSort, noteExcerpt, noteLink, SORT_LABELS, type NoteSort } from '../components/notes/noteHelpers'
 import { Button } from '../components/ui/Button'
 import { buttonClasses } from '../components/ui/buttonStyles'
 import { Card } from '../components/ui/Card'
@@ -18,7 +18,7 @@ import { PageHeader } from '../layouts/AppLayout'
 import type { Note } from '../types/api'
 import { cx } from '../utils/cx'
 import { summarizeError } from '../utils/errors'
-import { excerpt, formatRelative, pluralize } from '../utils/format'
+import { formatRelative, pluralize } from '../utils/format'
 
 type View = 'list' | 'cards'
 const VIEW_KEY = 'sn.notes.view'
@@ -44,12 +44,12 @@ function NoteRow({ note, view, onDelete }: { note: Note; view: View; onDelete: (
       <div className="min-w-0 flex-1">
         <h2 className="truncate text-sm font-medium text-fg">
           {/* The stretched link makes the whole row clickable while keeping one tab stop. */}
-          <Link to={`/notes/${note.noteId}`} className="after:absolute after:inset-0">
+          <Link to={noteLink(note)} className="after:absolute after:inset-0">
             {note.title}
           </Link>
         </h2>
         <p className={cx('mt-0.5 text-sm text-muted', view === 'cards' ? 'line-clamp-3 min-h-15' : 'truncate')}>
-          {excerpt(note.content, view === 'cards' ? 220 : 120) || 'No content'}
+          {noteExcerpt(note, view === 'cards' ? 220 : 120) || 'No content'}
         </p>
       </div>
       <div className={cx('flex shrink-0 items-center gap-2', view === 'cards' && 'justify-between')}>

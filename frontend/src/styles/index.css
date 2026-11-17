@@ -9,19 +9,23 @@
    --------------------------------------------------------------------------- */
 :root {
   color-scheme: light;
-  --canvas: #f6f7f7;
+  /* LabProof palette: navy ink, electric-blue accent, restrained violet highlight. */
+  --canvas: #f4f6fb;
   --surface: #ffffff;
-  --subtle: #eff1f1;
-  --line: #e1e5e4;
-  --line-strong: #c5cccb;
-  --fg: #131918;
-  --muted: #55605f;
-  --faint: #667170;
-  --accent: #0f766e;
-  --accent-hover: #0b5f59;
+  --subtle: #edf1f8;
+  --line: #dfe4ee;
+  --line-strong: #c2cadb;
+  --fg: #0d1630;
+  --muted: #4b5675;
+  --faint: #5d6886;
+  --accent: #1d4ed8;
+  --accent-hover: #1e40af;
   --accent-fg: #ffffff;
-  --accent-soft: #e3f3f0;
-  --accent-ink: #0a5b55;
+  --accent-soft: #e6edff;
+  --accent-ink: #1e3a9e;
+  --violet: #6d28d9;
+  --violet-soft: #f0eaff;
+  --violet-ink: #5b21b6;
   --danger: #b42318;
   --danger-hover: #912018;
   --danger-fg: #ffffff;
@@ -31,36 +35,42 @@
   --warning-ink: #7a4d00;
   --success-soft: #e4f5ea;
   --success-ink: #17663d;
-  --overlay: rgb(15 23 22 / 0.45);
-  --shadow-color: 180 12% 12%;
+  --overlay: rgb(8 14 34 / 0.5);
+  --shadow-color: 225 40% 15%;
 }
 
-.dark {
-  color-scheme: dark;
-  --canvas: #0b0e0e;
-  --surface: #131717;
-  --subtle: #1a1f1f;
-  --line: #252b2b;
-  --line-strong: #3a4342;
-  --fg: #e8edec;
-  --muted: #a5b0af;
-  --faint: #8d9998;
-  --accent: #2dd4bf;
-  --accent-hover: #5eead4;
-  --accent-fg: #03201c;
-  --accent-soft: #0e2b28;
-  --accent-ink: #5eead4;
-  --danger: #f97066;
-  --danger-hover: #fda29b;
-  --danger-fg: #2b0906;
-  --danger-soft: #34130f;
-  --danger-ink: #fda29b;
-  --warning-soft: #2e2509;
-  --warning-ink: #f5c451;
-  --success-soft: #0f2a1a;
-  --success-ink: #6ee7a0;
-  --overlay: rgb(0 0 0 / 0.6);
-  --shadow-color: 180 30% 2%;
+/* Screen only: a report printed from the dark theme still comes out dark-on-white. */
+@media screen {
+  .dark {
+    color-scheme: dark;
+    --canvas: #070c1c;
+    --surface: #0d1529;
+    --subtle: #131c35;
+    --line: #1d2844;
+    --line-strong: #34426a;
+    --fg: #e7ecf8;
+    --muted: #a4aeca;
+    --faint: #8e99b8;
+    --accent: #5b8cff;
+    --accent-hover: #86a8ff;
+    --accent-fg: #04102b;
+    --accent-soft: #14214a;
+    --accent-ink: #9db8ff;
+    --violet: #a78bfa;
+    --violet-soft: #241a47;
+    --violet-ink: #c4b0ff;
+    --danger: #f97066;
+    --danger-hover: #fda29b;
+    --danger-fg: #2b0906;
+    --danger-soft: #34130f;
+    --danger-ink: #fda29b;
+    --warning-soft: #2e2509;
+    --warning-ink: #f5c451;
+    --success-soft: #0f2a1a;
+    --success-ink: #6ee7a0;
+    --overlay: rgb(0 0 0 / 0.6);
+    --shadow-color: 228 50% 3%;
+  }
 }
 
 @theme inline {
@@ -77,6 +87,14 @@
   --color-accent-fg: var(--accent-fg);
   --color-accent-soft: var(--accent-soft);
   --color-accent-ink: var(--accent-ink);
+  --color-violet: var(--violet);
+  --color-violet-soft: var(--violet-soft);
+  --color-violet-ink: var(--violet-ink);
+  /* Fixed brand colours for the LabProof banner (same in both themes). */
+  --color-navy: #0b1638;
+  --color-navy-2: #142a6b;
+  --color-electric: #1d4ed8;
+  --color-hero-violet: #7c3aed;
   --color-danger: var(--danger);
   --color-danger-hover: var(--danger-hover);
   --color-danger-fg: var(--danger-fg);
@@ -171,5 +189,14 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  @page {
+    margin: 16mm 14mm;
+  }
+  body {
+    background: #ffffff;
   }
 }
