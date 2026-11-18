@@ -10,6 +10,7 @@ import {
   TEXT_LIMITS,
   todayIso,
   toNoteInput,
+  toPlainDecimal,
   validateDetails,
   type LabExperiment,
 } from './experimentFormat'
@@ -59,6 +60,33 @@ describe('toNoteInput / fromNote (save and reopen)', () => {
     expect(validateNote(input.title, input.content)).toEqual({})
   })
 
+  it('reopens very small values as plain decimals, not as "1e-7" (regression)', () => {
+    const tiny: LabExperiment = {
+      ...EXPERIMENT,
+      nominalOhms: '0.0000005',
+      readings: [
+        { voltage: '0.0000001', currentMa: '0.2' },
+        { voltage: '0.0000002', currentMa: '0.4' },
+        { voltage: '0.0000003', currentMa: '0.6' },
+      ],
+    }
+    const input = toNoteInput(tiny)
+    if (!input) throw new Error('expected a valid input')
+    const reopened = fromNote(input)
+    expect(reopened?.nominalOhms).toBe('0.0000005')
+    expect(reopened?.readings[0]).toEqual({ voltage: '0.0000001', currentMa: '0.2' })
+    // …and the reopened experiment can be saved again unchanged.
+    expect(reopened && toNoteInput(reopened)?.content).toBe(input.content)
+    expect(toPlainDecimal(4.6)).toBe('4.6')
+    expect(toPlainDecimal(1e-7)).toBe('0.0000001')
+  })
+
+  it('never writes null for a number: every stored value is finite', () => {
+    const input = toNoteInput(EXPERIMENT)
+    expect(input?.content).not.toMatch(/null|Infinity|NaN/)
+    expect(toNoteInput({ ...EXPERIMENT, nominalOhms: '9'.repeat(400) })).toBeNull()
+  })
+
   it('refuses to serialise invalid measurements', () => {
     expect(toNoteInput({ ...EXPERIMENT, readings: [{ voltage: '1', currentMa: '0' }] })).toBeNull()
   })
@@ -95,6 +123,10 @@ describe('fromNote keeps old and foreign notes compatible', () => {
     const first = stored.readings[0]
     if (first) first.currentMa = 0
     expect(fromNote({ title: 't', content: JSON.stringify(stored) })).toBeNull()
+    // JSON.parse turns 1e400 into Infinity; such data must not be accepted either.
+    const overflowing = input.content.replace('"nominalOhms": 220', '"nominalOhms": 1e400')
+    expect(overflowing).not.toBe(input.content)
+    expect(fromNote({ title: 't', content: overflowing })).toBeNull()
     const badTolerance = { ...JSON.parse(input.content), tolerancePercent: 3 }
     expect(fromNote({ title: 't', content: JSON.stringify(badTolerance) })).toBeNull()
   })

@@ -20,7 +20,7 @@ import {
   validateDetails,
   type LabExperiment,
 } from '../../lab/experimentFormat'
-import { evaluateExperiment, EXAMPLE_INPUT, TOLERANCE_OPTIONS } from '../../lab/ohmsLaw'
+import { evaluateExperiment, EXAMPLE_INPUT, matchesExample, TOLERANCE_OPTIONS } from '../../lab/ohmsLaw'
 import { ReadingsTable } from '../../lab/ReadingsTable'
 import { ResultSummary } from '../../lab/ResultSummary'
 import { useExperimentNote } from '../../lab/useExperimentNote'
@@ -244,7 +244,7 @@ function ExperimentForm({
                 icon={<FlaskConical aria-hidden="true" className="size-4" />}
                 onClick={() => setExp((current) => ({ ...current, ...EXAMPLE_INPUT, readings: [...EXAMPLE_INPUT.readings] }))}
               >
-                Fill example readings
+                Fill illustrative example
               </Button>
             ) : null}
             {saved && !dirty ? (
@@ -373,6 +373,13 @@ function ExperimentForm({
           </Section>
 
           <Section n={3} title="Measurements">
+            {matchesExample(exp) ? (
+              <p data-testid="example-notice" className="mb-3 rounded-lg bg-warning-soft px-4 py-3 text-sm text-warning-ink">
+                <strong className="font-semibold">Illustrative example data.</strong> These values are invented to
+                demonstrate LabProof; they are not laboratory measurements. Replace them with your own readings before you
+                use the report.
+              </p>
+            ) : null}
             <ReadingsTable
               rows={exp.readings}
               rowErrors={submitted ? errors.readings : []}
@@ -430,7 +437,7 @@ function ExperimentForm({
 
           {saveError ? (
             <p role="alert" className="rounded-lg bg-danger-soft px-4 py-3 text-sm text-danger-ink">
-              Could not save: {summarizeError(saveError).message}
+              Could not save: {summarizeError(saveError).message} Your entries are still here, so you can try again.
             </p>
           ) : null}
           <div className="flex flex-wrap items-center gap-3">

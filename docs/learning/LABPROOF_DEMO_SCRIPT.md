@@ -14,7 +14,7 @@ Say at the start: *"This is the Local Demo: the real Lambda handler code with an
 | 3:30 | Write a one-line conclusion → **Save experiment**. In the network tab show `POST /notes` → 201. | "An experiment is a note: the title is the title, the content is versioned JSON with only the inputs." |
 | 4:15 | **Reload the page** (F5). | "Everything comes back from the API: `GET /notes/{id}`, and the results are recomputed." |
 | 4:45 | Change one reading → **Save changes** → show `PUT` with `version`. | "Optimistic locking: a stale version gives 409 instead of overwriting." (Optional: show the two-tab conflict.) |
-| 5:30 | **Lab report** → **Print / Save as PDF** → show the print preview. | "Browser print with print CSS: navigation hidden, table, calculations with the actual sums, graph, conclusion. No PDF library, no server." |
+| 5:30 | **Lab report** → **Print / Save as PDF** → show the print preview. (If observations are empty, a warning appears first → **Print anyway**.) | "Browser print with print CSS: navigation hidden, table, calculations with the actual sums, graph, conclusion. No PDF library, no server. The method is worded as the standard procedure, and the student is responsible for the data and the conclusion." |
 | 6:30 | Settings → switch to **Bob** → LabProof shows *No experiments yet*. Paste Alice's experiment URL. | "Isolation is enforced by the backend: 403, 'belongs to another account'." |
 | 7:15 | Switch back to Alice → open the experiment → **Delete** → confirm. | "`DELETE /notes/{id}` → 200, as in the thesis." |
 | 7:45 | Terminal: `npx vitest run src/lab src/pages/lab` | "Calculations, format and screens are covered by automated tests; Playwright runs the whole journey." |

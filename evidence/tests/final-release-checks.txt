@@ -1,0 +1,50 @@
+# Final release checks — 2026-11-18 (branch fix/labproof-final-release)
+# Local results are from this Windows workstation (Local Demo = real handlers + moto DynamoDB).
+# AWS results are READ-ONLY checks; no LabProof data was written to AWS by these checks.
+
+## Frontend (local): npm run typecheck / lint / vitest run / build / playwright --project=chromium
+== typecheck
+typecheck OK
+== lint
+lint OK
+== vitest
+ Test Files  7 passed (7)
+      Tests  118 passed (118)
+== build
+dist/assets/index-DTcI97FZ.js   466.78 kB │ gzip: 142.79 kB
+
+✓ built in 727ms
+== playwright
+[13/17] [chromium] › tests\e2e\notes.spec.ts:126:1 › architecture explorer works with the keyboard
+[14/17] [chromium] › tests\e2e\notes.spec.ts:144:3 › no horizontal overflow at 375px
+[15/17] [chromium] › tests\e2e\notes.spec.ts:144:3 › no horizontal overflow at 768px
+[16/17] [chromium] › tests\e2e\notes.spec.ts:144:3 › no horizontal overflow at 1280px
+[17/17] [chromium] › tests\e2e\notes.spec.ts:144:3 › no horizontal overflow at 1920px
+  17 passed (51.3s)
+
+## Backend (local, moto): .venv/Scripts/python.exe -m pytest -q
+193 passed in 22.18s
+
+## AWS read-only checks (eu-north-1, profile thesis-dev#)
+sts get-caller-identity: arn:aws:sts::<account>:assumed-role/AccountFullAccessRole/<session>
+serverless-notes-dev	UPDATE_COMPLETE	2026-11-17T15:02:41.702000+00:00
+serverless-notes-dev-web	CREATE_COMPLETE	2026-11-17T14:58:37.401000+00:00
+serverless-notes-dev-api-5xx	OK
+serverless-notes-dev-api-latency-p95	OK
+serverless-notes-dev-dynamodb-throttles	OK
+serverless-notes-dev-lambda-errors	OK
+Cognito web client: CallbackURLs = http://localhost:5173/auth/callback, https://d11c0a7q5fx9qi.cloudfront.net/auth/callback; flows = code; scopes = email notes/read notes/write openid
+GET <api>/notes without a token -> HTTP 401
+
+## Live site (CloudFront) deep links
+/ -> 200 text/html
+/lab -> 200 text/html
+/lab/new -> 200 text/html
+/lab/33333333-3333-4333-8333-333333333333 -> 200 text/html
+/lab/33333333-3333-4333-8333-333333333333/report -> 200 text/html
+/notes -> 200 text/html
+/auth/callback -> 200 text/html
+Live bundle: VITE_APP_MODE=aws; contains 'LabProof' and the PR #12 texts ('Resistance R (Ω)', 'not immune to'); does not yet contain this branch's texts ('Fill illustrative example', 'Print anyway').
+
+## NOT executed
+LabProof journey against real Cognito/API Gateway/Lambda/DynamoDB: requires the owner's sign-in; manual steps in docs/FINAL_PROJECT_STATUS.md.

@@ -29,9 +29,15 @@ export function LabHero({
           ))}
         </svg>
       </div>
-      <p className="relative text-xs font-semibold tracking-widest text-blue-100 uppercase">LabProof Lite</p>
+      <p className="relative text-xs font-semibold tracking-widest text-blue-100 uppercase">
+        LabProof Lite · Engineering lab module
+      </p>
       <Heading className="relative mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">{title}</Heading>
       <p className="relative mt-2 max-w-xl text-sm text-blue-100">{text}</p>
+      <p className="relative mt-2 max-w-xl text-xs text-blue-100">
+        Part of Serverless Notes, the bachelor’s thesis system: every experiment is saved as a private note through the
+        same authenticated API.
+      </p>
       {action ? <div className="relative mt-5 flex flex-wrap gap-2">{action}</div> : null}
     </section>
   )

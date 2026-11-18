@@ -52,6 +52,14 @@ test('LabProof: create, reopen, edit, report and delete an experiment', async ({
   await expect(report.getByRole('row')).toHaveCount(5)
   await expect(report).toContainText('Ohm’s law holds.')
   await expect(report.getByRole('img', { name: /4 measured points/ })).toBeVisible()
+  // No observations were written, so printing first shows a non-blocking warning.
+  await page.evaluate(() => {
+    window.print = () => document.body.setAttribute('data-printed', 'yes')
+  })
+  await page.getByRole('button', { name: 'Print / Save as PDF' }).click()
+  await expect(page.getByRole('alert')).toContainText('This report has no observations yet.')
+  await page.getByRole('button', { name: 'Print anyway' }).click()
+  await expect(page.locator('body')).toHaveAttribute('data-printed', 'yes')
   // Print CSS hides the app navigation and the toolbar.
   await page.emulateMedia({ media: 'print' })
   await expect(page.getByRole('navigation', { name: 'Main' })).toBeHidden()
@@ -70,7 +78,7 @@ test('LabProof: create, reopen, edit, report and delete an experiment', async ({
 test('LabProof experiments stay private to their owner', async ({ page }) => {
   await signInAs(page, 'Alice')
   await page.goto('/lab/new')
-  await page.getByRole('button', { name: 'Fill example readings' }).click()
+  await page.getByRole('button', { name: 'Fill illustrative example' }).click()
   await page.getByLabel('Experiment title').fill('Alice private experiment')
   await page.getByLabel('Course').fill('Physics')
   await page.getByRole('button', { name: 'Save experiment' }).click()
@@ -89,7 +97,7 @@ test('the LabProof editor and report fit a phone screen', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 800 })
   await signInAs(page, 'Alice')
   await page.goto('/lab/new')
-  await page.getByRole('button', { name: 'Fill example readings' }).click()
+  await page.getByRole('button', { name: 'Fill illustrative example' }).click()
   await expect(page.getByTestId('lab-verdict')).toContainText('PASS')
   await expectNoHorizontalOverflow(page)
   await page.getByLabel('Experiment title').fill('Phone check')

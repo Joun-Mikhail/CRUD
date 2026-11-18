@@ -59,6 +59,6 @@ csp.ts                      builds the Content-Security-Policy injected into ind
 
 ## Verification
 
-LabProof Lite (Ohm's law experiments stored as versioned JSON notes, printable report): 106 unit/component tests and 17 browser tests pass on branch `feature/labproof-lite-ohms-law` against the Local Demo (`evidence/tests/labproof-frontend-*.txt`); not yet exercised against AWS. Guide: `docs/learning/LABPROOF_FOR_BEGINNERS.md`.
+LabProof Lite (Ohm's law experiments stored as versioned JSON notes, printable report): the original LabProof run recorded 106 unit/component tests and 17 browser tests against the Local Demo (`evidence/tests/labproof-frontend-*.txt`); the final-release figures are in `docs/FINAL_PROJECT_STATUS.md`. The LabProof screens have not been exercised against AWS by an automated test. Run browser tests with `npx playwright test --project=chromium`: the `screenshots` project rewrites the tracked images in `evidence/screenshots/`. Guide: `docs/learning/LABPROOF_FOR_BEGINNERS.md`.
 
 Before LabProof: 66 unit/component tests and 14 browser tests (including an axe accessibility audit in both themes) pass against the Local Demo; the production build was smoke-tested under its CSP. AWS mode was tested in a real browser against the deployed stack and the public CloudFront site on 2026-11-17 (`docs/testing/TESTING.md`).
