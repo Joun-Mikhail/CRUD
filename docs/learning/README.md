@@ -19,6 +19,10 @@ Everything here runs **without AWS** (Local Demo + pytest). Set up once: `make s
 | 11 | [Security](11-security.md) | ownership, race conditions, least privilege, hygiene |
 | 12 | [Performance and cost](12-performance-and-cost.md) | latency, scaling, pay-per-use arithmetic |
 
+## Start here for the defence
+
+[Final project study guide](FINAL_PROJECT_STUDY_GUIDE.md): the whole project in twelve short topics, the files to study for each, and 15 likely supervisor questions. Current verification status: [`docs/FINAL_PROJECT_STATUS.md`](../FINAL_PROJECT_STATUS.md).
+
 ## LabProof Lite (frontend extension)
 
 | Document | Use it to |

@@ -31,6 +31,9 @@ If you edit the source, rebuild and look at the PDF: `uv run --no-project --with
 
 ## 3. Required before the defence
 
+- [ ] Study `docs/learning/FINAL_PROJECT_STUDY_GUIDE.md` (12 topics, 15 questions).
+- [ ] If you will show LabProof on the live site: merge the final-release PR, publish the site, and run the manual LabProof check in `docs/FINAL_PROJECT_STATUS.md` (about 10 minutes). Until then, call LabProof *verified locally*.
+
 - [ ] Explain without notes every table and figure of the bachelor's thesis: the list "Results you must be able to explain" in `docs/thesis/BACHELOR_AUTHOR_REVIEW.md`.
 - [ ] Rehearse the live demo: `docs/thesis/DEMO_SCRIPT.md` (Notes, 10 min) and, if you show it, `docs/learning/LABPROOF_DEMO_SCRIPT.md` (8 min). Start the demo with `make demo-backend` and `make demo-frontend`.
 - [ ] Practise the questions in `SUPERVISOR_QUESTIONS.md` and the ten questions at the end of `docs/learning/LABPROOF_FOR_BEGINNERS.md`.
@@ -89,4 +92,5 @@ Before sending: re-read the attachment, adjust the wording to your own voice, an
 3. `docs/thesis/export/BACHELOR_THESIS_REVIEW.pdf`, source `docs/thesis/BACHELOR_THESIS_DRAFT.md`
 4. `docs/thesis/FINAL_HANDOVER.md` (what is verified and what is not)
 5. `docs/thesis/DEMO_SCRIPT.md`, `SUPERVISOR_QUESTIONS.md`
-6. LabProof only if you will show it: `docs/learning/LABPROOF_FOR_BEGINNERS.md`
+6. `docs/FINAL_PROJECT_STATUS.md` and `docs/learning/FINAL_PROJECT_STUDY_GUIDE.md`
+7. LabProof only if you will show it: `docs/learning/LABPROOF_FOR_BEGINNERS.md`

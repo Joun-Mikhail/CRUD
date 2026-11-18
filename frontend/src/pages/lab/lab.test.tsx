@@ -199,7 +199,87 @@ describe('LabProof: printable report', () => {
     expect(screen.getByTestId('report-calculations')).toHaveTextContent('= 0.0 %')
     expect(within(report).getByRole('img', { name: /Graph of voltage against current/ })).toBeInTheDocument()
     expect(report).toHaveTextContent('Ohm’s law confirmed.')
+    // The method is described as the standard procedure, not as what the student did.
+    expect(report).toHaveTextContent('The standard procedure for this experiment')
+    expect(report).not.toHaveTextContent('were connected in series')
+    expect(report).toHaveTextContent('entered by the student, who is responsible for them')
+    expect(screen.queryByTestId('report-example-notice')).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Print / Save as PDF' }))
     expect(print).toHaveBeenCalledTimes(1)
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+
+  it('warns before printing an incomplete report, but still lets the student print', async () => {
+    const print = vi.spyOn(window, 'print').mockImplementation(() => undefined)
+    const unfinished = { ...SAVED, observations: '', conclusion: '' }
+    renderApp({ path: `/lab/${LAB_ID}/report`, notesApi: fakeNotesApi([labNote(unfinished)]) })
+    await screen.findByRole('article', { name: 'Laboratory report' })
+    await userEvent.click(screen.getByRole('button', { name: 'Print / Save as PDF' }))
+    expect(print).not.toHaveBeenCalled()
+    const warning = screen.getByRole('alert')
+    expect(warning).toHaveTextContent('This report has no observations or conclusion yet.')
+    expect(within(warning).getByRole('link', { name: 'Back to the experiment' })).toHaveAttribute('href', `/lab/${LAB_ID}`)
+    await userEvent.click(within(warning).getByRole('button', { name: 'Print anyway' }))
+    expect(print).toHaveBeenCalledTimes(1)
+  })
+
+  it('names only the missing part', async () => {
+    vi.spyOn(window, 'print').mockImplementation(() => undefined)
+    renderApp({ path: `/lab/${LAB_ID}/report`, notesApi: fakeNotesApi([labNote({ ...SAVED, conclusion: '' })]) })
+    await screen.findByRole('article', { name: 'Laboratory report' })
+    await userEvent.click(screen.getByRole('button', { name: 'Print / Save as PDF' }))
+    expect(screen.getByRole('alert')).toHaveTextContent('This report has no conclusion yet.')
+  })
+
+  it('marks the built-in example data as illustrative on the printed report', async () => {
+    const example: LabExperiment = {
+      ...SAVED,
+      nominalOhms: '220',
+      readings: [
+        { voltage: '1.0', currentMa: '4.6' },
+        { voltage: '2.0', currentMa: '9.1' },
+        { voltage: '3.0', currentMa: '13.5' },
+        { voltage: '4.0', currentMa: '18.3' },
+        { voltage: '5.0', currentMa: '22.6' },
+      ],
+    }
+    renderApp({ path: `/lab/${LAB_ID}/report`, notesApi: fakeNotesApi([labNote(example)]) })
+    expect(await screen.findByTestId('report-example-notice')).toHaveTextContent('not laboratory measurements')
+  })
+})
+
+describe('LabProof: illustrative example and failures', () => {
+  it('labels the example readings as illustrative in the editor', async () => {
+    renderApp({ path: '/lab/new' })
+    await screen.findByRole('heading', { name: 'New experiment', level: 1 })
+    expect(screen.queryByTestId('example-notice')).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Fill illustrative example' }))
+    expect(screen.getByTestId('example-notice')).toHaveTextContent('they are not laboratory measurements')
+    // Changing one value makes it the student's own data, and the notice disappears.
+    const current = screen.getByLabelText('Current, reading 1')
+    await userEvent.clear(current)
+    await userEvent.type(current, '4.5')
+    expect(screen.queryByTestId('example-notice')).not.toBeInTheDocument()
+  })
+
+  it('keeps the entries and explains when the API cannot be reached', async () => {
+    const api = fakeNotesApi()
+    api.create.mockRejectedValueOnce(
+      new ApiError({
+        kind: 'network',
+        status: 0,
+        code: 'NETWORK_ERROR',
+        message: 'The API could not be reached. Check your connection and that the backend is running.',
+        requestId: null,
+      }),
+    )
+    renderApp({ path: '/lab/new', notesApi: api })
+    await screen.findByRole('heading', { name: 'New experiment', level: 1 })
+    await fillNewExperiment()
+    await userEvent.click(screen.getByRole('button', { name: 'Save experiment' }))
+    expect(await screen.findByText(/Could not save: The API could not be reached/)).toHaveTextContent(
+      'Your entries are still here',
+    )
+    expect(screen.getByLabelText('Experiment title')).toHaveValue('My first lab')
   })
 })

@@ -64,7 +64,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.getByRole('button', { name: 'Save experiment' }).click()
     await expect(page.getByText('Enter an experiment title.')).toBeVisible()
     await expectNoViolations(page, 'lab editor with validation errors')
-    await page.getByRole('button', { name: 'Fill example readings' }).click()
+    await page.getByRole('button', { name: 'Fill illustrative example' }).click()
     await page.getByLabel('Experiment title').fill('Accessibility experiment')
     await page.getByLabel('Course').fill('Physics')
     await expect(page.getByTestId('lab-verdict')).toContainText('PASS')

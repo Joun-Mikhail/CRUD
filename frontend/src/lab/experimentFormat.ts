@@ -112,6 +112,18 @@ export function toNoteInput(exp: LabExperiment): { title: string; content: strin
 }
 
 const isString = (value: unknown): value is string => typeof value === 'string'
+
+/**
+ * A stored number back to the text the form expects. String(1e-7) is "1e-7", which the form's
+ * parser rejects (it accepts only plain decimals), so very small or large numbers are written
+ * out in full instead.
+ */
+export function toPlainDecimal(value: number): string {
+  const text = String(value)
+  if (!/e/i.test(text)) return text
+  return value.toLocaleString('en-US', { useGrouping: false, maximumSignificantDigits: 15 })
+}
+/** JSON.parse('1e400') is Infinity, so stored numbers are checked for finiteness too. */
 const isPositive = (value: unknown): value is number =>
   typeof value === 'number' && Number.isFinite(value) && value > 0
 
@@ -137,13 +149,13 @@ export function fromNote(note: Pick<Note, 'title' | 'content'>): LabExperiment |
   for (const row of d.readings as unknown[]) {
     const r = row as Record<string, unknown> | null
     if (!r || !isPositive(r.voltageV) || !isPositive(r.currentMa)) return null
-    readings.push({ voltage: String(r.voltageV), currentMa: String(r.currentMa) })
+    readings.push({ voltage: toPlainDecimal(r.voltageV), currentMa: toPlainDecimal(r.currentMa) })
   }
   return {
     title: note.title,
     course: d.course,
     date: d.date,
-    nominalOhms: String(d.nominalOhms),
+    nominalOhms: toPlainDecimal(d.nominalOhms),
     tolerancePercent: d.tolerancePercent as number,
     readings,
     observations: d.observations,

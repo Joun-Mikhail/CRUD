@@ -1,5 +1,5 @@
 import { ArrowLeft, Printer } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Link, useParams } from 'react-router'
 import { Button } from '../../components/ui/Button'
 import { buttonClasses } from '../../components/ui/buttonStyles'
@@ -8,7 +8,7 @@ import { Skeleton } from '../../components/ui/Skeleton'
 import { useAuth } from '../../hooks/useAuth'
 import { useDocumentTitle } from '../../hooks/useDocumentTitle'
 import { formatLabDate } from '../../lab/experimentFormat'
-import { evaluateExperiment, formatOhms, formatPercent, sig3 } from '../../lab/ohmsLaw'
+import { evaluateExperiment, formatOhms, formatPercent, matchesExample, sig3 } from '../../lab/ohmsLaw'
 import { ResultSummary } from '../../lab/ResultSummary'
 import { useExperimentNote } from '../../lab/useExperimentNote'
 import { VIChart } from '../../lab/VIChart'
@@ -35,6 +35,8 @@ export function LabReportPage() {
   const { noteId } = useParams()
   const load = useExperimentNote(noteId)
   const { user } = useAuth()
+  /** Missing parts shown before printing; null when no warning is open. */
+  const [missing, setMissing] = useState<string[] | null>(null)
   useDocumentTitle(load.status === 'ready' ? `Lab report — ${load.note.title}` : 'Lab report')
 
   const back = (
@@ -61,15 +63,49 @@ export function LabReportPage() {
   const result = evaluateExperiment(experiment).result
   if (!result) return <ErrorState error={null} title="The stored readings could not be evaluated" />
   const first = result.readings[0]
+  const isExample = matchesExample(experiment)
+
+  /** Prints straight away when the report is complete; otherwise first says what is missing. */
+  function requestPrint() {
+    const gaps = [
+      experiment.observations.trim() ? null : 'observations',
+      experiment.conclusion.trim() ? null : 'conclusion',
+    ].filter((gap): gap is string => gap !== null)
+    if (gaps.length === 0) window.print()
+    else setMissing(gaps)
+  }
 
   return (
     <>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3 print:hidden">
         {back}
-        <Button variant="primary" icon={<Printer aria-hidden="true" className="size-4" />} onClick={() => window.print()}>
+        <Button variant="primary" icon={<Printer aria-hidden="true" className="size-4" />} onClick={requestPrint}>
           Print / Save as PDF
         </Button>
       </div>
+      {missing ? (
+        <div role="alert" className="mb-4 rounded-lg bg-warning-soft p-4 text-sm text-warning-ink print:hidden">
+          <p className="font-medium">This report has no {missing.join(' or ')} yet.</p>
+          <p className="mt-1">
+            You can print it anyway, or go back to the experiment and write {missing.length > 1 ? 'them' : 'it'} in your
+            own words first. LabProof never writes conclusions for you.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              onClick={() => {
+                setMissing(null)
+                window.print()
+              }}
+            >
+              Print anyway
+            </Button>
+            <Link to={`/lab/${note.noteId}`} className={buttonClasses('secondary', 'sm')}>
+              Back to the experiment
+            </Link>
+          </div>
+        </div>
+      ) : null}
       <p className="mb-4 text-xs text-muted print:hidden">
         Tip: in the print dialog choose “Save as PDF” as the destination. Turn off “Headers and footers” for a cleaner
         page.
@@ -97,6 +133,16 @@ export function LabReportPage() {
           </dl>
         </header>
 
+        {isExample ? (
+          <p
+            data-testid="report-example-notice"
+            className="mt-4 rounded-md border border-warning-ink/40 bg-warning-soft px-3 py-2 text-xs text-warning-ink"
+          >
+            <strong>Illustrative data:</strong> the measurements below are LabProof’s built-in example values, not
+            laboratory measurements.
+          </p>
+        ) : null}
+
         <ReportSection n={1} title="Aim">
           <p>
             To verify Ohm’s law, V = I · R, for one resistor and to check whether its measured resistance agrees with
@@ -104,12 +150,17 @@ export function LabReportPage() {
           </p>
         </ReportSection>
 
-        <ReportSection n={2} title="Method">
+        <ReportSection n={2} title="Method (standard procedure)">
           <p>
-            An adjustable DC supply, an ammeter and the resistor were connected in series, with the voltmeter connected
-            in parallel directly across the resistor. Several voltages V were applied, keeping the power V · I below
-            the resistor’s rating, and the current I was read from the ammeter. For each reading the resistance was calculated as R = V / I, with the current converted from
+            The standard procedure for this experiment: an adjustable DC supply, an ammeter and the resistor are
+            connected in series, and a voltmeter is connected in parallel directly across the resistor. Several voltages
+            V are applied, keeping the power V · I below the resistor’s rating, and the current I is read from the
+            ammeter. For each reading the resistance is calculated as R = V / I, with the current converted from
             milliamperes to amperes: R = V / (I<sub>mA</sub> / 1000).
+          </p>
+          <p className="mt-2">
+            LabProof does not record how the measurements were actually taken. Any deviation from this procedure belongs
+            in the observations.
           </p>
         </ReportSection>
 
@@ -186,7 +237,9 @@ export function LabReportPage() {
         </ReportSection>
 
         <footer className="mt-8 border-t border-line pt-3 text-xs text-muted">
-          Generated with LabProof Lite from saved record {note.noteId} (version {note.version}, last updated{' '}
+          The measured values, observations and conclusion were entered by the student, who is responsible for them;
+          LabProof only calculates R, the mean, the best fit and the deviation, and does not write conclusions.
+          Generated with LabProof Lite (engineering lab module of Serverless Notes) from saved record {note.noteId} (version {note.version}, last updated{' '}
           {formatDateTime(note.updatedAt)}). Calculated values are recomputed from the stored readings.
         </footer>
       </article>
