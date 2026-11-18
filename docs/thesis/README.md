@@ -1,6 +1,6 @@
 # Thesis documents
 
-Start with [FINAL_HANDOVER.md](FINAL_HANDOVER.md) (status, what is verified, what blocks submission) and [TONIGHT_ACTIONS.md](TONIGHT_ACTIONS.md) (ordered checklist).
+Start with [FINAL_STUDENT_CHECKLIST.md](FINAL_STUDENT_CHECKLIST.md) (what is left for you and your supervisor, decisions, draft e-mail). Background: [FINAL_HANDOVER.md](FINAL_HANDOVER.md) (status, what is verified, what blocks submission) and [TONIGHT_ACTIONS.md](TONIGHT_ACTIONS.md) (earlier ordered checklist).
 
 | File | Purpose |
 |---|---|

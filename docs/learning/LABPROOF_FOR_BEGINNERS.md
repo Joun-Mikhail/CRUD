@@ -50,9 +50,15 @@ Ohm's law: **V = I · R**. Apply several voltages to one resistor, measure the c
 | Deviation from the nominal value | δ = (R_fit − R_nom) / R_nom · 100 % | `computeResult → deviationPercent` |
 | Verdict | PASS if \|δ\| ≤ tolerance, otherwise CHECK | `computeResult → withinTolerance` |
 
+**What PASS means, and what it does not.** PASS says only that the fitted resistance R_fit agrees with the printed value within the stated tolerance. It does not prove Ohm's law in general. Linearity is judged separately from the graph: the points should lie close to a straight line through the origin. A non-linear component could still give a PASS for a narrow range of readings, and a perfectly linear resistor gives CHECK if its colour code was read wrongly.
+
 **Why divide by 1000?** A bench multimeter shows small currents in milliamperes. Ohm's law needs SI units: 4.6 mA = 0.0046 A, so R = 1.0 V / 0.0046 A ≈ 217 Ω.
 
+**Circuit and safety (shown in the editor under "How the experiment works").** Supply, ammeter and resistor in series; the voltmeter in parallel directly across the resistor, so it measures the voltage on the resistor only. Start at 0 V with a low current limit and the ammeter on its highest range. Keep the power P = V·I = V²/R well below the resistor's rating: a 0.25 W, 220 Ω resistor allows at most √(0.25 · 220) ≈ 7.4 V or √(0.25 / 220) ≈ 34 mA. The built-in example stays under 5 V / 23 mA (≈ 0.11 W). A hot resistor changes its value.
+
 **Why a best-fit slope as well as the mean?** The mean treats every reading equally. At low currents a ±0.1 mA meter error is a large relative error, so one bad low-current reading can pull the mean. The least-squares line V = R·I through (0, 0) weights readings by I², so the larger (relatively more accurate) readings count more. Minimising Σ(Vᵢ − R·Iᵢ)² and setting the derivative to zero gives exactly R = Σ(VᵢIᵢ)/Σ(Iᵢ²). The verdict uses R_fit. Both values are shown so the student can compare them.
+
+**Least squares is not immune to outliers.** Using all readings averages out small random errors, but one wrong reading still pulls the fit, because the error is squared. A wrong reading at a *high* current pulls hardest, because those readings carry the most weight. That is why the app shows the mean next to the fit and draws every point on the graph: a large gap between R̄ and R_fit, or a point far from the line, means "re-measure that reading", not "trust the fit".
 
 **Validation** (`evaluateExperiment`):
 - nominal resistance: required, a number > 0;
@@ -176,7 +182,7 @@ The palette is a **token swap** in `src/styles/index.css`: navy text (`--fg`), e
    R = V / I in SI units. The current is entered in mA, so I[A] = I[mA] / 1000.
 
 6. **Why least squares through the origin? Isn't the mean enough?**
-   Ohm's law predicts V = R·I with zero intercept. Minimising Σ(V − R·I)² gives R = ΣVI/ΣI². It uses all points together and reduces the weight of low-current readings, which have the largest relative error. The mean is shown too.
+   Ohm's law predicts V = R·I with zero intercept. Minimising Σ(V − R·I)² gives R = ΣVI/ΣI². It uses all points together and reduces the weight of low-current readings, which have the largest relative error. It is not immune to outliers: one wrong high-current reading can shift it noticeably, so the mean and the graph are shown too.
 
 7. **What happens with a zero or empty current?**
    Empty rows are ignored. A zero, negative or non-numeric current is rejected with a message on that row, because V/0 is undefined. The server never sees invalid measurements.

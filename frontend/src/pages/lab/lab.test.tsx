@@ -196,7 +196,7 @@ describe('LabProof: printable report', () => {
     expect(report).toHaveTextContent('Alice')
     expect(within(report).getAllByRole('row')).toHaveLength(4) // header + 3 readings
     expect(screen.getByTestId('report-calculations')).toHaveTextContent('R₁ = V₁ / (I₁ / 1000) = 1 V / (10 mA / 1000) = 100 Ω')
-    expect(screen.getByTestId('report-calculations')).toHaveTextContent('= ±0.0 %')
+    expect(screen.getByTestId('report-calculations')).toHaveTextContent('= 0.0 %')
     expect(within(report).getByRole('img', { name: /Graph of voltage against current/ })).toBeInTheDocument()
     expect(report).toHaveTextContent('Ohm’s law confirmed.')
     await userEvent.click(screen.getByRole('button', { name: 'Print / Save as PDF' }))

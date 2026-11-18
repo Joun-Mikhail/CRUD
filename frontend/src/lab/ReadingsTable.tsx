@@ -41,7 +41,7 @@ export function ReadingsTable({
                 Current I (mA)
               </th>
               <th scope="col" className="w-20 px-1.5 py-2 text-right font-medium sm:w-28">
-                R = V / I
+                Resistance R (Ω)
               </th>
               <th scope="col" className="w-11 py-2">
                 <span className="sr-only">Remove</span>
@@ -110,6 +110,10 @@ export function ReadingsTable({
           Up to {MAX_READINGS} readings. Empty rows are ignored. A decimal comma or point both work.
         </span>
       </div>
+      <p className="mt-2 text-xs text-muted">
+        Resistance R = V / I needs the current in amperes, so each row converts it first: I (A) = I (mA) / 1000. Example:
+        4.6 mA = 0.0046 A, so R = 1.0 V / 0.0046 A ≈ 217 Ω.
+      </p>
     </>
   )
 }
