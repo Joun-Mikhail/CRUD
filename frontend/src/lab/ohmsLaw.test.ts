@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { niceScale } from './chartScale'
-import { computeResult, evaluateExperiment, EXAMPLE_INPUT, formatOhms, formatPercent, parseDecimal } from './ohmsLaw'
+import {
+  computeResult,
+  evaluateExperiment,
+  EXAMPLE_INPUT,
+  formatOhms,
+  formatPercent,
+  OUT_OF_RANGE,
+  parseDecimal,
+} from './ohmsLaw'
 
 const rows = (...pairs: [string, string][]) => pairs.map(([voltage, currentMa]) => ({ voltage, currentMa }))
 
@@ -14,6 +22,13 @@ describe('parseDecimal', () => {
 
   it('rejects anything that is not a plain number', () => {
     for (const bad of ['', 'abc', '1.2.3', '1e3', '2 V', '0x10']) expect(parseDecimal(bad)).toBeNaN()
+  })
+
+  it('rejects Infinity, NaN and numbers too large for JavaScript (regression)', () => {
+    const overflow = '9'.repeat(400) // a valid-looking decimal that Number() turns into Infinity
+    for (const bad of ['Infinity', '-Infinity', 'NaN', overflow, `-${overflow}`, `${overflow},5`]) {
+      expect(parseDecimal(bad)).toBeNaN()
+    }
   })
 })
 
@@ -86,6 +101,57 @@ describe('evaluateExperiment', () => {
       'Voltage must be a number above 0.',
       undefined,
     ])
+  })
+})
+
+describe('evaluateExperiment never produces non-finite numbers (regression)', () => {
+  const finite = (r: NonNullable<ReturnType<typeof evaluateExperiment>['result']>) =>
+    [r.meanOhms, r.fittedOhms, r.sumVI, r.sumII, r.deviationPercent, ...r.readings.map((x) => x.resistance)].every(
+      Number.isFinite,
+    )
+
+  it('rejects an overflowing voltage or nominal value as an invalid number', () => {
+    const huge = '9'.repeat(400)
+    const { errors, result } = evaluateExperiment({
+      nominalOhms: huge,
+      tolerancePercent: 5,
+      readings: rows([huge, '1'], ['2', '2'], ['3', '3']),
+    })
+    expect(result).toBeNull()
+    expect(errors.nominalOhms).toBe('The nominal resistance must be a number above 0.')
+    expect(errors.readings[0]).toBe('Voltage must be a number above 0.')
+  })
+
+  it('rejects a reading whose resistance would overflow (huge V over a tiny I)', () => {
+    const { errors, result } = evaluateExperiment({
+      nominalOhms: '100',
+      tolerancePercent: 5,
+      readings: rows([`1${'0'.repeat(300)}`, `0.${'0'.repeat(20)}1`], ['2', '20'], ['3', '30']),
+    })
+    expect(result).toBeNull()
+    expect(errors.readings[0]).toBe(OUT_OF_RANGE)
+  })
+
+  it('rejects readings whose sums underflow, instead of dividing by zero', () => {
+    const tiny = `0.${'0'.repeat(199)}1` // I² underflows to 0 in floating point
+    const { errors, result } = evaluateExperiment({
+      nominalOhms: '100',
+      tolerancePercent: 5,
+      readings: rows([`0.${'0'.repeat(199)}1`, tiny], [`0.${'0'.repeat(199)}2`, tiny], [`0.${'0'.repeat(199)}3`, tiny]),
+    })
+    expect(result).toBeNull()
+    expect(errors.table).toBe(OUT_OF_RANGE)
+  })
+
+  it('keeps every value finite for ordinary and extreme-but-valid readings', () => {
+    const ordinary = evaluateExperiment(EXAMPLE_INPUT).result
+    const extreme = evaluateExperiment({
+      nominalOhms: '0.001',
+      tolerancePercent: 10,
+      readings: rows(['0.000001', '1000'], ['0.000002', '2000'], ['0.000003', '3000']),
+    }).result
+    expect(ordinary && finite(ordinary)).toBe(true)
+    expect(extreme && finite(extreme)).toBe(true)
   })
 })
 

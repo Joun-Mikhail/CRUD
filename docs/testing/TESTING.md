@@ -15,6 +15,7 @@ Local results were last produced on 2026-11-17 on Windows 11 (Python 3.13.17, No
 | Frontend dependency audit | `npm audit --omit=dev` | 0 vulnerabilities | same |
 | Browser end-to-end | `npm run test:e2e -- --trace off` | **14 passed** (Chromium, Local Demo), including the axe accessibility audit | `evidence/tests/frontend-e2e-playwright.txt` |
 | LabProof Lite — frontend unit/component tests (branch `feature/labproof-lite-ohms-law`) | `cd frontend && npx vitest run` | **106 passed** (7 files; 40 new for LabProof) — local only | `evidence/tests/labproof-frontend-vitest.txt` |
+| Final release (branch `fix/labproof-final-release`, 2026-11-18) | typecheck, lint, `vitest run`, build, `playwright --project=chromium`, backend `pytest` | **118 + 17 + 193 passed** (local / Local Demo); AWS: read-only checks only (stacks, alarms, Cognito callbacks, 401 without token, CloudFront deep links) | `evidence/tests/final-release-checks.txt` |
 | LabProof Lite — browser end-to-end | `npx playwright test --project=chromium --trace off` | **17 passed** (Chromium, **Local Demo**, not AWS): full experiment journey, isolation, phone width, axe audit of the lab pages in both themes | `evidence/tests/labproof-frontend-e2e.txt` |
 | Production build | `npm run build` | passes; JS 131.9 kB gzip | `evidence/builds/frontend-build.txt` |
 | Production build smoke | built app served by `vite preview`, driven by Playwright through 6 pages | no console/CSP errors | (manual run, not stored) |

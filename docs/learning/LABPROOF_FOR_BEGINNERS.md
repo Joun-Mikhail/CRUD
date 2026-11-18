@@ -63,6 +63,7 @@ Ohm's law: **V = I · R**. Apply several voltages to one resistor, measure the c
 **Validation** (`evaluateExperiment`):
 - nominal resistance: required, a number > 0;
 - each reading: voltage > 0 and current > 0. **A current of 0 is rejected because R = V/0 is undefined.** Text such as `abc`, `1e3` or `2 V` is rejected (`parseDecimal` accepts only plain numbers, with a decimal point or a decimal comma, because Czech keyboards type `1,5`);
+- **every number must be finite**: `parseDecimal` returns NaN for `Infinity`, `NaN` and digit strings too long for JavaScript (which `Number()` would turn into `Infinity`; `JSON.stringify(Infinity)` writes `null`). A reading whose R would overflow (huge V over a tiny I) is rejected on its row, and if the sums overflow or Σ(I²) underflows to 0 the table shows *"These values are too large or too small to calculate with"*. So nothing non-finite is ever shown, plotted or saved;
 - completely empty rows are ignored (spare rows are allowed);
 - at least **3** readings (one point cannot show a straight line) and at most **10**.
 
@@ -153,8 +154,11 @@ Nothing new. The lab pages live under the existing `RequireAuth` route guard. Ev
 
 ## 7. Printing / Save as PDF (`LabReportPage.tsx`)
 
-- `/lab/{id}/report` loads the saved note (not unsaved edits; the report link appears only when everything is saved) and renders a report: header (course, date, student, resistor), 1 Aim, 2 Method, 3 Measurements table (V, I in mA and A, R), 4 Calculations (one worked row, mean, best fit with the actual sums, deviation, PASS/CHECK), 5 Graph, 6 Observations, 7 Conclusion, and a footer with record ID and version.
+- `/lab/{id}/report` loads the saved note (not unsaved edits; the report link appears only when everything is saved) and renders a report: header (course, date, student, resistor), 1 Aim, 2 Method (standard procedure), 3 Measurements table (V, I in mA and A, R), 4 Calculations (one worked row, mean, best fit with the actual sums, deviation, PASS/CHECK), 5 Graph, 6 Observations, 7 Conclusion, and a footer with record ID and version.
 - **Print / Save as PDF** calls `window.print()`. The browser opens its print dialog; choosing "Save as PDF" creates the file. No PDF library and no server.
+- **Incomplete report warning:** observations and conclusion are optional when saving, so unfinished work can be saved. If either is empty when you press **Print / Save as PDF**, a warning names what is missing and offers **Print anyway** or **Back to the experiment**. LabProof never writes a conclusion for you.
+- **Honest wording:** section 2 is titled *Method (standard procedure)* and describes how the experiment is normally done ("are connected"), not what you did ("were connected"), because LabProof cannot know. The footer says the measured values, observations and conclusion were entered by the student, who is responsible for them.
+- **Illustrative example:** **Fill illustrative example** loads invented demonstration values (220 Ω). While the readings are exactly those values, the editor shows a yellow *Illustrative example data* notice and the report prints *Illustrative data: … not laboratory measurements* (`matchesExample()` in `ohmsLaw.ts`). Change any value and the notice disappears, because the data are then yours.
 - Print CSS: Tailwind's `print:` variant hides the sidebar, top bar, demo banner, toasts and buttons (`print:hidden`). The tables, result box and graph avoid page breaks (`break-inside-avoid`). `@page` sets A4-friendly margins. Dark-theme colours are declared for `@media screen` only, so a report printed while the dark theme is on still prints dark-on-white.
 - Tip for a clean PDF: in the print dialog, turn off "Headers and footers".
 
@@ -218,7 +222,7 @@ Bonus: **What is not verified?** The LabProof screens have not been run against 
 make demo-backend      # terminal 1 (Local Demo backend on :8787)
 make demo-frontend     # terminal 2 → http://localhost:5173
 ```
-Sign in as Alice → **LabProof** → **New experiment** → **Fill example readings**, enter a title and course → **Save experiment** → reload the page (the data comes back) → change a reading → **Save changes** → **Lab report** → **Print / Save as PDF** → back → **Delete**.
+Sign in as Alice → **LabProof** → **New experiment** → **Fill illustrative example**, enter a title and course → **Save experiment** → reload the page (the data comes back) → change a reading → **Save changes** → **Lab report** → **Print / Save as PDF** → back → **Delete**.
 
 Tests: `cd frontend && npm test` (unit/component), `npx playwright test --project=chromium --trace off tests/e2e/lab.spec.ts` (browser, Local Demo).
 

@@ -58,12 +58,21 @@ export const MIN_READINGS = 3
 export const MAX_READINGS = 10
 export const TOLERANCE_OPTIONS = [1, 2, 5, 10] as const
 
-/** Accepts "1.5" and the Czech/German style "1,5". Returns NaN for anything else. */
+/**
+ * Accepts "1.5" and the Czech/German style "1,5". Returns NaN for anything else, including
+ * "Infinity", "NaN", exponent notation ("1e3") and numbers too large for JavaScript (which
+ * would otherwise become Infinity, and JSON.stringify(Infinity) is null).
+ */
 export function parseDecimal(raw: string): number {
   const text = raw.trim().replace(',', '.')
   if (!/^[+-]?(\d+\.?\d*|\.\d+)$/.test(text)) return Number.NaN
-  return Number(text)
+  const value = Number(text)
+  return Number.isFinite(value) ? value : Number.NaN
 }
+
+/** Shown when the numbers are valid on their own but too extreme to calculate with. */
+export const OUT_OF_RANGE =
+  'These values are too large or too small to calculate with. Check the units: voltage in V, current in mA.'
 
 function isBlank(row: ReadingInput): boolean {
   return row.voltage.trim() === '' && row.currentMa.trim() === ''
@@ -94,7 +103,10 @@ export function evaluateExperiment(input: ExperimentInput): {
       // A current of 0 would mean dividing by zero when computing R = V / I.
       errors.readings[index] = 'Current must be a number above 0.'
     } else {
-      readings.push({ voltage, currentMa, resistance: voltage / (currentMa / 1000) })
+      const resistance = voltage / (currentMa / 1000)
+      // A huge voltage over a tiny current can overflow to Infinity even though both inputs are finite.
+      if (Number.isFinite(resistance)) readings.push({ voltage, currentMa, resistance })
+      else errors.readings[index] = OUT_OF_RANGE
     }
   })
 
@@ -104,7 +116,21 @@ export function evaluateExperiment(input: ExperimentInput): {
   }
 
   if (errors.nominalOhms || rowErrors || errors.table) return { errors, result: null }
-  return { errors, result: computeResult(nominalOhms, input.tolerancePercent, readings) }
+  const result = computeResult(nominalOhms, input.tolerancePercent, readings)
+  if (!isFiniteResult(result)) {
+    errors.table = OUT_OF_RANGE
+    return { errors, result: null }
+  }
+  return { errors, result }
+}
+
+/**
+ * Every number that is shown, saved or plotted must be finite. The sums can still overflow
+ * (or Σ(I²) can underflow to 0) for extreme inputs, so the whole result is checked once.
+ */
+function isFiniteResult(result: ExperimentResult): boolean {
+  const values = [result.meanOhms, result.fittedOhms, result.sumVI, result.sumII, result.deviationPercent]
+  return values.every(Number.isFinite) && result.sumII > 0 && result.fittedOhms > 0
 }
 
 export function computeResult(nominalOhms: number, tolerancePercent: number, readings: Reading[]): ExperimentResult {
@@ -151,7 +177,10 @@ export function formatPercent(value: number): string {
   return `${sign}${Math.abs(rounded).toFixed(1)} %`
 }
 
-/** Ready-made readings for a 220 Ω resistor, so the workflow can be shown in seconds. */
+/**
+ * Ready-made, ILLUSTRATIVE readings for a 220 Ω resistor, so the workflow can be shown in seconds.
+ * They are invented demonstration values, not laboratory measurements (see matchesExample).
+ */
 export const EXAMPLE_INPUT: ExperimentInput = {
   nominalOhms: '220',
   tolerancePercent: 5,
@@ -162,4 +191,17 @@ export const EXAMPLE_INPUT: ExperimentInput = {
     { voltage: '4.0', currentMa: '18.3' },
     { voltage: '5.0', currentMa: '22.6' },
   ],
+}
+
+/**
+ * True when the nominal value and the (non-empty) readings are exactly the illustrative example.
+ * The editor and the report then say so, so demonstration values cannot pass as real measurements.
+ */
+export function matchesExample(input: Pick<ExperimentInput, 'nominalOhms' | 'readings'>): boolean {
+  const numbers = (rows: ReadingInput[]) =>
+    rows.filter((row) => !isBlank(row)).map((row) => [parseDecimal(row.voltage), parseDecimal(row.currentMa)])
+  return (
+    parseDecimal(input.nominalOhms) === parseDecimal(EXAMPLE_INPUT.nominalOhms) &&
+    JSON.stringify(numbers(input.readings)) === JSON.stringify(numbers(EXAMPLE_INPUT.readings))
+  )
 }
