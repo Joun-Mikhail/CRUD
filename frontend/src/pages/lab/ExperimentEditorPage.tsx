@@ -286,7 +286,19 @@ function ExperimentForm({
           <details className="group rounded-lg border border-line bg-surface px-4 py-3 text-sm text-muted shadow-card sm:px-6">
             <summary className="font-medium text-fg">How the experiment works</summary>
             <ol className="mt-2 list-decimal space-y-1 pl-5">
-              <li>Connect the resistor to an adjustable power supply with an ammeter in series.</li>
+              <li>
+                Connect the adjustable DC supply, the ammeter and the resistor in series. Connect the voltmeter in
+                parallel, directly across the two ends of the resistor (not across the supply).
+              </li>
+              <li>
+                Before switching on, set the supply to 0 V and its current limit low (a few tens of mA), and start the
+                ammeter on its highest range.
+              </li>
+              <li>
+                Respect the resistor’s power rating: P = V · I = V² / R. A common 0.25 W resistor of 220 Ω allows at
+                most about 7.4 V or 34 mA; stay well below that (for example under half the rating). A hot resistor
+                changes its value — switch off before rewiring.
+              </li>
               <li>Set several different voltages and write down the current for each one.</li>
               <li>
                 Ohm’s law says V = I · R, so R = V / I should be the same every time and the points should lie on a
@@ -377,8 +389,9 @@ function ExperimentForm({
                 <div>
                   <ResultSummary result={result} />
                   <p className="mt-3 text-xs text-muted">
-                    The best-fit slope uses all readings together (least squares through the origin), so one imprecise
-                    reading matters less than in a single V / I value.
+                    The best-fit slope combines all readings (least squares through the origin). It is not immune to
+                    outliers: one wrong reading, especially at a high current, can shift it noticeably. Compare it with
+                    the mean and check on the graph that every point lies close to the line.
                   </p>
                 </div>
                 <VIChart result={result} />

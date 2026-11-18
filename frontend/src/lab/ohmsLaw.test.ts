@@ -116,7 +116,8 @@ describe('formatting', () => {
   it('formats a signed percentage', () => {
     expect(formatPercent(0.196)).toBe('+0.2 %')
     expect(formatPercent(-3.04)).toBe('−3.0 %')
-    expect(formatPercent(0.01)).toBe('±0.0 %')
+    expect(formatPercent(0.01)).toBe('0.0 %')
+    expect(formatPercent(-0.04)).toBe('0.0 %')
   })
 })
 
