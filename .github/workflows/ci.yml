@@ -33,7 +33,7 @@ jobs:
       - run: pytest --cov --cov-report=term-missing --junitxml=pytest-report.xml
       - name: Dependency vulnerability scan
         run: pip-audit
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: backend-test-report
@@ -85,7 +85,7 @@ jobs:
         working-directory: frontend
         env:
           CI: "true"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-report
