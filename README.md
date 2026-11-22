@@ -1,5 +1,13 @@
 # Serverless Notes
 
+[![CI](https://github.com/Joun-Mikhail/CRUD/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Joun-Mikhail/CRUD/actions/workflows/ci.yml)
+![Python 3.13](https://img.shields.io/badge/python-3.13-3776AB?logo=python&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
+![AWS SAM](https://img.shields.io/badge/IaC-AWS%20SAM-FF9900?logo=amazonaws&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
+**[Live demo](https://d11c0a7q5fx9qi.cloudfront.net)** · [Architecture](docs/architecture/ARCHITECTURE.md) · [API](docs/api/API.md) · [Security](docs/security/SECURITY.md) · [Start here](START_HERE.md)
+
 **Secure serverless CRUD API with authentication** — a reference implementation for the bachelor thesis *Serverless CRUD API with Authentication* (Brno University of Technology, FEEC, Department of Telecommunications).
 
 A multi-user private notes application: users register and sign in with Amazon Cognito, and create, read, update and delete notes through a REST API on API Gateway backed by Python Lambda functions and DynamoDB. Each note belongs to one user; nobody else can read or change it.
