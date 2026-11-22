@@ -41,7 +41,7 @@ jobs:
       AWS_REGION: eu-north-1
       STACK_NAME: serverless-notes-${{ inputs.environment }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
@@ -90,7 +90,7 @@ jobs:
       API_STACK: serverless-notes-${{ inputs.environment }}
       WEB_STACK: serverless-notes-${{ inputs.environment }}-web
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
         with:
           node-version: 22
